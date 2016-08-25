@@ -49,8 +49,3 @@ class Hand(object):
         self.cards[(col * 2) + row] = new_card
         self.self_revealed[(col * 2) + row] = True
         self.opp_revealed[(col * 2) + row] = source_revealed
-        
-    
-    def move(self, move):
-        # possible_moves = ('knock', 'swap', 'pickup_top')
-        

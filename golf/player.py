@@ -1,2 +1,0 @@
-# Represent a player
-

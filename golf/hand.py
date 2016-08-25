@@ -34,6 +34,11 @@ class Hand(object):
                 score += min(10, p)
         
         return score
+        
+        
+    @property
+    def shape(self):
+        return (2, self.num_cols)
     
     
     def __str__(self):

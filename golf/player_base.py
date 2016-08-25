@@ -2,8 +2,8 @@
 
 class Player(object):
     
-    def __init__(self, hand):
-        self.hand = hand
+    def __init__(self, board):
+        self.board = board
     
     
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):
@@ -15,7 +15,7 @@ class Player(object):
         raise NotImplementedError
     
     
-    def turn_phase_2(self, state):
+    def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
         """ If player gets here, then they need to exchange the card with one of their cards
             or place the card on the top of the discard pile if they drew a face down card """
             

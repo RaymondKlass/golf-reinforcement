@@ -7,9 +7,13 @@ from hand import Hand
 class Board(object):
     # Assemble a board - model game play for a single round
     
-    def __init__(self, player_first, num_cols):
-        # get boolean value
-        self.cur_turn = player_first % 2
+    def __init__(self, players, num_cols):
+        ''' Args:
+                players: set of players
+                num_cols: game board layout
+        '''
+        
+        self.player = players
         self.num_cols - num_cols
         
         # A little cheat here - we're modeling a deck as 0 -> 12

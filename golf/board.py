@@ -13,7 +13,7 @@ class Board(object):
                 num_cols: game board layout
         '''
         
-        self.player = players
+        self.players = players
         self.num_cols - num_cols
         
         # A little cheat here - we're modeling a deck as 0 -> 12
@@ -36,6 +36,15 @@ class Board(object):
         self.hand1 = Hand([dealt[i] for i in range(len(dealt)) if i % 2 == 0])
         self.hand2 = Hand([dealt[i] for i in range(len(dealt)) if i % 2 != 0])
         
+    
+    def play_game(self):
+        end_game = False
+        has_knocked = False
+        turn = 0
+        
+        while not end_game:
+            # each player's turn is incremented until the game ends
+    
     
     def step_turn(self):
         # A simple function to represent moving 1 single turn

@@ -21,6 +21,7 @@ class Board(object):
         self.deck_down = (range(12) * 4)
         shuffle(self.deck_down)
         self.deck_up = []
+        self.hands = []
 
 
     @property
@@ -33,7 +34,6 @@ class Board(object):
 
         dealt = self.deck_down[:len(self.num_cols)*4]
         self.deck_down = self.deck_down[len(self.num_cols) * 4:]
-        self.hands = []
         self.hands.append(Hand([dealt[i] for i in range(len(dealt)) if i % 2 == 0]))
         self.hands.append(Hand([dealt[i] for i in range(len(dealt)) if i % 2 != 0]))
 

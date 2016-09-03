@@ -19,11 +19,11 @@ class RandomPlayer(Player):
             # We need to figure out which card we'll be swapping with
             # we should do this at random too
 
-            dims = self.hand.shape()
+            dims = (state['num_rows'], state['num_cols'],)
             rand_row = random.randint(0,dims[0]-1)
             rand_column = random.randint(0, dims[1]-1)
 
-            return ('swap', rand_row, rand_col,)
+            return ('swap', rand_row, rand_column,)
 
         else:
             return ('return_to_deck',)

@@ -14,7 +14,7 @@ class Board(object):
         '''
 
         self.players = players
-        self.num_cols - num_cols
+        self.num_cols = num_cols
 
         # A little cheat here - we're modeling a deck as 0 -> 12
         # In this scenario, a King = 0, Ace = 1, and
@@ -32,21 +32,30 @@ class Board(object):
     def _deal_hands(self):
         # Deal the hands to the players - respecting the player - dealing rotation
 
-        dealt = self.deck_down[:len(self.num_cols)*4]
-        self.deck_down = self.deck_down[len(self.num_cols) * 4:]
+        dealt = self.deck_down[:self.num_cols*4]
+        self.deck_down = self.deck_down[self.num_cols * 4:]
         self.hands.append(Hand([dealt[i] for i in range(len(dealt)) if i % 2 == 0]))
         self.hands.append(Hand([dealt[i] for i in range(len(dealt)) if i % 2 != 0]))
 
 
     def play_game(self):
+        ''' Initially the top face down card becomes the face up card, then thing proceed '''
+        deck_up = self.deck_down.pop(0)
+        self.deck_up.append(deck_up)
+        self._deal_hands()
         end_game = False
         has_knocked = False
         turn = 0
 
         while not end_game:
             cur_turn = turn % 2
-            decision = self.players[cur_turn].turn_phase_1(self.get_state_for_player(cur_turn),
-                                                           ('face_up_card', 'face_down_card', 'knock',))
+            if has_knocked:
+                options = ('face_up_card', 'face_down_card',)
+            else:
+                options = ('face_up_card', 'face_down_card', 'knock',)
+            decision = self.players[cur_turn].turn_phase_1(self.get_state_for_player(cur_turn), options)
+
+            #print 'Player {}'.format(cur_turn)
 
             # Increment the turn counter - which also signifies current turn
             turn += 1
@@ -54,24 +63,32 @@ class Board(object):
             if decision == 'knock':
                 # then the player has no turn phase 2
                 has_knocked = True
+                #print 'knock'
                 continue
 
             if decision == 'face_up_card':
                 card = self.deck_up.pop()
+                #print 'face up {}'.format(card)
                 possible_moves = ('swap',)
             else:
                 card = self.deck_down.pop(0)
+                #print 'face down {}'.format(card)
+
                 possible_moves = ('swap', 'return_to_deck',)
 
-            decision_two = self.players(cur_turn).turn_phase_2(card,
+            decision_two = self.players[cur_turn].turn_phase_2(card,
                                                                self.get_state_for_player(cur_turn),
                                                                possible_moves)
 
             if decision_two[0] == 'swap':
-                card_ret = self.hands[cur_player].swap(decision_two[1],
+                #print len(self.hands)
+                card_ret = self.hands[cur_turn % 2].swap(decision_two[1],
                                                        decision_two[2],
                                                        card,
                                                        decision == 'face_up_card')
+            else:
+                card_ret = card
+
             self.deck_up.append(card_ret)
 
 
@@ -84,13 +101,13 @@ class Board(object):
                 self.deck_down = list(self.deck_up)
                 shuffle(self.deck_down)
                 self.deck_up = [cur_up]
-
-        return [hand.score() for hand in self.hands]
+        return [hand.score for hand in self.hands]
 
     def get_state_for_player(self, player_id):
         ''' Get game state from a player's perspective '''
 
-        return {}
+        return {'num_cols': 2,
+                'num_rows': 2}
 
 
 

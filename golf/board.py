@@ -78,6 +78,13 @@ class Board(object):
             if has_knocked:
                 end_game = True
 
+            # Here we need to handle the possibility that the deck goes around an Nth time
+            if len(self.deck_down) <= 0:
+                cur_up = self.deck_up.pop()
+                self.deck_down = list(self.deck_up)
+                shuffle(self.deck_down)
+                self.deck_up = [cur_up]
+
         return [hand.score() for hand in self.hands]
 
     def get_state_for_player(self, player_id):

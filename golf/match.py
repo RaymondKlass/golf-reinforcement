@@ -4,7 +4,7 @@ from board import Board
 
 class Match(object):
 
-    def __init__(self, player1, player2, holes=9, num_cols=2):
+    def __init__(self, player1, player2, holes=9, num_cols=2, verbose=False):
         self.players = [player1, player2,]
         self.scores = [0,0]
         self.total_holes = (holes - 1) # Since we're 0 indexed
@@ -62,31 +62,37 @@ def main(argv):
     verbose = False
 
     try:
-        opts, args = getopt.getopt(argv, "hp1:p2:m:v", ["player1=", "player2=", "matches=", "verbose"])
+        opts, args = getopt.getopt(argv, "hm:v", ["player1=", "player2=", "matches=", "verbose"])
     except:
-        print 'python match.py -p1 <player1> -p2 <player2> -m <number of matches> -v <verbose>'
+        print 'python match.py -player1 <player1> -player2 <player2> -m <number of matches> -v <verbose>'
     for opt, arg in opts:
         if opt == '-h':
-            print 'python match.py -p1 <player1> -p2 <player2> -m <number of matches> -v <verbose>'
+            print 'python match.py -player1 <player1> -player2 <player2> -m <number of matches> -v <verbose>'
             sys.exit(2)
-        elif opt in ("-p1", "--player1"):
+        elif opt in ("-pa", "--player1"):
             player1 = arg
-        elif opt in ("-p2", "--player2"):
+        elif opt in ("-pb", "--player2"):
             player2 = arg
         elif opt in ("-m", "--match"):
-            match = arg
+            try:
+                num_matches = int(arg)
+            except ValueError:
+                pass
         elif opt in ("-v", "--verbose"):
             verbose = True
 
+    # Players need to be specified by file.ClassName
+    player1 = player1.split('.')
+    player2 = player2.split('.')
 
+    player1 = getattr(__import__("players.{}".format(player1[0]), fromlist=[player1[1]]), player1[1])
+    player2 = getattr(__import__("players.{}".format(player2[0]), fromlist=[player2[1]]), player2[1])
 
-    from random_player import RandomPlayer
+    player1 = player1()
+    player2 = player2()
 
-    player1 = RandomPlayer()
-    player2 = RandomPlayer()
-    match = Match(player1, player2)
-    match.play_k_matches(100)
-
+    match = Match(player1, player2, verbose=verbose)
+    match.play_k_matches(num_matches)
 
 
 

@@ -1,4 +1,5 @@
 from board import Board
+import sys
 
 class Match(object):
 
@@ -33,10 +34,17 @@ class Match(object):
                 self.scores[i] += scores[i]
 
 
-if __name__ == '__main__':
+def main(argv):
     from random_player import RandomPlayer
 
     player1 = RandomPlayer()
     player2 = RandomPlayer()
     match = Match(player1, player2)
     match.play_k_matches(100)
+
+
+
+
+if __name__ == '__main__':
+
+    main(sys.argv[1:])

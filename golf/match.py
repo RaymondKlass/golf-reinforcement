@@ -1,5 +1,6 @@
+import sys, getopt
 from board import Board
-import sys
+
 
 class Match(object):
 
@@ -35,6 +36,50 @@ class Match(object):
 
 
 def main(argv):
+
+    '''
+    inputfile = ''
+    outputfile = ''
+    try:
+       opts, args = getopt.getopt(argv,"hi:o:",["ifile=","ofile="])
+    except getopt.GetoptError:
+       print 'test.py -i <inputfile> -o <outputfile>'
+       sys.exit(2)
+    for opt, arg in opts:
+       if opt == '-h':
+          print 'test.py -i <inputfile> -o <outputfile>'
+          sys.exit()
+       elif opt in ("-i", "--ifile"):
+          inputfile = arg
+       elif opt in ("-o", "--ofile"):
+          outputfile = arg
+    '''
+
+    # Setup some defaults
+    num_matches = 1
+    player1 = None
+    player2 = None
+    verbose = False
+
+    try:
+        opts, args = getopt.getopt(argv, "hp1:p2:m:v", ["player1=", "player2=", "matches=", "verbose"])
+    except:
+        print 'python match.py -p1 <player1> -p2 <player2> -m <number of matches> -v <verbose>'
+    for opt, arg in opts:
+        if opt == '-h':
+            print 'python match.py -p1 <player1> -p2 <player2> -m <number of matches> -v <verbose>'
+            sys.exit(2)
+        elif opt in ("-p1", "--player1"):
+            player1 = arg
+        elif opt in ("-p2", "--player2"):
+            player2 = arg
+        elif opt in ("-m", "--match"):
+            match = arg
+        elif opt in ("-v", "--verbose"):
+            verbose = True
+
+
+
     from random_player import RandomPlayer
 
     player1 = RandomPlayer()

@@ -30,7 +30,7 @@ class BayesPlayer(Player):
 
         # Let's index the cards from 0-12 and just keep track of the cards that appear first
         cards = [0] * 12
-        for hand in (state['cur_player_hand'],state['opp_hand'],):
+        for hand in (state['cur_player_cards'],state['opp_cards'],):
             for card in hand:
                 if card:
                     cards[card] += 1
@@ -53,7 +53,7 @@ class BayesPlayer(Player):
             The key metric for deciding policy for this player
         '''
 
-        return state['opp'].score_opp(avg) - state['cur_player'].score_self(avg)
+        return state['opp_hand'].score_opp(avg) - state['cur_player_hand'].score_self(avg)
 
 
 
@@ -74,10 +74,5 @@ class BayesPlayer(Player):
     def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
         """ Again - this will be a random choice """
 
-        min_index = [None]
-
-        # We need to check all of the values to see which are good candidates to be replaced,
-        # based on the information that we know about the game
-
-
+        min_card_cache = state['cur_player_hand']
 

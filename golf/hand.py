@@ -30,7 +30,7 @@ class Hand(object):
 
 
     @property
-    def self_visible(self):
+    def opp_visible(self):
         for i, card in enumerate(self.cards):
             if self.opp_revealed[i]:
                 yield card
@@ -93,7 +93,7 @@ class Hand(object):
 
 
     def score_opp(self, sub_val):
-        ''' Score visible for self assuming the substitution '''
+        ''' Score visible for opponent assuming the substitution '''
 
         known = []
         num_unknown = 0

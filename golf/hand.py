@@ -20,6 +20,18 @@ class Hand(object):
 
 
     @property
+    def self_visible(self):
+        return self.self_revealed
+
+
+
+    @property
+    def opp_visible(self):
+        return self.opp_visible
+
+
+
+    @property
     def score(self):
         # Score the current hand according to the rules
 

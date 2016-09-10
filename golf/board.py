@@ -81,7 +81,6 @@ class Board(object):
                                                                possible_moves)
 
             if decision_two[0] == 'swap':
-                #print len(self.hands)
                 card_ret = self.hands[cur_turn % 2].swap(decision_two[1],
                                                        decision_two[2],
                                                        card,

@@ -82,9 +82,9 @@ class Board(object):
 
             if decision_two[0] == 'swap':
                 card_ret = self.hands[cur_turn % 2].swap(decision_two[1],
-                                                       decision_two[2],
-                                                       card,
-                                                       decision == 'face_up_card')
+                                                         decision_two[2],
+                                                         card,
+                                                         decision == 'face_up_card')
             else:
                 card_ret = card
 
@@ -105,8 +105,12 @@ class Board(object):
     def get_state_for_player(self, player_id):
         ''' Get game state from a player's perspective '''
 
-        return {'num_cols': 2,
-                'num_rows': 2}
+        state = { 'deck_up': self.deck_up,
+                  'cur_player': self.hands[player_id],
+                  'opp': self.hands[(player_id + 1) % 2]
+                }
+
+        return state
 
 
 

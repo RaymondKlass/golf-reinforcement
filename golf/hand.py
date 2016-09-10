@@ -21,22 +21,30 @@ class Hand(object):
 
     @property
     def self_visible(self):
-        return self.self_revealed
+        for i, card in enumerate(self.cards):
+            if self.self_revealed[i]:
+                yield card
+            yield None
 
 
 
     @property
-    def opp_visible(self):
-        return self.opp_visible
-
+    def self_visible(self):
+        for i, card in enumerate(self.cards):
+            if self.opp_revealed[i]:
+                yield card
+            yield None
 
 
     @property
-    def score(self):
+    def score(self, cards=None):
         # Score the current hand according to the rules
 
+        if not cards:
+            cards = self.cards
+
         # First we should split the hand into pairs (the columns)
-        columns = [(self.cards[a], self.cards[a+1]) for a in range(len(self.cards)) if a % 2 == 0]
+        columns = [(cards[a], cards[a+1]) for a in range(len(cards)) if a % 2 == 0]
         score = 0
 
         for pair in columns:
@@ -46,6 +54,38 @@ class Hand(object):
                 score += min(10, p)
 
         return score
+
+
+
+    def score_self(self, sub_val):
+        ''' Score visible for self assuming the substitution '''
+
+        known = []
+        num_unknown = 0
+        for i, card in enumerate(self.cards):
+            if self.self_revealed[i]:
+                known.append(cards)
+            num_unknown += 1
+            known.append(0)
+
+        return self.score(known) + (num_unknown * sub_val)
+
+
+
+    def score_opp(self, sub_val):
+        ''' Score visible for self assuming the substitution '''
+
+        known = []
+        num_unknown = 0
+        for i, card in enumerate(self.cards):
+            if self.opp_revealed[i]:
+                known.append(cards)
+            num_unknown += 1
+            known.append(0)
+
+        return self.score(known) + (num_unknown * sub_val)
+
+
 
 
     @property

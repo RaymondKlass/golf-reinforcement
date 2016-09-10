@@ -27,6 +27,3 @@ class RandomPlayer(Player):
 
         else:
             return ('return_to_deck',)
-
-    def bleep(self):
-        print "bloop"

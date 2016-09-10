@@ -49,13 +49,8 @@ class Board(object):
 
         while not end_game:
             cur_turn = turn % 2
-            if has_knocked:
-                options = ('face_up_card', 'face_down_card',)
-            else:
-                options = ('face_up_card', 'face_down_card', 'knock',)
+            options = ('face_up_card', 'face_down_card', 'knock',)
             decision = self.players[cur_turn].turn_phase_1(self.get_state_for_player(cur_turn), options)
-
-            #print 'Player {}'.format(cur_turn)
 
             # Increment the turn counter - which also signifies current turn
             turn += 1
@@ -106,6 +101,8 @@ class Board(object):
         ''' Get game state from a player's perspective '''
 
         state = { 'deck_up': self.deck_up,
+                  'cur_player_cards': self.hands[player_id].self_visible,
+                  'opp_cards': self.hands[(player_id + 1) % 2].opp_visible,
                   'cur_player': self.hands[player_id],
                   'opp': self.hands[(player_id + 1) % 2]
                 }

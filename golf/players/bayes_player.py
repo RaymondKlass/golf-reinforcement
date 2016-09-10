@@ -1,0 +1,83 @@
+''' Player based solely on probabilities '''
+from player_base import Player
+
+class BayesPlayer(Player):
+    ''' Class defining a player based on probability of that moment
+        Will take into account action based rules defined as follows:
+        1.  Assume unknown cards are worth average value of the unassigned
+            cards - where unassigned cards are those not in the discard or known
+            quantities.
+        2.  Knock if your score is N points lower than you opponent - or your score is
+            1 or less
+        3.  If the card up is a match for a column - then use it
+        4.  If the card up is lower than the average available card, then exchange it for the highest
+            non-columned card.
+        5.  If up card is high then take the down card - exchange it for the highest non-column card,
+            or if one doesn't exist then place it face up
+    '''
+
+
+    def __init__(self, min_distance=0):
+        ''' Initialize player and set a minimum distance between scores to knock '''
+
+        super(BayesPlayer, self).__init__()
+        self.min_distance = min_distance
+
+
+
+    def _calc_average_card(self, state):
+        ''' Figure out the average card value left in the deck '''
+
+        # Let's index the cards from 0-12 and just keep track of the cards that appear first
+        cards = [0] * 12
+        for hand in (state['cur_player_hand'],state['opp_hand'],):
+            for card in hand:
+                if card:
+                    cards[card] += 1
+
+        # Also need to deal with the deck that is face up
+        for cards in self.deck_up:
+            cards[cards] += 1
+
+        # Now we should have an index with which to create the missing deck
+        self.deck_down = []
+        for i in range(12):
+            self.deck_down += [cards[i]] * (4 - cards[i])
+
+        return sum(self.deck_down) / len(self.deck_down)
+
+
+
+    def _calc_score_diff(self, state, avg):
+        ''' Given the current state, calculate the score differential -
+            The key metric for deciding policy for this player
+        '''
+
+        return state['opp'].score_opp(avg) - state['cur_player'].score_self(avg)
+
+
+
+    def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):
+        """ We're just going to make a random selection at every step """
+
+        self.avg_card = self._calc_average_card()
+        if self._calc_score_diff(state, self.avg_card) >= self.min_distance and 'knock' in possible_moves:
+            return 'knock'
+        else:
+            self.avg_card = self._calc_average_card()
+            if self.avg_card > stats['deck_up'][0]:
+                # then we should take the face up card
+                return 'face_up_card'
+            return 'face_down_card'
+
+
+    def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
+        """ Again - this will be a random choice """
+
+        min_index = [None]
+
+        # We need to check all of the values to see which are good candidates to be replaced,
+        # based on the information that we know about the game
+
+
+

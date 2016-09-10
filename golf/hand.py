@@ -1,4 +1,5 @@
 # Represent a single player's hand during the game
+import math
 
 class Hand(object):
 
@@ -54,6 +55,25 @@ class Hand(object):
                 score += min(10, p)
 
         return score
+
+
+
+    @property
+    def max_card(self):
+        ''' For the player - find the max card in the hand based upon appropriate knowledge '''
+        card_cache = {'row': None,
+                      'col': None,
+                      'value': None}
+
+        for i, card in enumerate(self.cards):
+            if card < card_cache['value'] and
+               card != self.cards[i + math.pow(-1, (i % 2))]:
+
+               card_cache['row'] = math.floor(i / 2)
+               card_cache['col'] = i % 2
+               card_cache['value'] = card
+
+        return card_cache
 
 
 

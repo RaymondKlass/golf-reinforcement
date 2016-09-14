@@ -36,8 +36,8 @@ class BayesPlayer(Player):
                     cards[card] += 1
 
         # Also need to deal with the deck that is face up
-        for cards in self.deck_up:
-            cards[cards] += 1
+        for card in self.deck_up:
+            cards[card] += 1
 
         # Now we should have an index with which to create the missing deck
         self.deck_down = []

@@ -101,10 +101,12 @@ class Board(object):
         ''' Get game state from a player's perspective '''
 
         state = { 'deck_up': self.deck_up,
-                  'cur_player_cards': self.hands[player_id].self_visible,
-                  'opp_cards': self.hands[(player_id + 1) % 2].opp_visible,
-                  'cur_player_hand': self.hands[player_id],
-                  'opp_hand': self.hands[(player_id + 1) % 2]
+                  'cur_player': { 'visible': self.hands[player_id].self_visible,
+                                  'score': self.hands[player_id].self_score()
+                                },
+                  'opp_player': { 'visible': self.hands[(player_id + 1) % 2].opp_visible,
+                                  'score': self.hands[(player_id + 1) % 2].opp_score()
+                                }
                 }
 
         return state

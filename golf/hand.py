@@ -20,21 +20,20 @@ class Hand(object):
         self.opp_revealed = [False] * len(self.cards)
 
 
-    @property
-    def self_visible(self):
+    def visible(self, is_self=False):
+        ''' Get the visible cards - for the self player - or an opponent '''
+
         for i, card in enumerate(self.cards):
-            if self.self_revealed[i]:
-                yield card
-            yield None
-
-
-
-    @property
-    def opp_visible(self):
-        for i, card in enumerate(self.cards):
-            if self.opp_revealed[i]:
-                yield card
-            yield None
+            if is_self:
+                if self.self_revealed[i]:
+                    yield card
+                else:
+                    yield None
+            else:
+                if self.opp_revealed[i]:
+                    yield card
+                else:
+                    yield None
 
 
     @property

@@ -43,14 +43,14 @@ class Hand(object):
             Return:
                 dict - In the form of { 'score': int value of the known cards,
                                         'visible': list of booleans w/ length (num rows X num columns),
-                                        'raw_cards': list of ints representing cards in hand -
+                                        'raw_cards': list of ints representing visible cards in hand -
                                                     length (num rows X num_cols), None represents unknown cards,
                                         'player_has_seen': list of booleans representing whether the self player
                                                            has seen the card or not.  length (num rows X num cols)
                                       }
         '''
 
-        pass
+
 
 
 
@@ -68,10 +68,14 @@ class Hand(object):
         score = 0
 
         for pair in columns:
-            if pair[0] == pair[1]:
+            if pair[0] == pair[1] and pair[0] != None and pair[1] != None:
                 continue
             for p in pair:
-                score += min(10, p)
+                try:
+                    score += min(10, p)
+                except TypeError:
+                    # happens when an unknown card represented by None is attempting to be added
+                    pass
 
         return score
 

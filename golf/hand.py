@@ -36,6 +36,26 @@ class Hand(object):
                     yield None
 
 
+    def get_state(self, opp=False):
+        ''' Get the current state of the hand
+            Args:
+                opp - Boolean whether this should be the opponent perspective, or the self view
+            Return:
+                dict - In the form of { 'score': int value of the known cards,
+                                        'visible': list of booleans w/ length (num rows X num columns),
+                                        'raw_cards': list of ints representing cards in hand -
+                                                    length (num rows X num_cols), None represents unknown cards,
+                                        'player_has_seen': list of booleans representing whether the self player
+                                                           has seen the card or not.  length (num rows X num cols)
+                                      }
+        '''
+
+        pass
+
+
+
+
+
     @property
     def score(self, cards=None):
         # Score the current hand according to the rules

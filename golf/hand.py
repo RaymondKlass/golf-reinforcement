@@ -50,6 +50,12 @@ class Hand(object):
                                       }
         '''
 
+        # Initialize these to some sensible defaults - we'll refine them later
+        score = 10 * self.num_cols * 2 # max score
+        visible = [False] * self.num_cols * 2
+        raw_cards = [None] * self.num_cols * 2
+        player_has_seen = [False] * self.num_cols * 2
+
 
 
 

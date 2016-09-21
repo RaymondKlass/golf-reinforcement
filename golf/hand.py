@@ -47,24 +47,30 @@ class Hand(object):
                                                     length (num rows X num_cols), None represents unknown cards,
                                         'player_has_seen': list of booleans representing whether the self player
                                                            has seen the card or not.  length (num rows X num cols)
+                                        'num_rows': int number of rows - only 2 for now,
+                                        'num_cols': int number of columns
                                       }
         '''
 
         # Initialize these to some sensible defaults - we'll refine them later
         score = 10 * self.num_cols * 2 # max score
-        visible = [False] * self.num_cols * 2
-        raw_cards = [None] * self.num_cols * 2
-        player_has_seen = [vis != None for vis in self.visible(is_self=True)]
+        visible = []
+        raw_cards = []
 
         # First iterate through the cards - and create an array that represents the
         # calling players view of the world - visibility, raw_cards, and player_has_seen
         # can be calculated here - then the raw_cards can be passed to the score function
 
-        for i, visible in enumerate(self.visible(is_self=is_self)):
-            visible.append(visible != None)
-            raw_cards.append(visible)
+        for i, card in enumerate(self.visible(is_self=is_self)):
+            visible.append(card != None)
+            raw_cards.append(card)
 
-        score = self.score(raw_cards)
+        return {'score': self.score(raw_cards),
+                'visible': visible,
+                'raw_cards': raw_cards,
+                'player_has_seen': [vis != None for vis in self.visible(is_self=True)],
+                'num_rows': 2,
+                'num_cols': self.num_cols}
 
 
 
@@ -97,10 +103,10 @@ class Hand(object):
         ''' For the player - find the max card in the hand based upon appropriate knowledge '''
         card_cache = {'row': None,
                       'col': None,
-                      'value': None}
+                      'value': 0}
 
-        for i, card in enumerate(self.cards):
-            if card < card_cache['value'] and
+        for i, card in enumerate(self.visible(is_self=True)):
+            if card != None and card < card_cache['value'] and \
                card != self.cards[i + math.pow(-1, (i % 2))]:
 
                card_cache['row'] = math.floor(i / 2)

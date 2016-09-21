@@ -95,21 +95,12 @@ class Board(object):
                 self.deck_down = list(self.deck_up)
                 shuffle(self.deck_down)
                 self.deck_up = [cur_up]
-        return [hand.score for hand in self.hands]
+        return [hand.score() for hand in self.hands]
 
     def get_state_for_player(self, player_id):
         ''' Get game state from a player's perspective '''
 
-        state = { 'deck_up': self.deck_up,
-                  'cur_player': { 'visible': self.hands[player_id].self_visible,
-                                  'score': self.hands[player_id].self_score()
-                                },
-                  'opp_player': { 'visible': self.hands[(player_id + 1) % 2].opp_visible,
-                                  'score': self.hands[(player_id + 1) % 2].opp_score()
-                                }
-                }
-
-        return state
+        return self.hands[player_id).get_state()
 
 
 

@@ -36,7 +36,7 @@ class Hand(object):
                     yield None
 
 
-    def get_state(self, opp=False):
+    def get_state(self, is_self=False):
         ''' Get the current state of the hand
             Args:
                 opp - Boolean whether this should be the opponent perspective, or the self view
@@ -54,15 +54,20 @@ class Hand(object):
         score = 10 * self.num_cols * 2 # max score
         visible = [False] * self.num_cols * 2
         raw_cards = [None] * self.num_cols * 2
-        player_has_seen = [False] * self.num_cols * 2
+        player_has_seen = [vis != None for vis in self.visible(is_self=True)]
+
+        # First iterate through the cards - and create an array that represents the
+        # calling players view of the world - visibility, raw_cards, and player_has_seen
+        # can be calculated here - then the raw_cards can be passed to the score function
+
+        for i, visible in enumerate(self.visible(is_self=is_self)):
+            visible.append(visible != None)
+            raw_cards.append(visible)
+
+        score = self.score(raw_cards)
 
 
 
-
-
-
-
-    @property
     def score(self, cards=None):
         # Score the current hand according to the rules
 
@@ -103,36 +108,6 @@ class Hand(object):
                card_cache['value'] = card
 
         return card_cache
-
-
-
-    def score_self(self, sub_val):
-        ''' Score visible for self assuming the substitution '''
-
-        known = []
-        num_unknown = 0
-        for i, card in enumerate(self.cards):
-            if self.self_revealed[i]:
-                known.append(cards)
-            num_unknown += 1
-            known.append(0)
-
-        return self.score(known) + (num_unknown * sub_val)
-
-
-
-    def score_opp(self, sub_val):
-        ''' Score visible for opponent assuming the substitution '''
-
-        known = []
-        num_unknown = 0
-        for i, card in enumerate(self.cards):
-            if self.opp_revealed[i]:
-                known.append(cards)
-            num_unknown += 1
-            known.append(0)
-
-        return self.score(known) + (num_unknown * sub_val)
 
 
 

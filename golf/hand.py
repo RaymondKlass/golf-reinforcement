@@ -21,7 +21,13 @@ class Hand(object):
 
 
     def visible(self, is_self=False):
-        ''' Get the visible cards - for the self player - or an opponent '''
+        ''' Get the visible cards - for the self player - or an opponent
+            Args:
+                is_self: Boolean, indicates whether this should be the self or opp perspective
+                         for the visibility
+            Returns:
+                A generator that yields either the card present or None if the card is not visible
+        '''
 
         for i, card in enumerate(self.cards):
             if is_self:

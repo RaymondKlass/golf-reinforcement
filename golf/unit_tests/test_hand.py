@@ -50,16 +50,33 @@ class TestHand(unittest2.TestCase):
         self._load_hand(num_cols=2)
 
         # Test some initial visibility
-        self_visible = [card for card in self.hand.visible(is_self=True)]
-        opp_visible = [card for card in self.hand.visible(is_self=False)]
+        self_visible = lambda: [card for card in self.hand.visible(is_self=True)]
+        opp_visible = lambda: [card for card in self.hand.visible(is_self=False)]
 
-        self.assertEqual(opp_visible, [None]*2*2)
+        self.assertEqual(opp_visible(), [None]*2*2)
         self_vis_index = [c % 2 == 0 for c in range(2*2)] # 2 * 2 in this case reprsents num_cols * num_rows
-        for i, card in enumerate(self_visible):
+        for i, card in enumerate(self_visible()):
             if self_vis_index[i]:
                 self.assertEqual(card, self.cards_dealt[i])
             else:
                 self.assertEqual(card, None)
+
+        # Now we'll go about modelling some game play so we can make sure visibility is correctly handled
+        self.hand.swap(row=1, col=1, new_card=7, source_revealed = False)
+        self.assertEqual(opp_visible(), [None]*2*2)
+        self.assertEqual(self_visible()[self.hand._coords_to_index(1,1)], 7)
+
+        # Let's try a swap that the opp should know about
+        self.hand.swap(row=0, col=0, new_card=8, source_revealed=True)
+        self.assertEqual(opp_visible()[self.hand._coords_to_index(0,0)], 8)
+        self.assertEqual(self_visible()[self.hand._coords_to_index(0,0)], 8)
+
+        # Lets a swap that woul result in hiding a known card from the opp player
+        # Let's try a swap that the opp should know about
+
+        self.hand.swap(row=0, col=0, new_card=3, source_revealed=False)
+        self.assertEqual(opp_visible()[self.hand._coords_to_index(0,0)], None)
+        self.assertEqual(self_visible()[self.hand._coords_to_index(0,0)], 3)
 
 
 

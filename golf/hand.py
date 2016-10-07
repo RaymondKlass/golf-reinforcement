@@ -133,11 +133,24 @@ class Hand(object):
                                          [self.cards[i] for i in range(len(self.cards)) if i % 2 != 0]))
 
 
+    def _coords_to_index(self, row, col):
+        ''' Takes a set of coordinates and returns an array index of the element '''
+
+        return (col * 2) + row
+
+
+    def _index_to_coords(self, index):
+        ''' Takes an index and returns the proper coordinates '''
+
+        row = index % 2
+        col = math.floor(index / 2)
+        return (row, column,)
+
 
     def swap(self, row, col, new_card, source_revealed = False):
         # swap the card by row and column with the newly given card
-        old_card = self.cards[(col * 2) + row]
-        self.cards[(col * 2) + row] = new_card
-        self.self_revealed[(col * 2) + row] = True
-        self.opp_revealed[(col * 2) + row] = source_revealed
+        old_card = self.cards[self._coords_to_index(row, col)]
+        self.cards[self._coords_to_index(row, col)] = new_card
+        self.self_revealed[self._coords_to_index(row, col)] = True
+        self.opp_revealed[self._coords_to_index(row, col)] = source_revealed
         return old_card

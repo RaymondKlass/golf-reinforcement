@@ -79,4 +79,13 @@ class TestHand(unittest2.TestCase):
         self.assertEqual(self_visible()[self.hand._coords_to_index(0,0)], 3)
 
 
+    def test_scoring(self):
+        ''' Test the scoring for accuracy with standard and non-standard hands '''
+
+        # zero score, both columns have a match
+        self._load_hand(num_cols=2, cards_dealt=[2,2,2,2])
+        self.assertEqual(self.hand.score(), 0)
+
+        # test using the score functionlity with a specified set of cards
+        self.assertEqual(self.hand.score(cards=[1,2,3,4]), 10)
 

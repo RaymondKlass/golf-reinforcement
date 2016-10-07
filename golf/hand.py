@@ -45,8 +45,6 @@ class Hand(object):
                                         'visible': list of booleans w/ length (num rows X num columns),
                                         'raw_cards': list of ints representing visible cards in hand -
                                                     length (num rows X num_cols), None represents unknown cards,
-                                        'player_has_seen': list of booleans representing whether the self player
-                                                           has seen the card or not.  length (num rows X num cols)
                                         'num_rows': int number of rows - only 2 for now,
                                         'num_cols': int number of columns
                                       }
@@ -68,7 +66,6 @@ class Hand(object):
         return {'score': self.score(raw_cards),
                 'visible': visible,
                 'raw_cards': raw_cards,
-                'player_has_seen': [vis != None for vis in self.visible(is_self=True)],
                 'num_rows': 2,
                 'num_cols': self.num_cols}
 

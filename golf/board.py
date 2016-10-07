@@ -100,7 +100,10 @@ class Board(object):
     def get_state_for_player(self, player_id):
         ''' Get game state from a player's perspective '''
 
-        return self.hands[player_id].get_state()
+
+        # State would need to describe both players situations
+        return {'self': self.hands[player_id].get_state(),
+                'opp': [self.hands[p].get_state() for p in range(len(self.hands)) if p != player_id]}
 
 
 

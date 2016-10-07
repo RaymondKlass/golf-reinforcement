@@ -1,7 +1,7 @@
 ''' Player based solely on probabilities '''
 from player_base import Player
 
-class BayesPlayer(Player):
+class BayesballPlayer(Player):
     ''' Class defining a player based on probability of that moment
         Will take into account action based rules defined as follows:
         1.  Assume unknown cards are worth average value of the unassigned
@@ -14,6 +14,17 @@ class BayesPlayer(Player):
             non-columned card.
         5.  If up card is high then take the down card - exchange it for the highest non-column card,
             or if one doesn't exist then place it face up
+
+    # Note the state object that is returned is arranged specifically:
+        {'self': { 'score': int value of the known cards,
+                  'visible': list of booleans w/ length (num rows X num columns),
+                  'raw_cards': list of ints representing visible cards in hand -
+                               length (num rows X num_cols), None represents unknown cards,
+                  'num_rows': int number of rows - only 2 for now,
+                  'num_cols': int number of columns
+                 },
+         'opp': { Same as above ^ }
+        }
     '''
 
 
@@ -30,9 +41,9 @@ class BayesPlayer(Player):
 
         # Let's index the cards from 0-12 and just keep track of the cards that appear first
         cards = [0] * 12
-        for hand in (state['cur_player_cards'],state['opp_cards'],):
+        for hand in [state['self']['raw_cards']] + [a['raw_cards'] for a in state['opp']]:
             for card in hand:
-                if card:
+                if card != None:
                     cards[card] += 1
 
         # Also need to deal with the deck that is face up
@@ -53,7 +64,7 @@ class BayesPlayer(Player):
             The key metric for deciding policy for this player
         '''
 
-        return state['opp_hand'].score_opp(avg) - state['cur_player_hand'].score_self(avg)
+        return min([a['score'] for a in state['opp']]) - state['self']['score']
 
 
 

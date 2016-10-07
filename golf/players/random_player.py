@@ -19,7 +19,7 @@ class RandomPlayer(Player):
             # We need to figure out which card we'll be swapping with
             # we should do this at random too
 
-            dims = (state['num_rows'], state['num_cols'],)
+            dims = (state['self']['num_rows'], state['self']['num_cols'],)
             rand_row = random.randint(0,dims[0]-1)
             rand_column = random.randint(0, dims[1]-1)
 

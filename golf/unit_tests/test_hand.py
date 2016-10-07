@@ -73,7 +73,6 @@ class TestHand(unittest2.TestCase):
 
         # Lets a swap that woul result in hiding a known card from the opp player
         # Let's try a swap that the opp should know about
-
         self.hand.swap(row=0, col=0, new_card=3, source_revealed=False)
         self.assertEqual(opp_visible()[self.hand._coords_to_index(0,0)], None)
         self.assertEqual(self_visible()[self.hand._coords_to_index(0,0)], 3)

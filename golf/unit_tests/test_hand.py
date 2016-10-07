@@ -21,8 +21,7 @@ class TestHand(unittest2.TestCase):
                 num_cols - Number of columns for the hand
                 cards_dealt - Optional array of cards dealt for hand
         '''
-        print self.deck
-        print num_cols
+
         # if the cards to be dealt were not passed in, then we should calculate them
         # from the standard deck loaded into the object at SetUp
         if not cards_dealt:
@@ -40,11 +39,27 @@ class TestHand(unittest2.TestCase):
 
     def test_hand_setup(self):
         ''' Test some initial state on the standard hand '''
-        self._load_hand()
+        self._load_hand(num_cols=2)
 
         self.assertEqual(self.hand.cards, self.cards_dealt)
         self.assertEqual(2, self.hand.num_cols)
 
+
+    def test_hand_visibility(self):
+        ''' Test card visibility both for the self and opponent player '''
+        self._load_hand(num_cols=2)
+
+        # Test some initial visibility
+        self_visible = [card for card in self.hand.visible(is_self=True)]
+        opp_visible = [card for card in self.hand.visible(is_self=False)]
+
+        self.assertEqual(opp_visible, [None]*2*2)
+        self_vis_index = [c % 2 == 0 for c in range(2*2)] # 2 * 2 in this case reprsents num_cols * num_rows
+        for i, card in enumerate(self_visible):
+            if self_vis_index[i]:
+                self.assertEqual(card, self.cards_dealt[i])
+            else:
+                self.assertEqual(card, None)
 
 
 

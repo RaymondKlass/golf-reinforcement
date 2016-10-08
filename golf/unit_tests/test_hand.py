@@ -2,7 +2,7 @@
 import unittest2
 from random import shuffle
 
-from hand import Hand
+from golf.hand import Hand
 
 
 class TestHand(unittest2.TestCase):

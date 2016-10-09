@@ -33,7 +33,7 @@ class TestHand(unittest2.TestCase):
 
 
     def tearDown(self):
-        # Stub for where teardown / cleanuo logic would be stores
+        # Stub for where teardown / clean-up logic would be stores
         pass
 
 

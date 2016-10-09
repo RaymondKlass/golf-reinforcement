@@ -108,3 +108,21 @@ class TestHand(unittest2.TestCase):
         self.assertEqual(self.hand.score(cards=[None, 3,4, None]), 7)
         self.assertEqual(self.hand.score(cards=[None, 5,5,None]), 10)
 
+
+    def test_coord_to_index(self):
+        ''' Test coords to index and index to coords methods -
+            these methods should be able to access all cards, and should
+            be reciprocal methods
+        '''
+
+        self._load_hand(num_cols=2, cards_dealt=[2,3,4,5])
+        self.assertEqual(self.hand.cards[self.hand._coords_to_index(0,0)], 2)
+        self.assertEqual(self.hand.cards[self.hand._coords_to_index(1,0)], 3)
+        self.assertEqual(self.hand.cards[self.hand._coords_to_index(0,1)], 4)
+        self.assertEqual(self.hand.cards[self.hand._coords_to_index(1,1)], 5)
+
+        self.assertEqual(self.hand._index_to_coords(1), (1,0))
+        self.assertEqual(self.hand._index_to_coords(0), (0,0))
+        self.assertEqual(self.hand._index_to_coords(2), (0,1))
+        self.assertEqual(self.hand._index_to_coords(3), (1,1))
+

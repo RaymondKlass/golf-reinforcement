@@ -144,7 +144,7 @@ class Hand(object):
 
         row = index % 2
         col = math.floor(index / 2)
-        return (row, column,)
+        return (row, col,)
 
 
     def swap(self, row, col, new_card, source_revealed = False):

@@ -126,3 +126,13 @@ class TestHand(unittest2.TestCase):
         self.assertEqual(self.hand._index_to_coords(2), (0,1))
         self.assertEqual(self.hand._index_to_coords(3), (1,1))
 
+
+    def test_shape(self):
+        ''' Shape should return (num_rows, num_cols) '''
+
+        self._load_hand(num_cols = 2)
+        self.assertEqual(self.hand.shape, (2,2,))
+
+        # Try with a different shape hand
+        self._load_hand(num_cols = 5)
+        self.assertEqual(self.hand.shape, (2, 5))

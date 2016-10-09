@@ -100,5 +100,11 @@ class TestHand(unittest2.TestCase):
             during the playing of a match
         '''
 
-        pass
+        self._load_hand(num_cols=2, cards_dealt=[2,3,4,5])
+        # Test the base case before testing incomplete hands
+        self.assertEqual(self.hand.score(), 14)
+
+        # Test score with missing cards
+        self.assertEqual(self.hand.score(cards=[None, 3,4, None]), 7)
+        self.assertEqual(self.hand.score(cards=[None, 5,5,None]), 10)
 

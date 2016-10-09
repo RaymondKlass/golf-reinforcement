@@ -88,3 +88,17 @@ class TestHand(unittest2.TestCase):
         # test using the score functionlity with a specified set of cards
         self.assertEqual(self.hand.score(cards=[1,2,3,4]), 10)
 
+        # Test scoring using a larger hand
+        self._load_hand(num_cols=3, cards_dealt=[3,3,4,5,1,10])
+        self.assertEqual(self.hand.score(), 20)
+        self.assertEqual(self.hand.score(), self.hand.score(cards=[3,3,4,5,1,10]))
+
+
+    def test_score_partially_visible_hand(self):
+        ''' Test Scoring hands where some of the cards are still hidden,
+            used when calculating the score for the state object generated
+            during the playing of a match
+        '''
+
+        pass
+

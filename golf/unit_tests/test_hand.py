@@ -138,6 +138,12 @@ class TestHand(unittest2.TestCase):
         with self.assertRaises(GolfHandOutOfIndexError) as cm:
             self.hand._coords_to_index(0,-3)
 
+        with self.assertRaises(GolfHandOutOfIndexError) as cm:
+            self.hand._index_to_coords(100)
+
+        with self.assertRaises(GolfHandOutOfIndexError) as cm:
+            self.hand._index_to_coords(-1)
+
 
     def test_shape(self):
         ''' Shape should return (num_rows, num_cols) '''

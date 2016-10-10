@@ -162,6 +162,9 @@ class Hand(object):
     def _index_to_coords(self, index):
         ''' Takes an index and returns the proper coordinates '''
 
+        if index < 0 or index >= len(self.cards):
+            raise GolfHandOutOfIndexError('Tried to access index: {} for hand {}'.format(index, self.cards))
+
         row = index % 2
         col = math.floor(index / 2)
         return (row, col,)

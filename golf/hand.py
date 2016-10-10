@@ -1,6 +1,23 @@
 # Represent a single player's hand during the game
 import math
 
+
+class GolfHandExceptionBase(Exception):
+
+    def __init__(self, message=''):
+        ''' Init a generic Golf Hand Exception '''
+        self.super(GolfHandException, self).__init__()
+        self.message = message
+
+    def __str__(self):
+        return('A Golf Hand error occurred: {}'.format(self.message))
+
+
+class GolfHandOutOfIndexError(GolfHandExceptionBase):
+    pass
+
+
+
 class Hand(object):
 
     def __init__(self, cards_dealt):
@@ -135,6 +152,9 @@ class Hand(object):
 
     def _coords_to_index(self, row, col):
         ''' Takes a set of coordinates and returns an array index of the element '''
+
+        if ((col*2) + row) >= len(self.cards) or col < 0 or col >= self.num_cols or row < 0 or row >= 2:
+            raise GolfHandOutOfIndexError('Tried to access row: {}, col: {} for hand {}'.format(row, col, self.cards))
 
         return (col * 2) + row
 

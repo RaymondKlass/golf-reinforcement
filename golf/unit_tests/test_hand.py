@@ -2,7 +2,7 @@
 import unittest2
 from random import shuffle
 
-from golf.hand import Hand
+from golf.hand import Hand, GolfHandOutOfIndexError
 
 
 class TestHand(unittest2.TestCase):
@@ -125,6 +125,18 @@ class TestHand(unittest2.TestCase):
         self.assertEqual(self.hand._index_to_coords(0), (0,0))
         self.assertEqual(self.hand._index_to_coords(2), (0,1))
         self.assertEqual(self.hand._index_to_coords(3), (1,1))
+
+        # Let's test some exceptions
+        with self.assertRaises(GolfHandOutOfIndexError) as cm:
+            self.hand._coords_to_index(3,3)
+
+        # Let's test some exceptions
+        with self.assertRaises(GolfHandOutOfIndexError) as cm:
+            self.hand._coords_to_index(-1,0)
+
+        # Let's test some exceptions
+        with self.assertRaises(GolfHandOutOfIndexError) as cm:
+            self.hand._coords_to_index(0,-3)
 
 
     def test_shape(self):

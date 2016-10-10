@@ -6,7 +6,7 @@ class GolfHandExceptionBase(Exception):
 
     def __init__(self, message=''):
         ''' Init a generic Golf Hand Exception '''
-        self.super(GolfHandException, self).__init__()
+        super(GolfHandExceptionBase, self).__init__()
         self.message = message
 
     def __str__(self):

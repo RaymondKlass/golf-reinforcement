@@ -117,27 +117,6 @@ class Hand(object):
         return score
 
 
-
-    @property
-    def max_card(self):
-        ''' For the player - find the max card in the hand based upon appropriate knowledge '''
-        card_cache = {'row': None,
-                      'col': None,
-                      'value': 0}
-
-        for i, card in enumerate(self.visible(is_self=True)):
-            if card != None and card < card_cache['value'] and \
-               card != self.cards[i + math.pow(-1, (i % 2))]:
-
-               card_cache['row'] = math.floor(i / 2)
-               card_cache['col'] = i % 2
-               card_cache['value'] = card
-
-        return card_cache
-
-
-
-
     @property
     def shape(self):
         return (2, self.num_cols)

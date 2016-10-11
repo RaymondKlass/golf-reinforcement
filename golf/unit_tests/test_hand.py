@@ -154,3 +154,17 @@ class TestHand(unittest2.TestCase):
         # Try with a different shape hand
         self._load_hand(num_cols = 5)
         self.assertEqual(self.hand.shape, (2, 5))
+
+
+    def test_swap(self):
+        ''' Test swapping a cards '''
+
+        self._load_hand(num_cols=2, cards_dealt=[1,2,3,4])
+
+        # base case
+        self.assertEqual(self.hand.cards[self.hand._coords_to_index(0,0)], 1)
+        self.hand.swap(0,0,10)
+
+        self.assertEqual(self.hand.cards[self.hand._coords_to_index(0,0)], 10)
+
+    # Need to test get_state and swap

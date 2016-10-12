@@ -167,4 +167,24 @@ class TestHand(unittest2.TestCase):
 
         self.assertEqual(self.hand.cards[self.hand._coords_to_index(0,0)], 10)
 
-    # Need to test get_state and swap
+
+    def test_state(self):
+        ''' Test the state that is returned for a particular hand
+            State Returns:
+                dict - In the form of { 'score': int value of the known cards,
+                                        'visible': list of booleans w/ length (num rows X num columns),
+                                        'raw_cards': list of ints representing visible cards in hand -
+                                                    length (num rows X num_cols), None represents unknown cards,
+                                        'num_rows': int number of rows - only 2 for now,
+                                        'num_cols': int number of columns
+                                      }
+        '''
+
+        self._load_hand(num_cols=2, cards_dealt=[1,2,3,4])
+
+        state = self.hand.get_state(is_self=True)
+        self.assertEqual(self.hand.score(cards=[a for a in self.hand.visible(is_self=True)]), state['score'])
+        self.assertEqual([a != None for a in self.hand.visible(is_self=True)], [a for a in state['visible']])
+        self.assertEqual([a for a in self.hand.visible(is_self=True)], state['raw_cards'])
+        self.assertEqual(state['num_rows'], 2)
+        self.assertEqual(state['num_cols'], 2)

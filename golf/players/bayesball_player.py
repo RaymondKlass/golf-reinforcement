@@ -28,10 +28,10 @@ class BayesballPlayer(Player):
     '''
 
 
-    def __init__(self, min_distance=0):
+    def __init__(self, min_distance=1):
         ''' Initialize player and set a minimum distance between scores to knock '''
 
-        super(BayesPlayer, self).__init__()
+        super(BayesballPlayer, self).__init__()
         self.min_distance = min_distance
 
 

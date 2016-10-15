@@ -191,7 +191,7 @@ class TestHand(unittest2.TestCase):
 
         state = self.hand.get_state(is_self=False)
         self.assertEqual(self.hand.score(cards=[a for a in self.hand.visible(is_self=False)]), state['score'])
-        self.assertEqual([a != None for a in self.hand.visible(is_self=False)], [a for a in state['visible']])
+        self.assertEqual([a != None for a in self.hand.visible(is_self=True)], [a for a in state['visible']])
         self.assertEqual([a for a in self.hand.visible(is_self=False)], state['raw_cards'])
         self.assertEqual(state['num_rows'], 2)
         self.assertEqual(state['num_cols'], 2)

@@ -65,7 +65,8 @@ class Hand(object):
                 opp - Boolean whether this should be the opponent perspective, or the self view
             Return:
                 dict - In the form of { 'score': int value of the known cards,
-                                        'visible': list of booleans w/ length (num rows X num columns),
+                                        'visible': list of booleans w/ length (num rows X num columns) -
+                                                   indicating whether the card has been seen by the owner,
                                         'raw_cards': list of ints representing visible cards in hand -
                                                     length (num rows X num_cols), None represents unknown cards,
                                         'num_rows': int number of rows - only 2 for now,
@@ -75,7 +76,7 @@ class Hand(object):
 
         # Initialize these to some sensible defaults - we'll refine them later
         score = 10 * self.num_cols * 2 # max score
-        visible = []
+        visible = [a != None for a in self.visible(is_self=True)]
         raw_cards = []
 
         # First iterate through the cards - and create an array that represents the
@@ -83,7 +84,6 @@ class Hand(object):
         # can be calculated here - then the raw_cards can be passed to the score function
 
         for i, card in enumerate(self.visible(is_self=is_self)):
-            visible.append(card != None)
             raw_cards.append(card)
 
         return {'score': self.score(raw_cards),

@@ -18,7 +18,7 @@ class Board(object):
 
         # A little cheat here - we're modeling a deck as 0 -> 12
         # In this scenario, a King = 0, Ace = 1, and
-        self.deck_down = (range(12) * 4)
+        self.deck_down = (range(13) * 4)
         shuffle(self.deck_down)
         self.deck_up = []
         self.hands = []

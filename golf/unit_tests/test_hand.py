@@ -11,7 +11,7 @@ class TestHand(unittest2.TestCase):
     def setUp(self):
         ''' Bootstrap a deck and a standard hand of cards '''
         print 'Running the setup'
-        self.deck = range(12) * 4
+        self.deck = range(13) * 4
         shuffle(self.deck)
 
 

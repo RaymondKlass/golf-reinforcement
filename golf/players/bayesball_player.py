@@ -41,24 +41,21 @@ class BayesballPlayer(Player):
         ''' Figure out the average card value left in the deck '''
 
         # Let's index the cards from 0-12 and just keep track of the cards that appear first
-        cards = [0] * 12
+        cards = [0] * 13
+
+        # Let's iterate through the self, opp, and deck_up cards and increment the index for them
         for hand in [a for a in state['self']['raw_cards'] if a != None] +
                     [a for a in state['opp']['raw_cards'] if a != None] +
                     state['deck_up']:
             for card in hand:
-                if card != None:
-                    cards[card] += 1
-
-        # Also need to deal with the deck that is face up
-        for card in self.deck_up:
-            cards[card] += 1
+                cards[card] += 1
 
         # Now we should have an index with which to create the missing deck
-        self.deck_down = []
-        for i in range(12):
-            self.deck_down += [cards[i]] * (4 - cards[i])
+        deck_down = []
+        for i in range(13):
+            self.deck_down += [i] * (4 - cards[i])
 
-        return sum(self.deck_down) / len(self.deck_down)
+        return sum(deck_down) / float(len(deck_down))
 
 
 

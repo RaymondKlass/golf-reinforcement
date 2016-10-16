@@ -103,7 +103,8 @@ class Board(object):
 
         # State would need to describe both players situations
         return {'self': self.hands[player_id].get_state(),
-                'opp': [self.hands[p].get_state() for p in range(len(self.hands)) if p != player_id]}
+                'opp': [self.hands[p].get_state() for p in range(len(self.hands)) if p != player_id],
+                'deck_up': self.deck_up}
 
 
 

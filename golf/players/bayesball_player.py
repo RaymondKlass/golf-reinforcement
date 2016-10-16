@@ -24,6 +24,7 @@ class BayesballPlayer(Player):
                   'num_cols': int number of columns
                  },
          'opp': { Same as above ^ }
+         'deck_up': list of card in the discard pile (which both players have seen)
         }
     '''
 
@@ -41,7 +42,9 @@ class BayesballPlayer(Player):
 
         # Let's index the cards from 0-12 and just keep track of the cards that appear first
         cards = [0] * 12
-        for hand in [state['self']['raw_cards']] + [a['raw_cards'] for a in state['opp']]:
+        for hand in [a for a in state['self']['raw_cards'] if a != None] +
+                    [a for a in state['opp']['raw_cards'] if a != None] +
+                    state['deck_up']:
             for card in hand:
                 if card != None:
                     cards[card] += 1

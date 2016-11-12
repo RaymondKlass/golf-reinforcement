@@ -10,13 +10,25 @@ class PlayerTestBase(unittest2.TestCase):
     def _load_state(self, num_cols=2, self_cards=None, opp_cards=None):
         ''' load a configurable state which can be used for tests '''
 
+        # this is the entire deck - we'll need to remove cards specified above
+        # so as to have a valid deck after hands are dealt
         self.deck_down = range(13) * 4
 
         # if the cards to be dealt were not passed in, then we should calculate them
         # from the standard deck loaded into the object at SetUp
-        if not self_cards:
+        if self_cards:
+            cards_dealt = self_cards
+        else:
             cards_dealt = self.deck[:num_cols * 2]
             self.deck = self.deck[num_cols*2:]
 
         self.cards_dealt = cards_dealt
         self.hand = Hand(cards_dealt = cards_dealt)
+
+        if not opp_cards:
+            self.opp_cards = self.deck[:num_cols * 2]
+            self.deck = self.deck[num_cols*2:]
+        else:
+            self.opp_cards = opp_cards
+
+        self.opp_hand = Hand(cards_dealt = self.opp_cards)

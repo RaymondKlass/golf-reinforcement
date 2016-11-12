@@ -13,9 +13,32 @@ class TestRandomPlayer(PlayerTestBase):
 
         # Load the players and their state
         self._load_hands()
+        self.player = RandomPlayer()
 
 
     def test_turn_phase_1(self):
         """ Test turn Phase 1 - should be one of the possible moves - ['face_up_card', 'face_down_card', 'knock'] """
 
-        pass
+        for _ in range(100):
+            # Test phase 1 - 100 times and validate that all the moves are valid
+            state = self._get_state_for_hand(0)
+            move = self.player.turn_phase_1(state)
+            self.assertIn(move, ['face_up_card', 'face_down_card', 'knock'])
+
+
+
+    def test_turn_phase_2(self):
+        """ Test turn Phase 2 - should be a valid move, and a valid card selection if appropriate """
+
+        for _ in range(100):
+            # Test 100 repetitions since moves made are random
+            state = self._get_state_for_hand(0)
+            move = self.player.turn_phase_2(self.deck_up[-1], state)
+            self.assertIn(move[0], ['return_to_deck', 'swap'])
+
+            # Let's also check that is 'swap' was chosen the row, column are valid
+            if move[0] == 'swap':
+                self.assertLess(move[1], 2)
+                self.assertLess(move[2], 2)
+                self.assertGreaterEqual(move[1], 0)
+                self.assertGreaterEqual(move[2], 0)

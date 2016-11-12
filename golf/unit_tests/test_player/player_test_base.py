@@ -44,6 +44,6 @@ class PlayerTestBase(unittest2.TestCase):
         """ Return the State for the hand at hand_index """
 
         # Comes directly from golf.board.get_state_for_player
-        return {'self': self.hands[player_id].get_state(),
+        return {'self': self.hands[hand_index].get_state(),
                 'opp': [self.hands[p] for p in range(len(self.hands)) if p != hand_index],
                 'deck_up': self.deck_up}

@@ -12,7 +12,7 @@ class TestRandomPlayer(PlayerTestBase):
         """ Setup the player and hands """
 
         # Load the players and their state
-        self._load_state()
+        self._load_hands()
 
 
     def test_turn_phase_1(self):

@@ -7,7 +7,8 @@ from golf.hand import Hand
 class PlayerTestBase(unittest2.TestCase):
     ''' Base class for building tests for players '''
 
-    def _load_state(self, deck=None , num_cols=2, num_hands=2, cards=[]):
+
+    def _load_hands(self, deck=None , num_cols=2, num_hands=2, cards=[]):
         ''' load a configurable state which can be used for tests
             Args:
                 deck: If specified - the deck will be used to deal any hands that
@@ -33,3 +34,16 @@ class PlayerTestBase(unittest2.TestCase):
                 # This hand has not been explicitly specified, we'll deal it from the deck
                 self.hands.append(Hand(cards_dealt=self.deck[:num_cols * 2]))
                 self.deck = self.deck[num_cols * 2:]
+
+        # Let's deal the first card
+        self.deck_up = []
+        self.deck_up.append(self.deck.pop())
+
+
+    def _get_state_for_hand(self, hand_index):
+        """ Return the State for the hand at hand_index """
+
+        # Comes directly from golf.board.get_state_for_player
+        return {'self': self.hands[player_id].get_state(),
+                'opp': [self.hands[p] for p in range(len(self.hands)) if p != hand_index],
+                'deck_up': self.deck_up}

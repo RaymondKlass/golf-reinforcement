@@ -12,7 +12,7 @@ class PlayerTestBase(unittest2.TestCase):
 
         # this is the entire deck - we'll need to remove cards specified above
         # so as to have a valid deck after hands are dealt
-        self.deck_down = range(13) * 4
+        self.deck = range(13) * 4
 
         # if the cards to be dealt were not passed in, then we should calculate them
         # from the standard deck loaded into the object at SetUp
@@ -25,10 +25,11 @@ class PlayerTestBase(unittest2.TestCase):
         self.cards_dealt = cards_dealt
         self.hand = Hand(cards_dealt = cards_dealt)
 
-        if not opp_cards:
-            self.opp_cards = self.deck[:num_cols * 2]
-            self.deck = self.deck[num_cols*2:]
+        if opp_cards:
+            opp_cards = opp_cards
         else:
-            self.opp_cards = opp_cards
+            opp_cards = self.deck[:num_cols * 2]
+            self.deck = self.deck[num_cols*2:]
 
-        self.opp_hand = Hand(cards_dealt = self.opp_cards)
+
+        self.opp_hand = Hand(cards_dealt = opp_cards)

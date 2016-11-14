@@ -29,11 +29,12 @@ class BayesballPlayer(Player):
     '''
 
 
-    def __init__(self, min_distance=1):
+    def __init__(self, min_distance=1, num_cols=2):
         ''' Initialize player and set a minimum distance between scores to knock '''
 
         super(BayesballPlayer, self).__init__()
         self.min_distance = min_distance
+        self.num_cols = num_cols
 
 
 
@@ -55,7 +56,7 @@ class BayesballPlayer(Player):
         for i in range(13):
             self.deck_down += [i] * (4 - cards[i])
 
-        return sum(deck_down) / float(len(deck_down))
+        return sum([min(a, 10) for a in deck_down]) / float(len(deck_down))
 
 
 
@@ -64,19 +65,23 @@ class BayesballPlayer(Player):
             The key metric for deciding policy for this player
         '''
 
-        return min([a['score'] for a in state['opp']]) - state['self']['score']
+        return min([a['score']+(((self.num_cols * 2) - len([b for b in a['visible'] if b])) *  avg) for a in state['opp']]) - \
+               (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b])) * avg))
 
 
 
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):
-        """ We're just going to make a random selection at every step """
+        """ Let's calculate an assumption for the opponents hand and then make a decision -
+            If we believe our hand to be better, than lets know -
+            Otherwise we should take whichever card we think is better, the face-up or face down card
+        """
 
-        self.avg_card = self._calc_average_card()
-        if self._calc_score_diff(state, self.avg_card) >= self.min_distance and 'knock' in possible_moves:
+        avg_card = self._calc_average_card()
+        if self._calc_score_diff(state, avg_card) >= self.min_distance and 'knock' in possible_moves:
             return 'knock'
         else:
-            self.avg_card = self._calc_average_card()
-            if self.avg_card > stats['deck_up'][0]:
+            face_up_card = min(state['deck_up'][0], 10)
+            if avg_card > face_up_card and len([a for a in state['self']['raw_cards'] if a and a > avg_card]):
                 # then we should take the face up card
                 return 'face_up_card'
             return 'face_down_card'
@@ -85,5 +90,11 @@ class BayesballPlayer(Player):
     def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
         """ Again - this will be a random choice """
 
-        min_card_cache = state['cur_player_hand']
+        pass
+
+
+
+
+
+
 

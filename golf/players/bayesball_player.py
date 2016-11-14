@@ -46,8 +46,8 @@ class BayesballPlayer(Player):
         cards = [0] * 13
 
         # Let's iterate through the self, opp, and deck_up cards and increment the index for them
-        for hand in [a for a in state['self']['raw_cards'] if a != None] +
-                    [a for a in state['opp']['raw_cards'] if a != None] +
+        for hand in [a for a in state['self']['raw_cards'] if a != None] + \
+                    [a for a in state['opp']['raw_cards'] if a != None] + \
                     state['deck_up']:
             for card in hand:
                 cards[card] += 1

@@ -2,7 +2,7 @@
 Golf Card Game as a reinforcement learning problem
 
 ## General Description
-[Link to Wikipedia Rules]: https://en.wikipedia.org/wiki/Golf_(card_game)#Four-card_golf
+https://en.wikipedia.org/wiki/Golf_(card_game)#Four-card_golf
 
 ## Scoring
 Aces: 1 pt

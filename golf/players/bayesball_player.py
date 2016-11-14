@@ -88,9 +88,35 @@ class BayesballPlayer(Player):
 
 
     def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
-        """ Again - this will be a random choice """
+        """ Getting to this point means that we've chosen a card.
+            If 'swap' is the only option, we must swap -
+            Otherwise we have the option of replacing the card back on the deck
 
-        pass
+            Our policy here should be to replace the highest-difference card with the
+            card in-hand, assuming that unknown cards are equal to the average card -
+            and of course taking into account column null scoring
+        """
+
+        avg_card = _calc_average_card(state)
+
+        # Let's start by pairing off cards
+        columns = [(state['self']['raw_cards'][a], state['self']['raw_cards'][a+1],) \
+                   for a in range(len(state['self']['raw_cards'])) if a % 2 == 0]
+
+        # We need to figure out where the best place to put the `card` would be
+        # So Let's rate our options
+        # Best - complete and un-completed column
+        # Better - replace a card of known-higher-value
+        # Good - replace an unknown card of assumed higher-value
+        # Bad - replace a known card equal or lesser value (this onw shouldn't happen)
+
+
+
+
+
+
+
+
 
 
 

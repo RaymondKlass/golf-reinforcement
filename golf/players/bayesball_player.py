@@ -1,5 +1,6 @@
 ''' Player based solely on probabilities '''
 from player_base import Player
+import math
 
 class BayesballPlayer(Player):
     ''' Class defining a player based on probability of that moment
@@ -110,17 +111,32 @@ class BayesballPlayer(Player):
         # Good - replace an unknown card of assumed higher-value
         # Bad - replace a known card equal or lesser value (this onw shouldn't happen)
 
+        best_replacement = None
+        replacement_value = 0
 
+        for i, pair in enumerate(columns):
+            # i is the col - so index is i * 2 + (index of pair - either 0 or 1)
+            if pair[0] == pair[1]:
+                # This is the case that the 2 cards form a completed column - i.e. 0 score
+                continue
 
+            # we should replace pair[0] and / or pair[1] with avg_card if they are == None
+            if pair[0] == None:
+                pair[0] = avg_card
 
+            if pair[1] == None:
+                pair[1] = avg_card
 
+            if pair[0] > pair[1] and (best_replacement == None or pair[0] > replacement_value):
+                best_replacement = i*2
+                replacement_value = pair[0]
 
+            if pair[1] >= pair[0] and (best_replacement == None or pair[1] > replacement_value):
+                best_replacement = (i*2) + 1
+                replacement_value = pair[1]
 
+        if best_replacement != None and (replacement_value > card or 'return_to_deck' not in possible_moves):
+            return ('swap', row=best_replacement % 2, col=math.floor(best_replacement / 2))
 
-
-
-
-
-
-
-
+        if 'return_to_deck' in possible_moves:
+            return ('return_to_deck',)

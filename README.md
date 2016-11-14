@@ -17,3 +17,6 @@ Lowest score.
 
 ## Play
 Each player's turn has 2 phases.  During the first, they may draw the face-down card from the deck, draw the face-up card, or knock.  If the player takes the face-up card, they must replace one of their face-down cards with it.  If the player draws the face-down card, they may either replace one of their face-down cards, or they may place the card on top of the face-up stack.  If the player knocks, then they may not do anything else - each of the other players get exactly 1 turn to make any improvements, and then scores are totaled.  
+
+## Matches
+python match.py --player1=random_player.RandomPlayer --player2=random_player.RandomPlayer -m 10

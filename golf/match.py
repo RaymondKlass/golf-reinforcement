@@ -8,12 +8,16 @@ class Match(object):
         self.players = [player1, player2,]
         self.scores = [0,0]
         self.total_holes = (holes - 1) # Since we're 0 indexed
+        self.verbose = verbose
 
 
     def play_k_matches(self, k):
         ''' Play a lot of independent matches for a more fair comparison '''
         matches = [0,0]
-        for _ in range(k):
+        for i in range(k):
+
+            if self.verbose:
+                print('Starting Match # {}'.format(i))
             self.play_match()
 
             if self.scores[0] > self.scores[1]:

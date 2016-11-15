@@ -109,7 +109,7 @@ class BayesballPlayer(Player):
         avg_card = self._calc_average_card(state)
 
         # Let's start by pairing off cards
-        columns = [(state['self']['raw_cards'][a], state['self']['raw_cards'][a+1],) \
+        columns = [[state['self']['raw_cards'][a], state['self']['raw_cards'][a+1],] \
                    for a in range(len(state['self']['raw_cards'])) if a % 2 == 0]
 
         # We need to figure out where the best place to put the `card` would be
@@ -144,7 +144,7 @@ class BayesballPlayer(Player):
                 replacement_value = pair[1]
 
         if best_replacement != None and (replacement_value > card or 'return_to_deck' not in possible_moves):
-            return ('swap', best_replacement % 2, math.floor(best_replacement / 2))
+            return ('swap', int(best_replacement % 2), int(math.floor(best_replacement / 2)))
 
         if 'return_to_deck' in possible_moves:
             return ('return_to_deck',)

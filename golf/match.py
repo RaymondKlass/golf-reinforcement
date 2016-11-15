@@ -17,7 +17,7 @@ class Match(object):
         for i in range(k):
 
             if self.verbose:
-                print('Starting Match # {}'.format(i))
+                print('\n **** Starting Match # {} **** \n'.format(i))
             self.play_match()
 
             if self.scores[0] > self.scores[1]:

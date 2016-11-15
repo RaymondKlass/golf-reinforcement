@@ -73,8 +73,8 @@ def main(argv):
     player1 = getattr(__import__("players.{}".format(player1[0]), fromlist=[player1[1]]), player1[1])
     player2 = getattr(__import__("players.{}".format(player2[0]), fromlist=[player2[1]]), player2[1])
 
-    player1 = player1()
-    player2 = player2()
+    player1 = player1(verbose=verbose)
+    player2 = player2(verbose=verbose)
 
     match = Match(player1, player2, verbose=verbose)
     match.play_k_matches(num_matches)

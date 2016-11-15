@@ -30,13 +30,12 @@ class BayesballPlayer(Player):
     '''
 
 
-    def __init__(self, min_distance=1, num_cols=2):
+    def __init__(self, min_distance=1, num_cols=2, *args, **kwargs):
         ''' Initialize player and set a minimum distance between scores to knock '''
 
-        super(BayesballPlayer, self).__init__()
+        super(BayesballPlayer, self).__init__(*args, **kwargs)
         self.min_distance = min_distance
         self.num_cols = num_cols
-
 
 
     def _calc_average_card(self, state):
@@ -58,7 +57,7 @@ class BayesballPlayer(Player):
         # Now we should have an index with which to create the missing deck
         deck_down = []
         for i in range(13):
-            self.deck_down += [i] * (4 - cards[i])
+            deck_down += [i] * (4 - cards[i])
 
         return sum([min(a, 10) for a in deck_down]) / float(len(deck_down))
 
@@ -81,7 +80,13 @@ class BayesballPlayer(Player):
         """
 
         avg_card = self._calc_average_card(state)
-        if self._calc_score_diff(state, avg_card) >= self.min_distance and 'knock' in possible_moves:
+        score_diff = self._calc_score_diff(state, avg_card)
+
+        if self.verbose:
+            print 'Average card calc: {}'.format(avg_card)
+            print 'Score differential calc: {}'.format(score_diff)
+
+        if score_diff >= self.min_distance and 'knock' in possible_moves:
             return 'knock'
         else:
             face_up_card = min(state['deck_up'][0], 10)
@@ -101,7 +106,7 @@ class BayesballPlayer(Player):
             and of course taking into account column null scoring
         """
 
-        avg_card = _calc_average_card(state)
+        avg_card = self._calc_average_card(state)
 
         # Let's start by pairing off cards
         columns = [(state['self']['raw_cards'][a], state['self']['raw_cards'][a+1],) \

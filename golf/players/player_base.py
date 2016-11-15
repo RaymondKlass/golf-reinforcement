@@ -2,8 +2,8 @@
 
 class Player(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, verbose=False, *args, **kwargs):
+        self.verbose = verbose
 
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):
         """ Phase 1 of the turn - needs to choose to

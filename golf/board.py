@@ -48,7 +48,15 @@ class Board(object):
         has_knocked = False
         turn = 0
 
+        if self.verbose:
+            print '\n Starting hole \n'
+
         while not end_game:
+
+            # Check to see if the other player already knocked
+            if has_knocked:
+                # this makes sure that this is the last turn
+                end_game = True
 
             cur_turn = turn % 2
 
@@ -71,7 +79,6 @@ class Board(object):
             if decision == 'knock':
                 # then the player has no turn phase 2
                 has_knocked = True
-                #print 'knock'
                 continue
 
             if decision == 'face_up_card':

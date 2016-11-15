@@ -48,10 +48,6 @@ class BayesballPlayer(Player):
         h = [a for a in state['self']['raw_cards'] if a != None] + \
                     [a for a in sum([b['raw_cards'] for b in state['opp']], []) if a != None] + \
                     state['deck_up']
-        print h
-        print state['self']['raw_cards']
-        print state['opp']
-        print state['deck_up']
 
         # Let's iterate through the self, opp, and deck_up cards and increment the index for them
         for hand in [a for a in state['self']['raw_cards'] if a != None] + \

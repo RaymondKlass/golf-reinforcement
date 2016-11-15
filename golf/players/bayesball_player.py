@@ -45,9 +45,17 @@ class BayesballPlayer(Player):
         # Let's index the cards from 0-12 and just keep track of the cards that appear first
         cards = [0] * 13
 
+        h = [a for a in state['self']['raw_cards'] if a != None] + \
+                    [a for a in sum([b['raw_cards'] for b in state['opp']], []) if a != None] + \
+                    state['deck_up']
+        print h
+        print state['self']['raw_cards']
+        print state['opp']
+        print state['deck_up']
+
         # Let's iterate through the self, opp, and deck_up cards and increment the index for them
         for hand in [a for a in state['self']['raw_cards'] if a != None] + \
-                    [a for a in state['opp']['raw_cards'] if a != None] + \
+                    [a for a in sum([b['raw_cards'] for b in state['opp']], []) if a != None] + \
                     state['deck_up']:
             for card in hand:
                 cards[card] += 1
@@ -66,7 +74,7 @@ class BayesballPlayer(Player):
             The key metric for deciding policy for this player
         '''
 
-        return min([a['score']+(((self.num_cols * 2) - len([b for b in a['visible'] if b])) *  avg) for a in state['opp']]) - \
+        return min([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  avg) for a in state['opp']]) - \
                (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b])) * avg))
 
 
@@ -77,7 +85,7 @@ class BayesballPlayer(Player):
             Otherwise we should take whichever card we think is better, the face-up or face down card
         """
 
-        avg_card = self._calc_average_card()
+        avg_card = self._calc_average_card(state)
         if self._calc_score_diff(state, avg_card) >= self.min_distance and 'knock' in possible_moves:
             return 'knock'
         else:
@@ -136,7 +144,7 @@ class BayesballPlayer(Player):
                 replacement_value = pair[1]
 
         if best_replacement != None and (replacement_value > card or 'return_to_deck' not in possible_moves):
-            return ('swap', row=best_replacement % 2, col=math.floor(best_replacement / 2))
+            return ('swap', best_replacement % 2, math.floor(best_replacement / 2))
 
         if 'return_to_deck' in possible_moves:
             return ('return_to_deck',)

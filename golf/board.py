@@ -95,6 +95,9 @@ class Board(object):
                 self.deck_down = list(self.deck_up)
                 shuffle(self.deck_down)
                 self.deck_up = [cur_up]
+
+            turn += 1
+
         return [hand.score() for hand in self.hands]
 
     def get_state_for_player(self, player_id):
@@ -102,8 +105,8 @@ class Board(object):
 
 
         # State would need to describe both players situations
-        return {'self': self.hands[player_id].get_state(),
-                'opp': [self.hands[p].get_state() for p in range(len(self.hands)) if p != player_id],
+        return {'self': self.hands[player_id].get_state(is_self=True),
+                'opp': [self.hands[p].get_state(is_self=False) for p in range(len(self.hands)) if p != player_id],
                 'deck_up': self.deck_up}
 
 

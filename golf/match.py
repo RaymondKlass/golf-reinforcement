@@ -33,7 +33,7 @@ class Match(object):
         ''' Play all of the holes for a single match '''
 
         for turn in range(self.total_holes):
-            board = Board([self.players[turn % 2], self.players[(turn + 1) % 2]], 2)
+            board = Board([self.players[turn % 2], self.players[(turn + 1) % 2]], 2, verbose=self.verbose)
             scores = board.play_game()
             for i, score in enumerate(self.scores):
                 self.scores[i] += scores[i]

@@ -7,7 +7,7 @@ from hand import Hand
 class Board(object):
     # Assemble a board - model game play for a single round
 
-    def __init__(self, players, num_cols):
+    def __init__(self, players, num_cols, verbose=False):
         ''' Args:
                 players: set of players
                 num_cols: game board layout
@@ -22,6 +22,7 @@ class Board(object):
         shuffle(self.deck_down)
         self.deck_up = []
         self.hands = []
+        self.verbose = verbose
 
 
     @property
@@ -48,9 +49,21 @@ class Board(object):
         turn = 0
 
         while not end_game:
+
             cur_turn = turn % 2
+
+            if self.verbose:
+                print 'Player {} turn'.format(cur_turn)
+
             options = ('face_up_card', 'face_down_card', 'knock',)
+
+            if self.verbose:
+                print 'State - turn phase 1: {}'.format(self.get_state_for_player(cur_turn))
+
             decision = self.players[cur_turn].turn_phase_1(self.get_state_for_player(cur_turn), options)
+
+            if self.verbose:
+                print 'Decision: {}'.format(decision)
 
             # Increment the turn counter - which also signifies current turn
             turn += 1
@@ -71,9 +84,15 @@ class Board(object):
 
                 possible_moves = ('swap', 'return_to_deck',)
 
+            if self.verbose:
+                print 'State - turn phase 2: {}'.format(self.get_state_for_player(cur_turn))
+
             decision_two = self.players[cur_turn].turn_phase_2(card,
                                                                self.get_state_for_player(cur_turn),
                                                                possible_moves)
+
+            if self.verbose:
+                print 'Decision phase 2: {}'.format(decision_two)
 
             if decision_two[0] == 'swap':
                 card_ret = self.hands[cur_turn % 2].swap(decision_two[1],
@@ -85,6 +104,8 @@ class Board(object):
 
             self.deck_up.append(card_ret)
 
+            if self.verbose:
+                print 'End State: {}'.format(self.get_state_for_player(cur_turn))
 
             if has_knocked:
                 end_game = True
@@ -96,7 +117,6 @@ class Board(object):
                 shuffle(self.deck_down)
                 self.deck_up = [cur_up]
 
-            turn += 1
 
         return [hand.score() for hand in self.hands]
 
@@ -108,18 +128,3 @@ class Board(object):
         return {'self': self.hands[player_id].get_state(is_self=True),
                 'opp': [self.hands[p].get_state(is_self=False) for p in range(len(self.hands)) if p != player_id],
                 'deck_up': self.deck_up}
-
-
-
-    def step_turn(self):
-        # A simple function to represent moving 1 single turn
-        # which could result in several changes in game state
-
-        self.cur_turn += 1 # we increment this and then evaluate the % 2 value
-        cur_player = (self.hand1, self.hand2,)[self.cur_turn % 2]
-
-        # At some point we need to select a move for the player - so let's place
-        # something here to model that activity
-        possible_moves = ('knock', 'swap', 'pickup_top')
-
-        return cur_player.move()

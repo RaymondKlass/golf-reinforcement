@@ -50,11 +50,10 @@ class BayesballPlayer(Player):
                     state['deck_up']
 
         # Let's iterate through the self, opp, and deck_up cards and increment the index for them
-        for hand in [a for a in state['self']['raw_cards'] if a != None] + \
+        for card in [a for a in state['self']['raw_cards'] if a != None] + \
                     [a for a in sum([b['raw_cards'] for b in state['opp']], []) if a != None] + \
                     state['deck_up']:
-            for card in hand:
-                cards[card] += 1
+            cards[card] += 1
 
         # Now we should have an index with which to create the missing deck
         deck_down = []

@@ -53,7 +53,7 @@ class Board(object):
             cur_turn = turn % 2
 
             if self.verbose:
-                print 'Player {} turn'.format(cur_turn)
+                print '\nPlayer {} turn'.format(cur_turn)
 
             options = ('face_up_card', 'face_down_card', 'knock',)
 
@@ -85,7 +85,7 @@ class Board(object):
                 possible_moves = ('swap', 'return_to_deck',)
 
             if self.verbose:
-                print 'State - turn phase 2: {}'.format(self.get_state_for_player(cur_turn))
+                print '\n State - turn phase 2: {} \n'.format(self.get_state_for_player(cur_turn))
 
             decision_two = self.players[cur_turn].turn_phase_2(card,
                                                                self.get_state_for_player(cur_turn),

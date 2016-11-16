@@ -125,6 +125,8 @@ class Board(object):
                 shuffle(self.deck_down)
                 self.deck_up = [cur_up]
 
+        if self.verbose:
+            print 'Final State: {}'.format([hand.score() for hand in self.hands])
 
         return [hand.score() for hand in self.hands]
 

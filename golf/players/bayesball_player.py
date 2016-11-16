@@ -30,7 +30,7 @@ class BayesballPlayer(Player):
     '''
 
 
-    def __init__(self, min_distance=4, card_margin=2, num_cols=2, *args, **kwargs):
+    def __init__(self, min_distance=4, card_margin=2, unknown_card_margin=2, num_cols=2, *args, **kwargs):
         ''' Initialize player and set a minimum distance between scores to knock '''
 
         super(BayesballPlayer, self).__init__(*args, **kwargs)
@@ -41,6 +41,11 @@ class BayesballPlayer(Player):
         # basically a measure of risk comfort - the face_up card needs to X better than the
         # calculated average card to be considered.
         self.card_margin = card_margin
+
+        # Essentially the discount rate for unknown cards - it's fixed now, but could become
+        # dynamic in the future.  It's the amount worse than the average that we will assume
+        # our unknown cards are
+        self.unknown_card_margin = unknown_card_margin
 
 
     def _calc_average_card(self, state):
@@ -140,10 +145,10 @@ class BayesballPlayer(Player):
 
             # we should replace pair[0] and / or pair[1] with avg_card if they are == None
             if pair[0] == None:
-                pair[0] = avg_card
+                pair[0] = avg_card + self.unknown_card_margin
 
             if pair[1] == None:
-                pair[1] = avg_card
+                pair[1] = avg_card + self.unknown_card_margin
 
             if pair[0] > pair[1] and (best_replacement == None or pair[0] > replacement_value):
                 best_replacement = i*2

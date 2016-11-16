@@ -68,6 +68,11 @@ class BayesballPlayer(Player):
             The key metric for deciding policy for this player
         '''
 
+        if self.verbose:
+            print "Opp Scores: {}".format([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  avg) for a in state['opp']])
+            print 'Min Opponent Score: {}'.format(min([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  avg)]))
+            print 'Self Score: {}'.format( (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b])) * avg)))
+
         return min([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  avg) for a in state['opp']]) - \
                (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b])) * avg))
 

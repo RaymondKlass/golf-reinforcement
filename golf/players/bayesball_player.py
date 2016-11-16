@@ -30,12 +30,17 @@ class BayesballPlayer(Player):
     '''
 
 
-    def __init__(self, min_distance=5, num_cols=2, *args, **kwargs):
+    def __init__(self, min_distance=4, card_margin=2, num_cols=2, *args, **kwargs):
         ''' Initialize player and set a minimum distance between scores to knock '''
 
         super(BayesballPlayer, self).__init__(*args, **kwargs)
         self.min_distance = min_distance
         self.num_cols = num_cols
+
+        # Card margin is the amount "better" a known card needs to be than the average card -
+        # basically a measure of risk comfort - the face_up card needs to X better than the
+        # calculated average card to be considered.
+        self.card_margin = card_margin
 
 
     def _calc_average_card(self, state):
@@ -95,7 +100,7 @@ class BayesballPlayer(Player):
             return 'knock'
         else:
             face_up_card = min(state['deck_up'][0], 10)
-            if avg_card > face_up_card and len([a for a in state['self']['raw_cards'] if a and a > avg_card]):
+            if avg_card - self.card_margin > face_up_card and len([a for a in state['self']['raw_cards'] if a and a > avg_card]):
                 # then we should take the face up card
                 return 'face_up_card'
             return 'face_down_card'

@@ -66,12 +66,16 @@ class Board(object):
             options = ('face_up_card', 'face_down_card', 'knock',)
 
             if self.verbose:
-                print 'State - turn phase 1: {}'.format(self.get_state_for_player(cur_turn))
+                state = self.get_state_for_player(cur_turn)
+                print 'State:'
+                print 'Self: {}'.format(state['self'])
+                print 'Opp: {}'.format(state['opp'])
+                print 'Deck Up: {}'.format(state['deck_up'])
 
             decision = self.players[cur_turn].turn_phase_1(self.get_state_for_player(cur_turn), options)
 
             if self.verbose:
-                print 'Decision: {}'.format(decision)
+                print 'Decision: {} \n'.format(decision)
 
             # Increment the turn counter - which also signifies current turn
             turn += 1
@@ -92,7 +96,11 @@ class Board(object):
                 possible_moves = ('swap', 'return_to_deck',)
 
             if self.verbose:
-                print '\n State - turn phase 2: {} \n'.format(self.get_state_for_player(cur_turn))
+                state = self.get_state_for_player(cur_turn)
+                print 'State:'
+                print 'Self: {}'.format(state['self'])
+                print 'Opp: {}'.format(state['opp'])
+                print 'Deck Up: {}'.format(state['deck_up'])
                 print 'Card-in-hand: {}'.format(card)
 
             decision_two = self.players[cur_turn].turn_phase_2(card,
@@ -113,7 +121,11 @@ class Board(object):
             self.deck_up.append(card_ret)
 
             if self.verbose:
-                print 'End State: {}'.format(self.get_state_for_player(cur_turn))
+                state = self.get_state_for_player(cur_turn)
+                print 'End State:'
+                print 'Self: {}'.format(state['self'])
+                print 'Opp: {}'.format(state['opp'])
+                print 'Deck Up: {}'.format(state['deck_up'])
 
             if has_knocked:
                 end_game = True

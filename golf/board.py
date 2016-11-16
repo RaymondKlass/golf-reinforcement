@@ -93,6 +93,7 @@ class Board(object):
 
             if self.verbose:
                 print '\n State - turn phase 2: {} \n'.format(self.get_state_for_player(cur_turn))
+                print 'Card-in-hand: {}'.format(card)
 
             decision_two = self.players[cur_turn].turn_phase_2(card,
                                                                self.get_state_for_player(cur_turn),

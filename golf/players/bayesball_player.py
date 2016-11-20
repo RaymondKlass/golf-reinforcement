@@ -123,6 +123,9 @@ class BayesballPlayer(Player):
 
         avg_card = self._calc_average_card(state)
 
+        if self.verbose:
+            print 'Average card calc: {}'.format(avg_card)
+
         # Let's start by pairing off cards
         columns = [[state['self']['raw_cards'][a], state['self']['raw_cards'][a+1],] \
                    for a in range(len(state['self']['raw_cards'])) if a % 2 == 0]

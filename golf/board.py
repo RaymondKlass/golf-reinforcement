@@ -139,6 +139,8 @@ class Board(object):
 
         if self.verbose:
             print 'Final State: {}'.format([hand.score() for hand in self.hands])
+            for i, hand in enumerate(self.hands):
+                print 'Player {} Hand {}'.format(i, hand.cards)
 
         return [hand.score() for hand in self.hands]
 

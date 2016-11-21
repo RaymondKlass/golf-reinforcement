@@ -58,3 +58,19 @@ class TestBoard(unittest2.TestCase):
         used_deck = (cards_in_hand + self.board.deck_down).sort()
 
         self.assertEqual(fresh_deck, used_deck)
+
+
+    def test_get_state(self):
+        ''' Test getting the state from player's hands '''
+
+        self.board._deal_hands()
+        self.assertEqual(self.players[0], self.board.players[0])
+        state = self.board.get_state_for_player(0)
+        self.assertEqual(state['self'], self.board.hands[0].get_state(is_self=True))
+        self.assertEqual(state['opp'][0], self.board.hands[1].get_state(is_self=False))
+
+        state = self.board.get_state_for_player(1)
+        self.assertEqual(state['self'], self.board.hands[1].get_state(is_self=True))
+        self.assertEqual(state['opp'][0], self.board.hands[0].get_state(is_self=False))
+
+        self.assertEqual(state['deck_up'], self.board.deck_visible)

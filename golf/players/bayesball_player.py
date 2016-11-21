@@ -101,7 +101,7 @@ class BayesballPlayer(Player):
             print 'Average card calc: {}'.format(avg_card)
             print 'Score differential calc: {}'.format(score_diff)
 
-        if score_diff >= self.min_distance and 'knock' in possible_moves:
+        if (score_diff >= self.min_distance and 'knock' in possible_moves) or (state['self']['score'] <= (1 + self.card_margin) * 4):
             return 'knock'
         else:
             face_up_card = min(state['deck_up'][0], 10)

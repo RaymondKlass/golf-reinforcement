@@ -18,22 +18,22 @@ class Match(object):
 
             if self.verbose:
                 print('\n **** Starting Match # {} **** \n'.format(i))
-            self.play_match()
+            self.play_match(i)
 
             if self.scores[0] > self.scores[1]:
-                matches[0] += 1
+                matches[int(i % 2)] += 1
             elif self.scores[1] > self.scores[0]:
-                matches[1] += 1
+                matches[int((i+1) % 2)] += 1
 
             self.scores = [0,0]
         print 'Player 0: {} matches, Player 1: {} matches'.format(matches[0], matches[1])
 
 
-    def play_match(self):
+    def play_match(self, match_num):
         ''' Play all of the holes for a single match '''
 
         for turn in range(self.total_holes):
-            board = Board([self.players[turn % 2], self.players[(turn + 1) % 2]], 2, verbose=self.verbose)
+            board = Board([self.players[(turn + match_num) % 2], self.players[((turn + match_num) + 1) % 2]], 2, verbose=self.verbose)
             scores = board.play_game()
             for i, score in enumerate(self.scores):
                 self.scores[i] += scores[i]

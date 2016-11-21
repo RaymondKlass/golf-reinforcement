@@ -96,8 +96,6 @@ class TestBoard(unittest2.TestCase):
     def test_basic_up_card(self):
         ''' Test Basic player taking the up-card '''
 
-        self.counter = 0
-
         def _knock_1(state, possible_moves):
             self.assertEqual(state['deck_up'], self.board.deck_visible)
             self.assertEqual(possible_moves, ('face_up_card', 'face_down_card', 'knock',))
@@ -112,7 +110,6 @@ class TestBoard(unittest2.TestCase):
             self.assertEqual(self.board.deck_visible, [])
             self.assertEqual(len(state['deck_up']), 0)
             self.new_card = card
-            self.counter += 1
             return ('swap', 0, 1)
 
         self.players[0].turn_phase_1 = _knock_1
@@ -124,8 +121,54 @@ class TestBoard(unittest2.TestCase):
         self.assertEqual(len(self.board.deck_visible), 1)
 
 
+    def test_basic_down_card(self):
+        ''' test Basic player tasking face-down card and swap'''
+
+        def _knock_1(state, possible_moves):
+            return 'knock'
+
+        def _face_down_1(state, possible_moves):
+            self.assertEqual(possible_moves, ('face_up_card', 'face_down_card', 'knock',))
+            return 'face_down_card'
+
+        def _face_down_2(card, state, possible_moves):
+            self.assertEqual(possible_moves, ('swap', 'return_to_deck'))
+            self.assertEqual(len(self.board.deck_visible), 1)
+            self.assertEqual(len(state['deck_up']), 1)
+            self.new_card = card
+            return ('swap', 1, 1)
+
+        self.players[0].turn_phase_1 = _knock_1
+        self.players[1].turn_phase_1 = _face_down_1
+        self.players[1].turn_phase_2 = _face_down_2
+
+        self.board.play_game()
+        self.assertEqual(self.board.hands[1].cards[self.board.hands[1]._coords_to_index(1, 1)], self.new_card)
+        self.assertEqual(len(self.board.deck_visible), 2)
 
 
+    def test_basic_down_card_return(self):
+        ''' test Basic player tasking face-down card and return'''
 
+        def _knock_1(state, possible_moves):
+            return 'knock'
 
+        def _face_down_1(state, possible_moves):
+            self.assertEqual(possible_moves, ('face_up_card', 'face_down_card', 'knock',))
+            return 'face_down_card'
+
+        def _face_down_2(card, state, possible_moves):
+            self.assertEqual(possible_moves, ('swap', 'return_to_deck'))
+            self.assertEqual(len(self.board.deck_visible), 1)
+            self.assertEqual(len(state['deck_up']), 1)
+            self.new_card = card
+            return ('return_to_deck',)
+
+        self.players[0].turn_phase_1 = _knock_1
+        self.players[1].turn_phase_1 = _face_down_1
+        self.players[1].turn_phase_2 = _face_down_2
+
+        self.board.play_game()
+        self.assertEqual(self.board.deck_visible[-1], self.new_card)
+        self.assertEqual(len(self.board.deck_visible), 2)
 

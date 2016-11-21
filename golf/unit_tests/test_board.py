@@ -74,3 +74,33 @@ class TestBoard(unittest2.TestCase):
         self.assertEqual(state['opp'][0], self.board.hands[0].get_state(is_self=False))
 
         self.assertEqual(state['deck_up'], self.board.deck_visible)
+
+
+    def test_basic_knock(self):
+        ''' Basic test of playing the game '''
+
+        self.num_turns = 0
+
+        def _knock(state, possible_moves):
+            self.num_turns += 1
+            self.assertEqual(state['deck_up'], self.board.deck_visible)
+            return 'knock'
+
+        self.players[0].turn_phase_1 = _knock
+        self.players[1].turn_phase_1 = _knock
+
+        self.board.play_game()
+
+        self.assertEqual(self.num_turns, 2)
+
+
+
+
+
+
+
+
+
+
+
+

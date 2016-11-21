@@ -82,13 +82,15 @@ class BayesballPlayer(Player):
             The key metric for deciding policy for this player
         '''
 
+        self.score = (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b])) * avg))
+        self.min_opp_score = min([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  avg) for a in state['opp']])
+
         if self.verbose:
             print "Opp Scores: {}".format([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  avg) for a in state['opp']])
-            print 'Min Opponent Score: {}'.format(min([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  avg)]))
-            print 'Self Score: {}'.format( (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b])) * avg)))
+            print 'Min Opponent Score: {}'.format(self.min_opp_score)
+            print 'Self Score: {}'.format(self.score)
 
-        return min([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  avg) for a in state['opp']]) - \
-               (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b])) * avg))
+        return self.min_opp_score - self.score
 
 
 
@@ -105,7 +107,10 @@ class BayesballPlayer(Player):
             print 'Average card calc: {}'.format(avg_card)
             print 'Score differential calc: {}'.format(score_diff)
 
-        if (score_diff >= self.min_distance and 'knock' in possible_moves) or (state['self']['score'] <= (1 + self.card_margin) * 4):
+        if (score_diff >= self.min_distance and 'knock' in possible_moves) or \
+           (self.score <= self.min_distance) or \
+           (self.min_opp_score <= self.min_distance):
+
             return 'knock'
         else:
             face_up_card = min(state['deck_up'][0], 10)

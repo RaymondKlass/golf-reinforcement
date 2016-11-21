@@ -23,6 +23,7 @@ class Board(object):
         self.deck_up = []
         self.hands = []
         self.verbose = verbose
+        self.has_knocked = False
 
 
     @property
@@ -38,6 +39,9 @@ class Board(object):
         self.hands.append(Hand([dealt[i] for i in range(len(dealt)) if i % 2 == 0]))
         self.hands.append(Hand([dealt[i] for i in range(len(dealt)) if i % 2 != 0]))
 
+        if self.verbose:
+            print 'Deck Position: {}'.format(self.deck_down)
+
 
     def play_game(self):
         ''' Initially the top face down card becomes the face up card, then thing proceed '''
@@ -46,7 +50,7 @@ class Board(object):
         self.deck_up.append(deck_up)
         self._deal_hands()
         end_game = False
-        has_knocked = False
+        self.has_knocked = False
         turn = 0
 
         if self.verbose:
@@ -54,7 +58,7 @@ class Board(object):
 
         while not end_game:
             # Check to see if the other player already knocked
-            if has_knocked:
+            if self.has_knocked:
                 # this makes sure that this is the last turn
                 end_game = True
 
@@ -82,7 +86,7 @@ class Board(object):
 
             if decision == 'knock':
                 # then the player has no turn phase 2
-                has_knocked = True
+                self.has_knocked = True
                 continue
 
             if decision == 'face_up_card':
@@ -127,8 +131,6 @@ class Board(object):
                 print 'Opp: {}'.format(state['opp'])
                 print 'Deck Up: {}'.format(state['deck_up'])
 
-            if has_knocked:
-                end_game = True
 
             # Here we need to handle the possibility that the deck goes around an Nth time
             if len(self.deck_down) <= 0:
@@ -151,4 +153,5 @@ class Board(object):
         # State would need to describe both players situations
         return {'self': self.hands[player_id].get_state(is_self=True),
                 'opp': [self.hands[p].get_state(is_self=False) for p in range(len(self.hands)) if p != player_id],
-                'deck_up': self.deck_up}
+                'deck_up': self.deck_up,
+                'has_knoecked': self.has_knocked}

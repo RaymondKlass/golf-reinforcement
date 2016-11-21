@@ -4,6 +4,12 @@ from player_base import Player
 
 class RandomPlayer(Player):
 
+
+    def __repr__(self):
+
+        return 'Random Player'
+
+
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):
         """ We're just going to make a random selection at every step """
 

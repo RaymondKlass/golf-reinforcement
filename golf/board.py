@@ -61,7 +61,7 @@ class Board(object):
             cur_turn = turn % 2
 
             if self.verbose:
-                print '\nPlayer {} turn'.format(cur_turn)
+                print '\n{} {} turn'.format(self.players[cur_turn], cur_turn)
 
             options = ('face_up_card', 'face_down_card', 'knock',)
 
@@ -140,7 +140,7 @@ class Board(object):
         if self.verbose:
             print 'Final State: {}'.format([hand.score() for hand in self.hands])
             for i, hand in enumerate(self.hands):
-                print 'Player {} Hand {}'.format(i, hand.cards)
+                print '{}: {} Hand {}'.format(self.players[i], i, hand.cards)
 
         return [hand.score() for hand in self.hands]
 

@@ -48,6 +48,10 @@ class BayesballPlayer(Player):
         self.unknown_card_margin = unknown_card_margin
 
 
+    def __repr__(self):
+
+        return 'Bayesball_Player'
+
     def _calc_average_card(self, state):
         ''' Figure out the average card value left in the deck '''
 

@@ -122,7 +122,7 @@ class TestBoard(unittest2.TestCase):
 
 
     def test_basic_down_card(self):
-        ''' test Basic player tasking face-down card and swap'''
+        ''' test Basic player taking face-down card and swap'''
 
         def _knock_1(state, possible_moves):
             return 'knock'
@@ -148,7 +148,7 @@ class TestBoard(unittest2.TestCase):
 
 
     def test_basic_down_card_return(self):
-        ''' test Basic player tasking face-down card and return'''
+        ''' test Basic player taking face-down card and return'''
 
         def _knock_1(state, possible_moves):
             return 'knock'

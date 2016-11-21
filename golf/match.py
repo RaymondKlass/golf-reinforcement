@@ -36,7 +36,7 @@ class Match(object):
             board = Board([self.players[(turn + match_num) % 2], self.players[((turn + match_num) + 1) % 2]], 2, verbose=self.verbose)
             scores = board.play_game()
             for i, score in enumerate(self.scores):
-                self.scores[i] += scores[i]
+                self.scores[(turn + match_num + i) % 2] += scores[(turn + match_num + i) % 2]
 
 
 def main(argv):

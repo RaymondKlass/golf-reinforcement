@@ -14,7 +14,7 @@ class TestBoard(unittest2.TestCase):
         ''' Setup the board module to run through functionality '''
 
         # let's create a 1 vs 1 game by default - could be extended later
-        self.players = [self._generate_base_player()] * 2
+        self.players = [self._generate_base_player() for a in range(2)]
         self.num_cols = 2
 
         # No need to test the verbose flag - we'll leave it turned off
@@ -90,13 +90,38 @@ class TestBoard(unittest2.TestCase):
         self.players[1].turn_phase_1 = _knock
 
         self.board.play_game()
-
         self.assertEqual(self.num_turns, 2)
 
 
+    def test_basic_up_card(self):
+        ''' Test Basic player taking the up-card '''
 
+        self.counter = 0
 
+        def _knock_1(state, possible_moves):
+            self.assertEqual(state['deck_up'], self.board.deck_visible)
+            self.assertEqual(possible_moves, ('face_up_card', 'face_down_card', 'knock',))
+            return 'knock'
 
+        def _face_up_1(state, possible_moves):
+            self.assertEqual(possible_moves, ('face_up_card', 'face_down_card', 'knock',))
+            return 'face_up_card'
+
+        def _face_up_2(card, state, possible_moves):
+            self.assertEqual(possible_moves, ('swap',))
+            self.assertEqual(self.board.deck_visible, [])
+            self.assertEqual(len(state['deck_up']), 0)
+            self.new_card = card
+            self.counter += 1
+            return ('swap', 0, 1)
+
+        self.players[0].turn_phase_1 = _knock_1
+        self.players[1].turn_phase_1 = _face_up_1
+        self.players[1].turn_phase_2 = _face_up_2
+
+        self.board.play_game()
+        self.assertEqual(self.board.hands[1].cards[self.board.hands[1]._coords_to_index(0, 1)], self.new_card)
+        self.assertEqual(len(self.board.deck_visible), 1)
 
 
 

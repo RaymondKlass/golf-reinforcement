@@ -41,6 +41,7 @@ class Board(object):
 
     def play_game(self):
         ''' Initially the top face down card becomes the face up card, then thing proceed '''
+
         deck_up = self.deck_down.pop(0)
         self.deck_up.append(deck_up)
         self._deal_hands()
@@ -52,7 +53,6 @@ class Board(object):
             print '\n Starting hole \n'
 
         while not end_game:
-
             # Check to see if the other player already knocked
             if has_knocked:
                 # this makes sure that this is the last turn

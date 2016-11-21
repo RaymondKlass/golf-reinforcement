@@ -7,7 +7,7 @@ class Match(object):
     def __init__(self, player1, player2, holes=9, num_cols=2, verbose=False):
         self.players = [player1, player2,]
         self.scores = [0,0]
-        self.total_holes = (holes - 1) # Since we're 0 indexed
+        self.total_holes = holes # Since we're 0 indexed
         self.verbose = verbose
 
 
@@ -45,22 +45,28 @@ def main(argv):
     player1 = None
     player2 = None
     verbose = False
+    holes = None
 
     try:
-        opts, args = getopt.getopt(argv, "hm:v", ["player1=", "player2=", "matches=", "verbose"])
+        opts, args = getopt.getopt(argv, "hm:v", ["player1=", "player2=", "matches=", "holes=", "verbose"])
     except:
-        print 'python match.py -player1 <player1> -player2 <player2> -m <number of matches> -v <verbose>'
+        print 'python match.py -player1 <player1> -player2 <player2> -m <number of matches> -holes <number of holes> -v <verbose>'
     for opt, arg in opts:
         if opt == '-h':
-            print 'python match.py -player1 <player1> -player2 <player2> -m <number of matches> -v <verbose>'
+            print 'python match.py -player1 <player1> -player2 <player2> -m <number of matches> -holes <number of holes> -v <verbose>'
             sys.exit(2)
-        elif opt in ("-pa", "--player1"):
+        elif opt in ("--player1"):
             player1 = arg
-        elif opt in ("-pb", "--player2"):
+        elif opt in ("--player2"):
             player2 = arg
         elif opt in ("-m", "--match"):
             try:
                 num_matches = int(arg)
+            except ValueError:
+                pass
+        elif opt in ("--holes"):
+            try:
+                holes = int(arg)
             except ValueError:
                 pass
         elif opt in ("-v", "--verbose"):
@@ -76,7 +82,11 @@ def main(argv):
     player1 = player1(verbose=verbose)
     player2 = player2(verbose=verbose)
 
-    match = Match(player1, player2, verbose=verbose)
+    kwargs = {'verbose': verbose}
+    if holes:
+        kwargs['holes'] = holes
+
+    match = Match(player1, player2, **kwargs)
     match.play_k_matches(num_matches)
 
 

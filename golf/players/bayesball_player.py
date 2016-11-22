@@ -98,18 +98,25 @@ class BayesballPlayer(Player):
         """ Let's calculate an assumption for the opponents hand and then make a decision -
             If we believe our hand to be better, than lets know -
             Otherwise we should take whichever card we think is better, the face-up or face down card
+
+            Extension to the logic - if the other player knocks, then it makes little sense to knock as well -
+            so we'll take that possibility away.
         """
 
         avg_card = self._calc_average_card(state)
         score_diff = self._calc_score_diff(state, avg_card)
+
+        # remove knock from possible_moves if has_knocked == True in state
+        if state['has_knocked'] and 'knock' in possible_moves:
+            possible_moves.remove('knock')
 
         if self.verbose:
             print 'Average card calc: {}'.format(avg_card)
             print 'Score differential calc: {}'.format(score_diff)
 
         if (score_diff >= self.min_distance and 'knock' in possible_moves) or \
-           (self.score <= self.min_distance) or \
-           (self.min_opp_score <= self.min_distance):
+           (self.score <= self.min_distance and 'knock' in possible_moves) or \
+           (self.min_opp_score <= self.min_distance and 'knock' in possible_moves):
 
             return 'knock'
         else:

@@ -154,4 +154,4 @@ class Board(object):
         return {'self': self.hands[player_id].get_state(is_self=True),
                 'opp': [self.hands[p].get_state(is_self=False) for p in range(len(self.hands)) if p != player_id],
                 'deck_up': self.deck_up,
-                'has_knoecked': self.has_knocked}
+                'has_knocked': self.has_knocked}

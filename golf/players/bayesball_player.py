@@ -108,7 +108,7 @@ class BayesballPlayer(Player):
 
         # remove knock from possible_moves if has_knocked == True in state
         if state['has_knocked'] and 'knock' in possible_moves:
-            possible_moves.remove('knock')
+            list(possible_moves).remove('knock')
 
         if self.verbose:
             print 'Average card calc: {}'.format(avg_card)

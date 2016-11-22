@@ -2,9 +2,8 @@
     as this is the component where much of the logic comes together
 '''
 import unittest2
-from golf.board import Board
-from golf.hand import Hand
-from golf.players.player_base import Player
+from golf.match import Match
+from mock import patch, Mock
 
 
 class TestMatch(unittest2.TestCase):

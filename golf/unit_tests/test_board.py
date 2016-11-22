@@ -1,4 +1,4 @@
-''' Tests for Golf matches - will include unit and more integration style tests
+''' Tests for Golf board - will include unit and more integration style tests
     as this is the component where much of the logic comes together
 '''
 import unittest2
@@ -8,7 +8,7 @@ from golf.players.player_base import Player
 
 
 class TestBoard(unittest2.TestCase):
-    ''' Test the match module - both unit and integration tests '''
+    ''' Test the board module - both unit and integration tests '''
 
     def setUp(self):
         ''' Setup the board module to run through functionality '''

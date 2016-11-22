@@ -10,6 +10,11 @@ class Match(object):
         self.total_holes = holes # Since we're 0 indexed
         self.verbose = verbose
 
+        if self.verbose:
+            # let's introduce the players
+            print 'Player 0 {}'.format(self.players[0])
+            print 'Player 1 {}'.format(self.players[1])
+
 
     def play_k_matches(self, k):
         ''' Play a lot of independent matches for a more fair comparison '''
@@ -21,11 +26,16 @@ class Match(object):
             self.play_match(i)
 
             if self.scores[0] > self.scores[1]:
-                matches[int(i % 2)] += 1
+                matches[1] += 1
             elif self.scores[1] > self.scores[0]:
-                matches[int((i+1) % 2)] += 1
+                matches[0] += 1
+
+            if self.verbose:
+                print 'Player 1 Score: {} Player 2 Score: {}'.format(self.scores[0], self.scores[1])
+                print 'Player 0: {}, Player 1: {}'.format(matches[0], matches[1])
 
             self.scores = [0,0]
+
         print 'Player 0: {} matches, Player 1: {} matches'.format(matches[0], matches[1])
 
 
@@ -36,7 +46,7 @@ class Match(object):
             board = Board([self.players[(turn + match_num) % 2], self.players[((turn + match_num) + 1) % 2]], 2, verbose=self.verbose)
             scores = board.play_game()
             for i, score in enumerate(self.scores):
-                self.scores[(turn + match_num + i) % 2] += scores[(turn + match_num + i) % 2]
+                self.scores[(turn + match_num + i) % 2] += scores[i]
 
 
 def main(argv):

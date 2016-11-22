@@ -30,7 +30,7 @@ class BayesballPlayer(Player):
     '''
 
 
-    def __init__(self, min_distance=2, card_margin=0, unknown_card_margin=0, num_cols=2, *args, **kwargs):
+    def __init__(self, min_distance=8, card_margin=1, unknown_card_margin=1, num_cols=2, *args, **kwargs):
         ''' Initialize player and set a minimum distance between scores to knock '''
 
         super(BayesballPlayer, self).__init__(*args, **kwargs)
@@ -120,7 +120,7 @@ class BayesballPlayer(Player):
 
             return 'knock'
         else:
-            face_up_card = min(state['deck_up'][0], 10)
+            face_up_card = min(state['deck_up'][-1], 10)
             if avg_card - self.card_margin > face_up_card and len([a for a in state['self']['raw_cards'] if a and a > avg_card]):
                 # then we should take the face up card
                 return 'face_up_card'

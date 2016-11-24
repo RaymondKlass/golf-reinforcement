@@ -3,7 +3,7 @@
 '''
 import unittest2
 from golf.match import Match
-from mock import patch, Mock
+from mock import call, patch, Mock
 
 
 class MockBoard(object):
@@ -31,7 +31,6 @@ class TestMatch(unittest2.TestCase):
         self.players = {'player{}'.format(a): 'player_{}'.format(a) for a in range(1,3)}
 
 
-
     def test_creation_params(self):
         ''' Test creating a class and confirming the init params '''
 
@@ -57,6 +56,14 @@ class TestMatch(unittest2.TestCase):
         for i in range(2):
             self.assertEqual(match.scores[i], player_scores[i] * num_holes)
 
+        # We want to make sure that we're alternating calls to board
+        calls = [call([self.players['player1'], self.players['player2']],2,verbose=False),
+                 call([self.players['player2'], self.players['player1']],2,verbose=False)] * 5
+        calls = calls[:len(calls)-1]
+
+        board_mock.assert_has_calls(calls)
+
+
 
     @patch('golf.match.Board')
     def test_play_second_match(self, board_mock):
@@ -71,3 +78,10 @@ class TestMatch(unittest2.TestCase):
         match.play_match(match_num)
         for i in range(2):
             self.assertEqual(match.scores[i], player_scores[i] * num_holes)
+
+        # We want to make sure that we're alternating calls to board
+        calls = [call([self.players['player2'], self.players['player1']],2,verbose=False),
+                 call([self.players['player1'], self.players['player2']],2,verbose=False)] * 5
+        calls = calls[:len(calls)-1]
+
+        board_mock.assert_has_calls(calls)

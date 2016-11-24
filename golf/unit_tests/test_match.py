@@ -16,7 +16,6 @@ class MockBoard(object):
 
     def play_game(self):
         scores = [self.player_scores[(self.cur_turn + self.match_num + i) % 2] for i in range(2)]
-        print 'Scores: {}'.format(scores)
         self.cur_turn += 1
         return scores
 
@@ -52,9 +51,9 @@ class TestMatch(unittest2.TestCase):
         match = Match(holes=num_holes, verbose=False, **self.players)
 
         board_mock.return_value = MockBoard(match_num=match_num, player_scores=player_scores)
-        match.play_match(match_num)
+        scores = match.play_match(match_num)
         for i in range(2):
-            self.assertEqual(match.scores[i], player_scores[i] * num_holes)
+            self.assertEqual(scores[i], player_scores[i] * num_holes)
 
         # We want to make sure that we're alternating calls to board
         calls = [call([self.players['player1'], self.players['player2']],2,verbose=False),
@@ -75,9 +74,9 @@ class TestMatch(unittest2.TestCase):
         match = Match(holes=num_holes, verbose=False, **self.players)
 
         board_mock.return_value = MockBoard(match_num=match_num, player_scores=player_scores)
-        match.play_match(match_num)
+        scores = match.play_match(match_num)
         for i in range(2):
-            self.assertEqual(match.scores[i], player_scores[i] * num_holes)
+            self.assertEqual(scores[i], player_scores[i] * num_holes)
 
         # We want to make sure that we're alternating calls to board
         calls = [call([self.players['player2'], self.players['player1']],2,verbose=False),
@@ -85,3 +84,31 @@ class TestMatch(unittest2.TestCase):
         calls = calls[:len(calls)-1]
 
         board_mock.assert_has_calls(calls)
+
+
+    def test_play_k_matches(self):
+        ''' Test playing multi-match set '''
+
+        match = Match(holes=9, verbose=False, **self.players)
+
+        # Let's over-ride the match.play_match - so we can control who wins
+        def return_match_winner(match_num):
+            if match_num % 3 == 0:
+                # second player wins
+                return [100, 10]
+            else:
+                # otherwise player 1 wins
+                return [10, 100]
+
+        match.play_match = return_match_winner
+        match.play_k_matches(90)
+        # player 2 wins every third match - so the end score should be 60 - 30
+        self.assertEqual(match.matches[0], 60)
+        self.assertEqual(match.matches[1], 30)
+
+
+
+
+
+
+

@@ -9,6 +9,7 @@ class Match(object):
         self.scores = [0,0]
         self.total_holes = holes # Since we're 0 indexed
         self.verbose = verbose
+        self.matches = [0] * len(self.players)
 
         if self.verbose:
             # let's introduce the players
@@ -18,35 +19,36 @@ class Match(object):
 
     def play_k_matches(self, k):
         ''' Play a lot of independent matches for a more fair comparison '''
-        matches = [0,0]
         for i in range(k):
 
             if self.verbose:
                 print('\n **** Starting Match # {} **** \n'.format(i))
-            self.play_match(i)
+            scores = self.play_match(i)
 
-            if self.scores[0] > self.scores[1]:
-                matches[1] += 1
-            elif self.scores[1] > self.scores[0]:
-                matches[0] += 1
+            if scores[0] > scores[1]:
+                self.matches[1] += 1
+            elif scores[1] > scores[0]:
+                self.matches[0] += 1
 
             if self.verbose:
-                print 'Player 1 Score: {} Player 2 Score: {}'.format(self.scores[0], self.scores[1])
-                print 'Player 0: {}, Player 1: {}'.format(matches[0], matches[1])
+                print 'Player 1 Score: {} Player 2 Score: {}'.format(scores[0], scores[1])
+                print 'Player 0: {}, Player 1: {}'.format(self.matches[0], self.matches[1])
 
-            self.scores = [0,0]
-
-        print 'Player 0: {} matches, Player 1: {} matches'.format(matches[0], matches[1])
+        print 'Player 0: {} matches, Player 1: {} matches'.format(self.matches[0], self.matches[1])
 
 
     def play_match(self, match_num):
         ''' Play all of the holes for a single match '''
 
+        scores = [0,0]
+
         for turn in range(self.total_holes):
             board = Board([self.players[(turn + match_num) % 2], self.players[((turn + match_num) + 1) % 2]], 2, verbose=self.verbose)
-            scores = board.play_game()
-            for i, score in enumerate(self.scores):
-                self.scores[(turn + match_num + i) % 2] += scores[i]
+            game_scores = board.play_game()
+            for i, score in enumerate(scores):
+                scores[(turn + match_num + i) % 2] += game_scores[i]
+
+        return scores
 
 
 def main(argv):

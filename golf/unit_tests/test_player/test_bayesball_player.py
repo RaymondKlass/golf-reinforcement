@@ -23,8 +23,24 @@ class TestBayesballPlayer(PlayerTestBase):
                                                 num_cols=num_cols)
 
 
+
     def test_player_name(self):
         ''' Basic test for setup '''
 
         self._setup_bayesball_players()
         self.assertEqual(str(self.bayesball_player).lower(), 'Bayesball_Player'.lower())
+
+
+    def test_calc_average_card(self):
+        ''' Test calculating the average card remaining in the deck '''
+
+        deck = range(13) * 4
+        self.assertEqual(len(deck), 52)
+
+        # We mark cards 10 and over as 10
+        deck_sum = lambda d: sum([min(10, a) for a in d])
+
+        # There are 300 points in a full deck
+        self.assertEqual(deck_sum(deck), 300)
+
+

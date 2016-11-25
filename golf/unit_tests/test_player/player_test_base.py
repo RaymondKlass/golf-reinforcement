@@ -40,6 +40,27 @@ class PlayerTestBase(unittest2.TestCase):
         self.deck_up.append(self.deck.pop())
 
 
+    def _deck_minus_hands(self, deck, cards, shuffle=True):
+        ''' Return a deck for which the cards specified have been removed '''
+
+        # First we'll create an index of the cards given, and the cards in the deck
+        deck_index = {a:0 for a in range(13)}
+        card_index = {a:0 for a in range(13)}
+
+        for card in deck:
+            deck_index[card] += 1
+
+        for card in cards:
+            card_index += 1
+
+        deck_minus_cards = []
+        for card_val in deck_index.keys():
+            deck_minus_cards += [card_val] * (deck_index[card_val] - card_index[card_val])
+
+        shuffle(deck_minus_cards)
+        return deck_minus_cards
+
+
     def _get_state_for_hand(self, hand_index):
         """ Return the State for the hand at hand_index """
 

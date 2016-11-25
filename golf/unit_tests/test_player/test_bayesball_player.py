@@ -43,4 +43,18 @@ class TestBayesballPlayer(PlayerTestBase):
         # There are 300 points in a full deck
         self.assertEqual(deck_sum(deck), 300)
 
+        # Let's remove some cards
+        hands = [range(4), range(4)]
+        self.assertEqual(sum(sum(hands, [])), 12)
+
+        deck_left = self._deck_minus_cards(cards=sum(hands, []), deck=deck)
+        self._load_hands(cards=hands, deck=deck_left)
+        self._setup_bayesball_players()
+
+        calc_avg = self.bayesball_player._calc_average_card(self._get_state_for_hand(0))
+
+        # only deducting one players-worth of cards, since the player would not know about the
+        # other player's state just yet
+        self.assertEqual(calc_avg, (300 - sum([a for i, a in enumerate(range(4)) if i % 2 == 0]) - sum([min(a, 10) for a in self.deck_up])) / 49.0)
+
 

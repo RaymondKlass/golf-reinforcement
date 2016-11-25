@@ -40,7 +40,7 @@ class PlayerTestBase(unittest2.TestCase):
         self.deck_up.append(self.deck.pop())
 
 
-    def _deck_minus_hands(self, deck, cards, shuffle=True):
+    def _deck_minus_cards(self, deck, cards, shuffle_cards=True):
         ''' Return a deck for which the cards specified have been removed '''
 
         # First we'll create an index of the cards given, and the cards in the deck
@@ -51,20 +51,23 @@ class PlayerTestBase(unittest2.TestCase):
             deck_index[card] += 1
 
         for card in cards:
-            card_index += 1
+            card_index[card] += 1
 
-        deck_minus_cards = []
+        new_deck = []
         for card_val in deck_index.keys():
-            deck_minus_cards += [card_val] * (deck_index[card_val] - card_index[card_val])
+            new_deck += [card_val] * (deck_index[card_val] - card_index[card_val])
 
-        shuffle(deck_minus_cards)
-        return deck_minus_cards
+        if shuffle_cards:
+            shuffle(new_deck)
+
+        return new_deck
 
 
-    def _get_state_for_hand(self, hand_index):
+    def _get_state_for_hand(self, hand_index, has_knocked=False):
         """ Return the State for the hand at hand_index """
 
         # Comes directly from golf.board.get_state_for_player
-        return {'self': self.hands[hand_index].get_state(),
-                'opp': [self.hands[p] for p in range(len(self.hands)) if p != hand_index],
-                'deck_up': self.deck_up}
+        return {'self': self.hands[hand_index].get_state(is_self=True),
+                'opp': [self.hands[p].get_state() for p in range(len(self.hands)) if p != hand_index],
+                'deck_up': self.deck_up,
+                'has_knocked': has_knocked}

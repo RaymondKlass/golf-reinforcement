@@ -74,7 +74,6 @@ class BayesballPlayer(Player):
             deck_down += [i] * (4 - cards[i])
 
         num_known_cards = sum(cards)
-
         known_cards =  sum([[i]*a for i, a in enumerate(cards)], [])
 
         return (300 - sum([min(a, 10) for a in known_cards])) / (52.0 - num_known_cards)

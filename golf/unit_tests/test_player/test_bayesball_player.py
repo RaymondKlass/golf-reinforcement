@@ -66,7 +66,6 @@ class TestBayesballPlayer(PlayerTestBase):
             self.assertEqual(diff, (6+10) - (4+10))
 
 
-
     def test_calc_average_card(self):
         ''' Test calculating the average card remaining in the deck '''
 

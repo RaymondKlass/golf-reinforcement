@@ -31,6 +31,12 @@ class TestBayesballPlayer(PlayerTestBase):
         self.assertEqual(str(self.bayesball_player).lower(), 'Bayesball_Player'.lower())
 
 
+    def test_calc_score_diff(self):
+        ''' Test calculating the score differential between payers '''
+
+        pass
+
+
     def test_calc_average_card(self):
         ''' Test calculating the average card remaining in the deck '''
 

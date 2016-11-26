@@ -63,6 +63,35 @@ class PlayerTestBase(unittest2.TestCase):
         return new_deck
 
 
+    def _generate_player_state(self, score, visible, raw_cards, num_rows=2, num_cols=2):
+        ''' Convenience function to manually generate a valid state for a player
+
+            Return:
+                dict - In the form of { 'score': int value of the known cards,
+                                        'visible': list of booleans w/ length (num rows X num columns) -
+                                                   indicating whether the card has been seen by the owner,
+                                        'raw_cards': list of ints representing visible cards in hand -
+                                                    length (num rows X num_cols), None represents unknown cards,
+                                        'num_rows': int number of rows - only 2 for now,
+                                        'num_cols': int number of columns
+                                      }
+        '''
+        return {'score': score,
+                'visible': visible,
+                'raw_cards': raw_cards,
+                'num_rows': num_rows,
+                'num_cols': num_cols}
+
+
+    def _generate_game_state(self, self_player_state, opp_players_state, deck_up, has_knocked):
+        ''' Convenience function to generate a valid game state '''
+
+        return {'self': self_player_state,
+                'opp': opp_players_state,
+                'deck_up': deck_up,
+                'has_knocked': has_knocked}
+
+
     def _get_state_for_hand(self, hand_index, has_knocked=False):
         """ Return the State for the hand at hand_index """
 

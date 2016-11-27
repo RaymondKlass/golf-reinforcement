@@ -1,6 +1,6 @@
 # A Random player - who makes their choice randomly at every step
 import random
-from player_base import Player
+from golf.players.player_base import Player
 
 class RandomPlayer(Player):
 

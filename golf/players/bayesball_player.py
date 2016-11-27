@@ -1,5 +1,5 @@
 ''' Player based solely on probabilities '''
-from player_base import Player
+from golf.players.player_base import Player
 import math
 
 class BayesballPlayer(Player):

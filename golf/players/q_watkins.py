@@ -37,6 +37,25 @@ class QWatkins(TrainablePlayer):
               will be used as a way to describe the value of a Q-State
         '''
 
+        """
+        Let's list the features that might make sense to extract
+
+        These features need to take into account the action that is going to be performed
+        as they represent the Q-State and not the Value of the current position -
+        our agent needs to make decisions based upon these values, so if they don't encode
+        what makes a difference in the decision, then I'm not sure they would be effective
+
+        For the 1st phase, the player needs to make a decision between [knock, face_up_card, face_down_card]
+        - Values should be based on player-score differentials, or in other words the utility of each Action
+        - best guaranteed replacement value (0 for face_down_card)
+        - best replacement value assuming average card for unknown cards (0 for face_up_card)
+        - min replacement value (lowest possible replacement value)
+        - max replacement value (highest possible replacement value)
+
+        For the 2nd phase, the player needs to decide [return_card, replace a specific card]
+
+        """
+
         return None
 
 

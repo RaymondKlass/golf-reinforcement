@@ -48,7 +48,7 @@ class QWatkins(TrainablePlayer):
         For the 1st phase, the player needs to make a decision between [knock, face_up_card, face_down_card]
         - Values should be based on player-score differentials, or in other words the utility of each Action
         - best guaranteed replacement value (0 for face_down_card)
-        - best replacement value assuming average card for unknown cards (0 for face_up_card)
+        - best replacement value assuming average card (for all unknown cards - up or down)
         - min replacement value (lowest possible replacement value)
         - max replacement value (highest possible replacement value)
 

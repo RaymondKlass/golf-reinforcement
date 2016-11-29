@@ -4,8 +4,9 @@
 """
 import cPickle
 from golf.players.trainable_player_base import TrainablePlayer
+from golf.players.player_utils import PlayerUtils
 
-class QWatkins(TrainablePlayer):
+class QWatkins(TrainablePlayer, PlayerUtils):
     """ Trainable player based on basic Q-Learning through
         hand-crafted features, Q function approximation,
         and simple linear function approximation

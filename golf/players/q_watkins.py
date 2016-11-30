@@ -30,6 +30,18 @@ class QWatkins(TrainablePlayer, PlayerUtils):
             self.model = self._initialize_blank_model()
 
 
+    def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):
+        ''' Takes the state of the board and responds with the turn_phase_1 move recommended '''
+
+        pass
+
+
+    def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
+        ''' Takes the state of the board and responds with the turn phase 2 move recommended '''
+
+        pass
+
+
     def _extract_features_from_state(self, state, action):
         ''' Takes an input state and outputs a vector of features for use with model
             - Should be specific for which turn_phase we are, but otherwise selecting

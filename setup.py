@@ -12,7 +12,9 @@ app_config = {
     'install_requires': [
         "mock==1.0.1",
         "nose==1.3.7",
-        "unittest2==1.1.0"
+        "numpy==1.11",
+        "unittest2==1.1.0",
+
     ],
     'url': "https://github.com/RaymondKlass/golf-reinforcement"
 }

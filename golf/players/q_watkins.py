@@ -65,8 +65,12 @@ class QWatkins(TrainablePlayer, PlayerUtils):
         - min replacement value (lowest possible replacement value)
         - max replacement value (highest possible replacement value)
 
-        For the 2nd phase, the player needs to decide [return_card, replace a specific card]
-
+        # So here's a first go at the features - all should be ratios with opponents score
+        - expected replacement value - treat unknown cards as average
+        - replacement value - unknown cards +1 Sigma
+        - replacement value - unknown cards +2 Sigma
+        - replacement value - unknown cards -1 Sigma
+        - replacement value - unknown cards -2 Sigma
         """
 
         return None

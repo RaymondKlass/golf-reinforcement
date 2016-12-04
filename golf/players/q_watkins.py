@@ -96,7 +96,13 @@ class QWatkins(TrainablePlayer, PlayerUtils):
         pass
 
 
-    def _initialize_blank_model(self):
-        ''' return a blank model - random weights in the correct format '''
+    def _initialize_blank_model(self, length=5):
+        ''' return a blank model - random weights between -1 and 1
+            Going to check performance with random weight initialization
+            first, but in the future it may be preferable to have
+            random weights along an even distribution, but that seems
+            like an optimization best left for later
+        '''
 
-        return None # this needs to be implemented
+        return [(random.random() * 2) - 1 for _ in range(length)]
+

@@ -33,7 +33,9 @@ class QWatkins(TrainablePlayer, PlayerUtils):
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):
         ''' Takes the state of the board and responds with the turn_phase_1 move recommended '''
 
-        pass
+        turn_decision = [(action, self._calc_move_score(state, action),) for action in possible_moves]
+        sorted_moves = turn_decision.sort(key=lambda x: x[1], reverse=True)
+        return sorted_moves[0]
 
 
     def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
@@ -85,13 +87,12 @@ class QWatkins(TrainablePlayer, PlayerUtils):
         pass
 
 
-    def _calc_next_move(self, state, possible_actions, epsilon_lift=0):
+    def _calc_move_score(self, state, action):
         ''' Takes a vector of features and makes a move based upon history,
             known q-values, and computes the next move.
-
-            epsilon_lift is used to artificially inflate the Q values for
-            Q-States that have been rarely or not visited.  Helpful for exploration
         '''
+
+        # self.epsilon_lift -> controls the lift variable to "prefer" exploration
 
         pass
 

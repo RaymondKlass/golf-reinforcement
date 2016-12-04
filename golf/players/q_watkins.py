@@ -35,7 +35,7 @@ class QWatkins(TrainablePlayer, PlayerUtils):
 
         turn_decision = [(action, self._calc_move_score(state, action),) for action in possible_moves]
         sorted_moves = turn_decision.sort(key=lambda x: x[1], reverse=True)
-        return sorted_moves[0]
+        return sorted_moves[0][0]
 
 
     def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):

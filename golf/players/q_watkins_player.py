@@ -133,7 +133,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         # make sure that when computing the replacement card with std_dev we adhere to
         # the bounds of a standard deck - 0 <= card <= 12
-        feature_vals = {key: min(max(self.card_std_dev * val, 0), 12) for key, val in feature_cache.iteritems()}
+        feature_vals = {key: min(max(self.avg_card + (self.card_std_dev * val), 0), 12) for key, val in feature_cache.iteritems()}
 
         if state in ('face_up_card', 'face_down_card', 'knock',):
             # This is a turn_phase_1 analysis - so we'll need tp try the replacement card against
@@ -148,6 +148,18 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 for key, replacement in feature_vals.iteritems():
                     self_score = (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b])) * replacement))
                     feature_cache[key] = self.min_opp_score - self_score
+            elif state == 'face_up_card':
+                # we know the replacement value since the card is exposed: state['deck_up'][-1]
+                # we'll still need to replace both the unknown cards with the assumptions + use the deck_up card
+                for key, sub in feature_vals.iteritems():
+                    # We'll need to try all of the possible replacement spots for the card - then take the min
+                    repl_vals = []
+                    for loc in range(self.num_cols * 2):
+                        cards = list(state['self']['raw_cards'])
+                        cards[loc] = state['deck_up'][-1]
+                        h = Hand(cards)
+                        repl_vals.append((h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub)))
+                    feature_cache[key] = min(repl_vals)
 
 
         return [feature_cache['0sigma'],

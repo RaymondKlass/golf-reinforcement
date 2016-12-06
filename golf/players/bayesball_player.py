@@ -114,7 +114,7 @@ class BayesballPlayer(Player, PlayerUtils):
             and of course taking into account column null scoring
         """
 
-        avg_card = self._calc_average_card(state)
+        avg_card = self._calc_average_card(state, card_in_hand=card)
 
         if self.verbose:
             print 'Average card calc: {}'.format(avg_card)

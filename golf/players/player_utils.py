@@ -5,7 +5,7 @@ class PlayerUtils(object):
     ''' Utility functions that players can use as a mixin '''
 
 
-    def _calc_known_cards(self, state):
+    def _calc_known_cards(self, state, card_in_hand=None):
         ''' return an index of known cards '''
 
         # Let's index the cards from 0-12 and just keep track of the cards that appear first
@@ -21,6 +21,9 @@ class PlayerUtils(object):
                     state['deck_up']:
             cards[card] += 1
 
+        if card_in_hand != None:
+            cards[card_in_hand] += 1
+
         return cards
 
 
@@ -35,10 +38,10 @@ class PlayerUtils(object):
         return deck_down
 
 
-    def _calc_average_card(self, state):
+    def _calc_average_card(self, state, card_in_hand=None):
         ''' Figure out the average card value left in the deck '''
 
-        cards = self._calc_known_cards(state)
+        cards = self._calc_known_cards(state, card_in_hand)
         deck_down = self._calc_unknown_cards(cards)
 
         num_known_cards = sum(cards)

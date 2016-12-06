@@ -3,6 +3,7 @@
     convergence in 1992 https://en.wikipedia.org/wiki/Q-learning
 """
 import cPickle
+import math
 from golf.players.trainable_player_base import TrainablePlayer
 from golf.players.player_utils import PlayerUtils
 from golf.hand import Hand
@@ -23,13 +24,13 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         try:
             with open(model_file, 'rb') as model_file:
-                self.model = cPickle.load(model_file)
+                self.weights = cPickle.load(model_file)
         except IOError:
             # model does not exist
             if self.verbose:
                 print 'Model {} could not be found - starting from scratch'.format(model_file)
 
-            self.model = self._initialize_blank_model()
+            self.weights = self._initialize_blank_model()
 
     def setup_trainer(self, checkpoint_dir, learning_rate=0.1, eval_freq=10000):
         ''' Setup the training variables
@@ -53,26 +54,26 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
     def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
         ''' Takes the state of the board and responds with the turn phase 2 move recommended '''
-        self._cache_state_derivative_values(state)
+        self._cache_state_derivative_values(state, card)
         return self._take_turn(state, possible_moves)
 
 
-    def _take_turn(self, state, possible_moves):
+    def _take_turn(self, state, possible_moves, card=None):
         """ Since the general move logic will be the same for the first and the second phase
             of the players turn, let's further abstract that out into this method
         """
 
-        turn_decision = [(action, self._calc_move_score(state, action),) for action in possible_moves]
-        sorted_moves = turn_decision.sort(key=lambda x: x[1], reverse=True)
-        return sorted_moves[0][0]
+        turn_decisions = self._calc_move_score(state, actions, card)
+        turn_decisions.sort(key=lambda x: x[1], reverse=True)
+        return turn_decisions[0][0]
 
 
-    def _cache_state_derivative_values(self, state):
+    def _cache_state_derivative_values(self, state, card_in_hand=None):
         """ In order to calculate the features that the model is based on, we'll need to know
             a couple of important values - we should just calculate these once per turn phase
         """
 
-        self.avg_card = self._calc_average_card(state)
+        self.avg_card = self._calc_average_card(state, card_in_hand)
         self.card_std_dev = self._calc_std_dev(state)
         self.min_opp_score = min([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  self.avg_card) for a in state['opp']])
 
@@ -143,6 +144,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             for key, replacement in feature_vals.iteritems():
                 self_score = (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b])) * replacement))
                 feature_cache[key] = self.min_opp_score - self_score
+
         elif action == 'face_up_card':
             # we know the replacement value since the card is exposed: state['deck_up'][-1]
             # we'll still need to replace both the unknown cards with the assumptions + use the deck_up card
@@ -155,6 +157,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                     h = Hand(cards)
                     repl_vals.append((h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub)))
                 feature_cache[key] = self.min_opp_score - min(repl_vals)
+
         elif action == 'face_down_card':
             replacement_card = self.avg_card
             if replacement_card % 1 == 0:
@@ -171,6 +174,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                     h = Hand(cards)
                     repl_vals.append((h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub)))
                 feature_cache[key] = self.min_opp_score - min(repl_vals)
+
         elif action == 'swap':
             # We should swap at a specific location
             for key, sub in feature_vals.iteritems():
@@ -198,11 +202,37 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         pass
 
 
-    def _calc_move_score(self, state, action, card_in_hand=None):
+    def _calc_move_score(self, state, actions, card_in_hand=None):
         ''' Takes a vector of features and makes a move based upon history,
             known q-values, and computes the next move.
             Takes card param from turn_phase_2 when called by that method
         '''
+        features = {}
+        if card_in_hand == None:
+            # then we're looking at turn phase 1 - so no locations necessary
+            for action in actions:
+                raw_features = self._extract_features_from_state(state, action, location=None, card_in_hand=None)
+                score = sum([f * self.weights[i] for i, f in enumerate(raw_features)])
+                features[action] = {'raw_features': raw_features,
+                                    'score': score}
+        else:
+            # we will need to fan out the swap action to include swapping with all possible
+            # locations in the hand
+            for action in actions:
+                if action == 'swap':
+                    for i in range(self.num_cols * 2):
+                        raw_features = self._extract_features_from_state(state, action, location=i, card_in_hand=card_in_hand)
+                        score = sum([f * self.weights[i] for i, f in enumerate(raw_features)])
+                        row = int(i % 2)
+                        col = int(math.floor(i / 2))
+                        features[(action, row, col)] = {'raw_features':raw_features,
+                                                        'score': score}
+                else:
+                    raw_features = self._extract_features_from_state(state, action, location=None, card_in_hand=None)
+                    score = sum([f * self.weights[i] for i, f in enumerate(raw_features)])
+                    features[action] = {'raw_features': raw_features,
+                                        'score': score}
+
 
         pass
 

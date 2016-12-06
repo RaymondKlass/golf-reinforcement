@@ -29,7 +29,18 @@ class QWatkins(TrainablePlayer, PlayerUtils):
 
             self.model = self._initialize_blank_model()
 
+    def setup_trainer(self, checkpoint_dir, learning_rate=0.1, eval_freq=10000):
+        ''' Setup the training variables
+            Args:
+                checkpoint_dir: string -> Directory to store checkpoint files
+                learning_rate: float -> single rate for now, may change to be a schedule
+                eval_freq: integer -> iterations between running an evaluation
+        '''
 
+        self.checkpoint_dir = checkpoint_dir
+        self.learning_rate = learning_rate
+        self.eval_freq = eval_freq
+        self.is_training = True
 
 
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):

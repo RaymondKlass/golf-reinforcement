@@ -30,6 +30,8 @@ class QWatkins(TrainablePlayer, PlayerUtils):
             self.model = self._initialize_blank_model()
 
 
+
+
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):
         ''' Takes the state of the board and responds with the turn_phase_1 move recommended '''
         return self._take_turn(state, possible_moves)
@@ -98,8 +100,6 @@ class QWatkins(TrainablePlayer, PlayerUtils):
         ''' Takes a vector of features and makes a move based upon history,
             known q-values, and computes the next move.
         '''
-
-        # self.epsilon_lift -> controls the lift variable to "prefer" exploration
 
         pass
 

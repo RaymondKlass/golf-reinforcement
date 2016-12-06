@@ -161,8 +161,23 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                         cards[loc] = state['deck_up'][-1]
                         h = Hand(cards)
                         repl_vals.append((h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub)))
-                    feature_cache[key] = min(repl_vals)
+                    feature_cache[key] = self.min_opp_score - min(repl_vals)
             elif state == 'face_down_card':
+                replacement_card = self.avg_card
+                if replacement_card % 1 == 0:
+                    # check if the average card is an integer - since we don't want o possibly imply that the replacement
+                    # would be a solumn match - choosing to avoid this situation - let's add a tiny bit to it - to avoid this
+                    replacement_card += 0.0001
+
+                for key, sub in feature_vals.iteritems():
+                    # We'll need to try all of the possible replacement spots for the card - then take the min
+                    repl_vals = []
+                    for loc in range(self.num_cols * 2):
+                        cards = list(state['self']['raw_cards'])
+                        cards[loc] = replacement_card
+                        h = Hand(cards)
+                        repl_vals.append((h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub)))
+                    feature_cache[key] = self.min_opp_score - min(repl_vals)
 
 
 

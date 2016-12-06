@@ -77,12 +77,14 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self.min_opp_score = min([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  self.avg_card) for a in state['opp']])
 
 
-    def _extract_features_from_state(self, state, action):
+    def _extract_features_from_state(self, state, action, location=None):
         ''' Takes an input state and outputs a vector of features for use with model
             - Should be specific for which turn_phase we are, but otherwise selecting
               fewer features here will help reduce the complexity of the search space
             - Need to represent not only the value, but also the Q-value as these features
               will be used as a way to describe the value of a Q-State
+            - Location is only provided for phase_2 when the action is replacing a card at an
+              actual specific location
         '''
 
         """
@@ -160,6 +162,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                         h = Hand(cards)
                         repl_vals.append((h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub)))
                     feature_cache[key] = min(repl_vals)
+            elif state == 'face_down_card':
+
 
 
         return [feature_cache['0sigma'],

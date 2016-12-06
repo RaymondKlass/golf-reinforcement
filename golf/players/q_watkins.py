@@ -32,16 +32,23 @@ class QWatkins(TrainablePlayer, PlayerUtils):
 
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):
         ''' Takes the state of the board and responds with the turn_phase_1 move recommended '''
+        return self._take_turn(state, possible_moves)
+
+
+    def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
+        ''' Takes the state of the board and responds with the turn phase 2 move recommended '''
+        return self._take_turn(state, possible_moves)
+
+
+    def _take_turn(self, state, possible_moves):
+        """ Since the general move logic will be the same for the first and the second phase
+            of the players turn, let's further abstract that out into this method
+        """
 
         turn_decision = [(action, self._calc_move_score(state, action),) for action in possible_moves]
         sorted_moves = turn_decision.sort(key=lambda x: x[1], reverse=True)
         return sorted_moves[0][0]
 
-
-    def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
-        ''' Takes the state of the board and responds with the turn phase 2 move recommended '''
-
-        pass
 
 
     def _extract_features_from_state(self, state, action):

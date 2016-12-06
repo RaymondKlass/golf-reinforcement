@@ -77,7 +77,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self.min_opp_score = min([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  self.avg_card) for a in state['opp']])
 
 
-    def _extract_features_from_state(self, state, action, location=None):
+    def _extract_features_from_state(self, state, action, location=None, card=None):
         ''' Takes an input state and outputs a vector of features for use with model
             - Should be specific for which turn_phase we are, but otherwise selecting
               fewer features here will help reduce the complexity of the search space
@@ -85,6 +85,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
               will be used as a way to describe the value of a Q-State
             - Location is only provided for phase_2 when the action is replacing a card at an
               actual specific location
+            - Card - value of the card in hand - used during the turn_phase_2
         '''
 
         """
@@ -137,49 +138,48 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # the bounds of a standard deck - 0 <= card <= 12
         feature_vals = {key: min(max(self.avg_card + (self.card_std_dev * val), 0), 12) for key, val in feature_cache.iteritems()}
 
-        if state in ('face_up_card', 'face_down_card', 'knock',):
-            # This is a turn_phase_1 analysis - so we'll need tp try the replacement card against
-            # all of the self cards, and use only the best result
-            # the easiest way to do this is through the Hand class - we'll just instantiate a hand
-            # make the replacements and then take the minimum of those values.
+        if action in ('knock', 'return_to_deck',):
+            # this is the special case that we will not be replacing any cards
+            for key, replacement in feature_vals.iteritems():
+                self_score = (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b])) * replacement))
+                feature_cache[key] = self.min_opp_score - self_score
+        elif action == 'face_up_card':
+            # we know the replacement value since the card is exposed: state['deck_up'][-1]
+            # we'll still need to replace both the unknown cards with the assumptions + use the deck_up card
+            for key, sub in feature_vals.iteritems():
+                # We'll need to try all of the possible replacement spots for the card - then take the min
+                repl_vals = []
+                for loc in range(self.num_cols * 2):
+                    cards = list(state['self']['raw_cards'])
+                    cards[loc] = state['deck_up'][-1]
+                    h = Hand(cards)
+                    repl_vals.append((h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub)))
+                feature_cache[key] = self.min_opp_score - min(repl_vals)
+        elif action == 'face_down_card':
+            replacement_card = self.avg_card
+            if replacement_card % 1 == 0:
+                # check if the average card is an integer - since we don't want o possibly imply that the replacement
+                # would be a solumn match - choosing to avoid this situation - let's add a tiny bit to it - to avoid this
+                replacement_card += 0.0001
 
-            # We'll need to investigate lots of possibilities with different assumptions here...
-
-            if state == 'knock':
-                # this is the special case that we will not be replacing any cards
-                for key, replacement in feature_vals.iteritems():
-                    self_score = (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b])) * replacement))
-                    feature_cache[key] = self.min_opp_score - self_score
-            elif state == 'face_up_card':
-                # we know the replacement value since the card is exposed: state['deck_up'][-1]
-                # we'll still need to replace both the unknown cards with the assumptions + use the deck_up card
-                for key, sub in feature_vals.iteritems():
-                    # We'll need to try all of the possible replacement spots for the card - then take the min
-                    repl_vals = []
-                    for loc in range(self.num_cols * 2):
-                        cards = list(state['self']['raw_cards'])
-                        cards[loc] = state['deck_up'][-1]
-                        h = Hand(cards)
-                        repl_vals.append((h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub)))
-                    feature_cache[key] = self.min_opp_score - min(repl_vals)
-            elif state == 'face_down_card':
-                replacement_card = self.avg_card
-                if replacement_card % 1 == 0:
-                    # check if the average card is an integer - since we don't want o possibly imply that the replacement
-                    # would be a solumn match - choosing to avoid this situation - let's add a tiny bit to it - to avoid this
-                    replacement_card += 0.0001
-
-                for key, sub in feature_vals.iteritems():
-                    # We'll need to try all of the possible replacement spots for the card - then take the min
-                    repl_vals = []
-                    for loc in range(self.num_cols * 2):
-                        cards = list(state['self']['raw_cards'])
-                        cards[loc] = replacement_card
-                        h = Hand(cards)
-                        repl_vals.append((h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub)))
-                    feature_cache[key] = self.min_opp_score - min(repl_vals)
-
-
+            for key, sub in feature_vals.iteritems():
+                # We'll need to try all of the possible replacement spots for the card - then take the min
+                repl_vals = []
+                for loc in range(self.num_cols * 2):
+                    cards = list(state['self']['raw_cards'])
+                    cards[loc] = replacement_card
+                    h = Hand(cards)
+                    repl_vals.append((h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub)))
+                feature_cache[key] = self.min_opp_score - min(repl_vals)
+        elif action == 'swap':
+            # We should swap at a specific location
+            for key, sub in feature_vals.iteritems():
+                # We'll need to try all of the possible replacement spots for the card - then take the min
+                cards = list(state['self']['raw_cards'])
+                cards[loc] = state['deck_up'][-1]
+                h = Hand(cards)
+                repl_val = (h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub))
+                feature_cache[key] = self.min_opp_score - repl_val
 
         return [feature_cache['0sigma'],
                 feature_cache['1sigma'],
@@ -198,9 +198,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         pass
 
 
-    def _calc_move_score(self, state, action):
+    def _calc_move_score(self, state, action, card=None):
         ''' Takes a vector of features and makes a move based upon history,
             known q-values, and computes the next move.
+            Takes card param from turn_phase_2 when called by that method
         '''
 
         pass

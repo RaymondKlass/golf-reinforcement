@@ -5,8 +5,9 @@
 import cPickle
 from golf.players.trainable_player_base import TrainablePlayer
 from golf.players.player_utils import PlayerUtils
+from golf.hand import Hand
 
-class QWatkins(TrainablePlayer, PlayerUtils):
+class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
     """ Trainable player based on basic Q-Learning through
         hand-crafted features, Q function approximation,
         and simple linear function approximation
@@ -16,6 +17,7 @@ class QWatkins(TrainablePlayer, PlayerUtils):
         """ Initialize player and load model if available -
             otherwise player will start with a randomly initialize model """
 
+        super(QWatkinsPlayer, self).__init__(*args, **kwargs)
         self.num_cols = num_cols
         self.is_training = False # This will be over-written if self.setup_trainer() is run
 
@@ -99,19 +101,60 @@ class QWatkins(TrainablePlayer, PlayerUtils):
 
         # So here's a first go at the features - all should be ratios with opponents score
         - expected replacement value - treat unknown cards as average
-        - replacement value - unknown cards +1 Sigma
-        - replacement value - unknown cards +2 Sigma
-        - replacement value - unknown cards -1 Sigma
-        - replacement value - unknown cards -2 Sigma
+        - replacement value - unknown cards for self +1 Sigma
+        - replacement value - unknown cards for self +2 Sigma
+        - replacement value - unknown cards for self -1 Sigma
+        - replacement value - unknown cards for self -2 Sigma
+
+         # Note the state object that is returned is arranged specifically:
+        {'self': { 'score': int value of the known cards,
+                  'visible': list of booleans w/ length (num rows X num columns),
+                  'raw_cards': list of ints representing visible cards in hand -
+                               length (num rows X num_cols), None represents unknown cards,
+                  'num_rows': int number of rows - only 2 for now,
+                  'num_cols': int number of columns
+                 },
+         'opp': { Same as above ^ }
+         'deck_up': list of card in the discard pile (which both players have seen)
+        }
         """
 
         # this is where the real stuff gets done
         # We'll need to figure out the current score differential associated with the Q-State
+        # We have access to the min opponent score - which is cached through self.min_opp_score
+
+        # Let's assemble the feature vector in a dictionary and then return it via a fixed
+        # transformation function so that we provide it consistently
+        feature_cache = {'0sigma': 0,
+                         '1sigma': 1,
+                         '2sigma': 2,
+                         '-1sigma': -1,
+                         '-2sigma': -2}
+
+        # make sure that when computing the replacement card with std_dev we adhere to
+        # the bounds of a standard deck - 0 <= card <= 12
+        feature_vals = {key: min(max(self.card_std_dev * val, 0), 12) for key, val in feature_cache.iteritems()}
+
+        if state in ('face_up_card', 'face_down_card', 'knock',):
+            # This is a turn_phase_1 analysis - so we'll need tp try the replacement card against
+            # all of the self cards, and use only the best result
+            # the easiest way to do this is through the Hand class - we'll just instantiate a hand
+            # make the replacements and then take the minimum of those values.
+
+            # We'll need to investigate lots of possibilities with different assumptions here...
+
+            if state == 'knock':
+                # this is the special case that we will not be replacing any cards
+                for key, replacement in feature_vals.iteritems():
+                    self_score = (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b])) * replacement))
+                    feature_cache[key] = self.min_opp_score - self_score
 
 
-
-
-        return None
+        return [feature_cache['0sigma'],
+                feature_cache['1sigma'],
+                feature_cache['2sigma'],
+                feature_cache['-1sigma'],
+                feature_cache['-2sigma']]
 
 
     def _update_weights(self, features, learning_rate):

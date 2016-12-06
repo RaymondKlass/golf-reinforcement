@@ -234,8 +234,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                                         'score': score}
 
 
-        pass
-
 
     def _initialize_blank_model(self, length=5):
         ''' return a blank model - random weights between -1 and 1

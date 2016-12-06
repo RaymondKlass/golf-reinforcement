@@ -72,7 +72,7 @@ class QWatkins(TrainablePlayer, PlayerUtils):
 
         self.avg_card = self._calc_average_card(state)
         self.card_std_dev = self._calc_std_dev(state)
-
+        self.min_opp_score = min([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  self.avg_card) for a in state['opp']])
 
 
     def _extract_features_from_state(self, state, action):
@@ -106,7 +106,9 @@ class QWatkins(TrainablePlayer, PlayerUtils):
         """
 
         # this is where the real stuff gets done
-        #
+        # We'll need to figure out the current score differential associated with the Q-State
+
+
 
 
         return None

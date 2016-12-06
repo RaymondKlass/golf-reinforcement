@@ -45,11 +45,13 @@ class QWatkins(TrainablePlayer, PlayerUtils):
 
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):
         ''' Takes the state of the board and responds with the turn_phase_1 move recommended '''
+        self._cache_state_derivative_values(state)
         return self._take_turn(state, possible_moves)
 
 
     def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
         ''' Takes the state of the board and responds with the turn phase 2 move recommended '''
+        self._cache_state_derivative_values(state)
         return self._take_turn(state, possible_moves)
 
 
@@ -61,6 +63,15 @@ class QWatkins(TrainablePlayer, PlayerUtils):
         turn_decision = [(action, self._calc_move_score(state, action),) for action in possible_moves]
         sorted_moves = turn_decision.sort(key=lambda x: x[1], reverse=True)
         return sorted_moves[0][0]
+
+
+    def _cache_state_derivative_values(self, state):
+        """ In order to calculate the features that the model is based on, we'll need to know
+            a couple of important values - we should just calculate these once per turn phase
+        """
+
+        self.avg_card = self._calc_average_card(state)
+        self.card_std_dev = self._calc_std_dev(state)
 
 
 
@@ -93,6 +104,10 @@ class QWatkins(TrainablePlayer, PlayerUtils):
         - replacement value - unknown cards -1 Sigma
         - replacement value - unknown cards -2 Sigma
         """
+
+        # this is where the real stuff gets done
+        #
+
 
         return None
 

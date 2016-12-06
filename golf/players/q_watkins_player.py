@@ -77,14 +77,14 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self.min_opp_score = min([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  self.avg_card) for a in state['opp']])
 
 
-    def _extract_features_from_state(self, state, action, location=None, card=None):
+    def _extract_features_from_state(self, state, action, location=None, card_in_hand=None):
         ''' Takes an input state and outputs a vector of features for use with model
             - Should be specific for which turn_phase we are, but otherwise selecting
               fewer features here will help reduce the complexity of the search space
             - Need to represent not only the value, but also the Q-value as these features
               will be used as a way to describe the value of a Q-State
             - Location is only provided for phase_2 when the action is replacing a card at an
-              actual specific location
+              actual specific location (index value passed)
             - Card - value of the card in hand - used during the turn_phase_2
         '''
 
@@ -176,7 +176,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             for key, sub in feature_vals.iteritems():
                 # We'll need to try all of the possible replacement spots for the card - then take the min
                 cards = list(state['self']['raw_cards'])
-                cards[loc] = state['deck_up'][-1]
+                cards[location] = card_in_hand
                 h = Hand(cards)
                 repl_val = (h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub))
                 feature_cache[key] = self.min_opp_score - repl_val
@@ -198,7 +198,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         pass
 
 
-    def _calc_move_score(self, state, action, card=None):
+    def _calc_move_score(self, state, action, card_in_hand=None):
         ''' Takes a vector of features and makes a move based upon history,
             known q-values, and computes the next move.
             Takes card param from turn_phase_2 when called by that method

@@ -64,8 +64,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         """
 
         turn_decisions = self._calc_move_score(state, actions, card)
-        turn_decisions.sort(key=lambda x: x[1], reverse=True)
-        return turn_decisions[0][0]
+        turn_decisions.sort(key=lambda x: x['score'], reverse=True)
+
+        print turn_deciosions
+        return turn_decisions[0]['action']
 
 
     def _cache_state_derivative_values(self, state, card_in_hand=None):
@@ -207,14 +209,15 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             known q-values, and computes the next move.
             Takes card param from turn_phase_2 when called by that method
         '''
-        features = {}
+        features = []
         if card_in_hand == None:
             # then we're looking at turn phase 1 - so no locations necessary
             for action in actions:
                 raw_features = self._extract_features_from_state(state, action, location=None, card_in_hand=None)
                 score = sum([f * self.weights[i] for i, f in enumerate(raw_features)])
-                features[action] = {'raw_features': raw_features,
-                                    'score': score}
+                features.append({'raw_features': raw_features,
+                                 'score': score,
+                                 'action': action})
         else:
             # we will need to fan out the swap action to include swapping with all possible
             # locations in the hand
@@ -225,15 +228,16 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                         score = sum([f * self.weights[i] for i, f in enumerate(raw_features)])
                         row = int(i % 2)
                         col = int(math.floor(i / 2))
-                        features[(action, row, col)] = {'raw_features':raw_features,
-                                                        'score': score}
+                        features.append({'raw_features':raw_features,
+                                         'score': score,
+                                         'action': (action, row, col)})
                 else:
                     raw_features = self._extract_features_from_state(state, action, location=None, card_in_hand=None)
                     score = sum([f * self.weights[i] for i, f in enumerate(raw_features)])
-                    features[action] = {'raw_features': raw_features,
-                                        'score': score}
-
-
+                    features.append({'raw_features': raw_features,
+                                        'score': score,
+                                        'action': action})
+        return features
 
     def _initialize_blank_model(self, length=5):
         ''' return a blank model - random weights between -1 and 1

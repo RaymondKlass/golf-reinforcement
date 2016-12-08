@@ -4,6 +4,7 @@
 """
 import cPickle
 import math
+import random
 from golf.players.trainable_player_base import TrainablePlayer
 from golf.players.player_utils import PlayerUtils
 from golf.hand import Hand
@@ -14,7 +15,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         and simple linear function approximation
     """
 
-    def __init__(self, model_file, num_cols=2, *args, **kwargs):
+    def __init__(self, model_file='file-no-found', num_cols=2, *args, **kwargs):
         """ Initialize player and load model if available -
             otherwise player will start with a randomly initialize model """
 
@@ -55,7 +56,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
     def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
         ''' Takes the state of the board and responds with the turn phase 2 move recommended '''
         self._cache_state_derivative_values(state, card)
-        return self._take_turn(state, possible_moves)
+        return self._take_turn(state, possible_moves, card)
 
 
     def _take_turn(self, state, possible_moves, card=None):
@@ -63,10 +64,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             of the players turn, let's further abstract that out into this method
         """
 
-        turn_decisions = self._calc_move_score(state, actions, card)
+        turn_decisions = self._calc_move_score(state, possible_moves, card)
         turn_decisions.sort(key=lambda x: x['score'], reverse=True)
 
-        print turn_deciosions
+        print turn_decisions
         return turn_decisions[0]['action']
 
 
@@ -182,6 +183,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             for key, sub in feature_vals.iteritems():
                 # We'll need to try all of the possible replacement spots for the card - then take the min
                 cards = list(state['self']['raw_cards'])
+                print 'Location for swap {}'.format(location)
                 cards[location] = card_in_hand
                 h = Hand(cards)
                 repl_val = (h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub))
@@ -211,6 +213,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         '''
         features = []
         if card_in_hand == None:
+            print 'Card in hand none: {}, card in hand {}'.format(actions, card_in_hand)
             # then we're looking at turn phase 1 - so no locations necessary
             for action in actions:
                 raw_features = self._extract_features_from_state(state, action, location=None, card_in_hand=None)
@@ -224,10 +227,16 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             for action in actions:
                 if action == 'swap':
                     for i in range(self.num_cols * 2):
+
+                        print 'Calling swap with location: {}'.format(i)
+
                         raw_features = self._extract_features_from_state(state, action, location=i, card_in_hand=card_in_hand)
-                        score = sum([f * self.weights[i] for i, f in enumerate(raw_features)])
+                        print 'Value for i {}'.format(i)
+                        score = sum([f * self.weights[idx] for idx, f in enumerate(raw_features)])
+                        print 'Value2 for i {}'.format(i)
                         row = int(i % 2)
                         col = int(math.floor(i / 2))
+                        print 'Considering row: {}, col {}, i: {}'.format(row, col, i)
                         features.append({'raw_features':raw_features,
                                          'score': score,
                                          'action': (action, row, col)})

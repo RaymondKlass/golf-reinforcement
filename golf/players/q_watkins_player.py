@@ -200,7 +200,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 feature_cache['-2sigma']]
 
 
-    def _update_weights(self, q_state_obj, q_prime_state_obj, reward, learning_rate):
+    def _update_weights(self, old_q_score, new_q_score, old_features, reward, learning_rate):
         ''' Update the weights associated for a particular Q-State '''
 
         if self.verbose:
@@ -209,12 +209,12 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # difference = [r + gamma * max Q(s`,a`)] - Q(s,a)
         # Going to use a gamma of 1 for no discount on future Q state values,
         # as the card game naturally tends towards lower future rewards already
-        difference = (reward + q_prime_state_obj['score']) - q_state_obj['score']
+        difference = (reward + new_q_score) - old_q_score
 
         # Now we need to update the weights iteratively using the saved difference and learning rate
         # w_i <- w_i + (learning_rate * difference * f_i(s,a) where f_i is feature i
         for i, w in enumerate(self.weights):
-            self.weights[i] = self.weights[i] + (learning_rate * difference * q_state_obj['raw_features'][i])
+            self.weights[i] = self.weights[i] + (learning_rate * difference * old_features[i])
 
         if self.verbose:
             print 'Weights after update {}'.format(self.weights)

@@ -24,6 +24,12 @@ class Board(object):
         self.hands = []
         self.verbose = verbose
         self.has_knocked = False
+        self.trainers = [False] * len(players)
+
+
+    def setup_trainers(self, trainers):
+        ''' Setup players as trainers '''
+        self.trainers = trainers
 
 
     @property
@@ -107,8 +113,14 @@ class Board(object):
                 print 'Deck Up: {}'.format(state['deck_up'])
                 print 'Card-in-hand: {}'.format(card)
 
+            # For trainable players - we need to update the new state - which
+            # is dependent on the old state
+            new_state = self.get_state_for_player(cur_turn)
+            if self.trainers[cur_turn]:
+                self.players[cur_turn].update_weights(self, new_state, card=card, reward=0, possible_moves=possible_moves)
+
             decision_two = self.players[cur_turn].turn_phase_2(card,
-                                                               self.get_state_for_player(cur_turn),
+                                                               new_state,
                                                                possible_moves)
 
             if self.verbose:
@@ -138,6 +150,20 @@ class Board(object):
                 self.deck_down = list(self.deck_up)
                 shuffle(self.deck_down)
                 self.deck_up = [cur_up]
+
+            # Here - we need the update to use the game state in the end as a signal
+            # the problem is that if the next player's turn results int he end of the game, then we're not quite sure how to update?
+            if self.trainers[cur_turn]:
+                reward = 0
+                if self.has_knocked:
+                    for i, tp in enumerate(self.trainers):
+                        if tp:
+                            print 'Reward calculation'
+                            reward = self.players[i % 2] / float(self.players[i])
+
+                            new_state = self.get_state_for_player(i%2)
+                            self.players[cur_turn].update_weights(self, new_state, card=None, reward=0, possible_moves=['knocked'])
+
 
         if self.verbose:
             print 'Final State: {}'.format([hand.score() for hand in self.hands])

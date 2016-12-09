@@ -53,6 +53,22 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         return self._take_turn(state, possible_moves)
 
 
+    def update_weights(self, state, card=None, reward=0, possible_moves=[]):
+        ''' Takes a new state and executes the weight update '''
+
+        # If we're training - then we should take the state from the turn_phase_1 and calculate the
+        # new max(Q(s`,a`)) state that we will need to uodate the weights
+        old_q_state = self.q_state
+
+        self._cache_state_derivative_values(state, card)
+        self._take_turn(state, possible_moves, card)
+        self._update_weights(self, q_state_obj=old_q_state,
+                                   q_prime_state_obj=self.q_state,
+                                   reward=0, # Since this update will never result from an exit state
+                                   learning_rate=self.learning_rate)
+
+
+
     def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
         ''' Takes the state of the board and responds with the turn phase 2 move recommended '''
         self._cache_state_derivative_values(state, card)
@@ -200,7 +216,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 feature_cache['-2sigma']]
 
 
-    def _update_weights(self, old_q_score, new_q_score, old_features, reward, learning_rate):
+    def _update_weights(self, q_state_obj, q_prime_state_obj, reward, learning_rate):
         ''' Update the weights associated for a particular Q-State '''
 
         if self.verbose:
@@ -209,12 +225,12 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # difference = [r + gamma * max Q(s`,a`)] - Q(s,a)
         # Going to use a gamma of 1 for no discount on future Q state values,
         # as the card game naturally tends towards lower future rewards already
-        difference = (reward + new_q_score) - old_q_score
+        difference = (reward + q_prime_state_obj['score']) - q_state_obj['score']
 
         # Now we need to update the weights iteratively using the saved difference and learning rate
         # w_i <- w_i + (learning_rate * difference * f_i(s,a) where f_i is feature i
         for i, w in enumerate(self.weights):
-            self.weights[i] = self.weights[i] + (learning_rate * difference * old_features[i])
+            self.weights[i] = self.weights[i] + (learning_rate * difference * q_state_obj['raw_features'][i])
 
         if self.verbose:
             print 'Weights after update {}'.format(self.weights)

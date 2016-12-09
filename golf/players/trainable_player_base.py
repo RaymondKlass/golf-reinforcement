@@ -17,3 +17,11 @@ class TrainablePlayer(Player):
         """
 
         raise NotImplementedError
+
+
+    def update_weights(self, state, card=None, reward=0, possible_moves=[]):
+        """ Trainable players should implement this method so that weight updates
+            can happen after a turn
+        """
+
+        raise NotImplementedError

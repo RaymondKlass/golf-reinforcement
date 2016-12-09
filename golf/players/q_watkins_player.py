@@ -67,7 +67,11 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         turn_decisions = self._calc_move_score(state, possible_moves, card)
         turn_decisions.sort(key=lambda x: x['score'], reverse=True)
 
-        print turn_decisions
+        # if we're training then we're going to need to save the value of the Q-State for updating weights later
+        # Q(s,a) -> calculated value of the Q-State that we're committing to
+        if self.is_training:
+          self.q_state = turn_decision[0]['score']
+
         return turn_decisions[0]['action']
 
 

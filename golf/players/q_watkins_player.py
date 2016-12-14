@@ -55,6 +55,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):
         ''' Takes the state of the board and responds with the turn_phase_1 move recommended '''
+
+        if self.verbose:
+            print '\n Turn Phase 1: \n'
+
         self._cache_state_derivative_values(state)
         turn = self._take_turn(state, possible_moves)
         return turn
@@ -80,6 +84,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
     def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
         ''' Takes the state of the board and responds with the turn phase 2 move recommended '''
+
+        if self.verbose:
+            print '\n Turn Phase 2: \n'
+
         self._cache_state_derivative_values(state, card)
         turn = self._take_turn(state, possible_moves, card)
         return turn
@@ -116,6 +124,13 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self.avg_card = self._calc_average_card(state, card_in_hand)
         self.card_std_dev = self._calc_std_dev(state)
         self.min_opp_score = min([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  self.avg_card) for a in state['opp']])
+
+        if self.verbose:
+            print 'Checking State Derivative Values'
+            print 'Avg_card: {}'.format(self.avg_card)
+            print 'Card Standard Deviation: {}'.format(self.card_std_dev)
+            print 'Min Opp Score: {}'.format(self.min_opp_score)
+            print 'State: {}'.format(state)
 
 
     def _extract_features_from_state(self, state, action, location=None, card_in_hand=None):
@@ -179,13 +194,16 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # the bounds of a standard deck - 0 <= card <= 12
         feature_vals = {key: min(max(self.avg_card + (self.card_std_dev * val), 0), 12) for key, val in feature_cache.iteritems()}
 
+        if self.verbose:
+            print 'Feature Values: {}'.format(feature_vals)
+
         if action == 'knocked':
             raise
 
         if action in ('knock', 'return_to_deck',):
             # this is the special case that we will not be replacing any cards
             for key, replacement in feature_vals.iteritems():
-                self_score = (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b])) * replacement))
+                self_score = (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b == None])) * min(replacement, 10)))
                 feature_cache[key] = self.min_opp_score - self_score
 
         elif action == 'face_up_card':
@@ -198,7 +216,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                     cards = list(state['self']['raw_cards'])
                     cards[loc] = state['deck_up'][-1]
                     h = Hand(cards)
-                    repl_vals.append((h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub)))
+                    repl_vals.append((h.score(cards) + ((len([b for b in cards if b == None]) - 1) * min(sub, 10))))
+
                 feature_cache[key] = self.min_opp_score - min(repl_vals)
 
         elif action == 'face_down_card':
@@ -215,7 +234,19 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                     cards = list(state['self']['raw_cards'])
                     cards[loc] = replacement_card
                     h = Hand(cards)
-                    repl_vals.append((h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub)))
+                    repl_vals.append((h.score(cards) + ( (len([b for b in cards if b == None])) * min(sub, 10) )))
+
+                    if self.verbose:
+                        print '\n Sub Card: {}'.format(replacement_card)
+                        print 'Guess Card: {}'.format(sub)
+                        print 'Cards: {}'.format(cards)
+                        print 'Replacement Value: {}'.format(repl_vals[-1])
+                        print 'Extra added: {}'.format( len([b for b in cards if b == None]) )
+                        print 'Score As calc by hand: {}'.format(h.score(cards))
+                        print 'Total num cards: {}'.format((self.num_cols * 2))
+                        print 'calc addition: {}'.format((len([b for b in cards if b == None])) * min(sub, 10))
+
+
                 feature_cache[key] = self.min_opp_score - min(repl_vals)
 
         elif action == 'swap':
@@ -225,7 +256,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 cards = list(state['self']['raw_cards'])
                 cards[location] = card_in_hand
                 h = Hand(cards)
-                repl_val = (h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub))
+                repl_val = (h.score(cards) + (((self.num_cols * 2) - len([b for b in cards if b == None]) - 1) * min(sub, 10)))
                 feature_cache[key] = self.min_opp_score - repl_val
 
 
@@ -265,12 +296,23 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             known q-values, and computes the next move.
             Takes card param from turn_phase_2 when called by that method
         '''
+
+        if self.verbose:
+            print 'Calculating the move score for actions: {}'.format(actions)
+
         features = []
         if card_in_hand == None:
             # then we're looking at turn phase 1 - so no locations necessary
             for action in actions:
                 raw_features = self._extract_features_from_state(state, action, location=None, card_in_hand=None)
                 score = sum([f * self.weights[i] for i, f in enumerate(raw_features)])
+
+                if self.verbose:
+                    print '\n Features for action: {} \n'.format(action)
+                    print 'Features: {} \n'.format(raw_features)
+                    print 'Weights: {}'.format(self.weights)
+                    print 'Score: {} \n'.format(score)
+
                 features.append({'raw_features': raw_features,
                                  'score': score - 1,
                                  'action': action})

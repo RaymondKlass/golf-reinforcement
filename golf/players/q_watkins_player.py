@@ -37,7 +37,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
             self.weights = self._initialize_blank_model()
 
-    def setup_trainer(self, checkpoint_dir, learning_rate=0.01, eval_freq=10000, epsilon=.2, discount=0.3):
+    def setup_trainer(self, checkpoint_dir, learning_rate=0.1, eval_freq=10000, epsilon=.4, discount=0.9):
         ''' Setup the training variables
             Args:
                 checkpoint_dir: string -> Directory to store checkpoint files
@@ -67,16 +67,22 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         ''' Takes a new state and executes the weight update '''
         # It's possible this player gets called before they have ever gone - in that case ignore the results
         try:
-            self.q_state
-        except AttributeError:
+            old_q_state = dict(self.q_state)
+        except TypeError:
             return
 
-        # If we're training - then we should take the state from the turn_phase_1 and calculate the
-        # new max(Q(s`,a`)) state that we will need to uodate the weights
-        old_q_state = self.q_state
+        print 'Old Q State'
+        print old_q_state
 
         self._cache_state_derivative_values(state, card)
         self._take_turn(state, possible_moves, card)
+
+        print 'New Q State'
+        print self.q_state
+
+        print 'Old2 state'
+        print old_q_state
+
         self._update_weights( q_state_obj=old_q_state,
                               q_prime_state_obj=self.q_state,
                               reward= -1, # Since this update will never result from an exit state
@@ -186,6 +192,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # the bounds of a standard deck - 0 <= card <= 12
         feature_vals = {key: min(max(self.avg_card + (self.card_std_dev * val), 0), 12) for key, val in feature_cache.iteritems()}
 
+        print 'Action: {}'.format(action)
+        if action == 'knocked':
+            raise
+
         if action in ('knock', 'return_to_deck',):
             # this is the special case that we will not be replacing any cards
             for key, replacement in feature_vals.iteritems():
@@ -232,6 +242,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 repl_val = (h.score(cards) + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b]) - 1) * sub))
                 feature_cache[key] = self.min_opp_score - repl_val
 
+        print feature_cache
+
         return [feature_cache['0sigma'],
                 feature_cache['1sigma'],
                 feature_cache['2sigma'],
@@ -249,7 +261,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # difference = [r + gamma * max Q(s`,a`)] - Q(s,a)
         # Going to use a gamma of 1 for no discount on future Q state values,
         # as the card game naturally tends towards lower future rewards already
-
+        print 'PRIME:'
+        print q_prime_state_obj
+        print 'STATE'
+        print q_state_obj
         difference = (reward + q_prime_state_obj['score']) - q_state_obj['score']
         # Now we need to update the weights iteratively using the saved difference and learning rate
         # w_i <- w_i + (learning_rate * difference * f_i(s,a) where f_i is feature i
@@ -259,7 +274,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # we should rescale the weights so we don't encounter overflow
         # perhaps subtract the mean
         avg = sum(self.weights) / float(len(self.weights))
-        self.weights = [(w-avg) / (max(self.weights) * 0.01) for w in self.weights]
+        self.weights = [(w-avg) / (max(self.weights+[.1]) * 0.01) for w in self.weights]
 
         #print 'Weights after update {}'.format(self.weights)
         if self.verbose:
@@ -275,8 +290,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         if card_in_hand == None:
             # then we're looking at turn phase 1 - so no locations necessary
             for action in actions:
+                print 'Extracting features'
                 raw_features = self._extract_features_from_state(state, action, location=None, card_in_hand=None)
                 score = sum([f * self.weights[i] for i, f in enumerate(raw_features)])
+                print 'Score: {}'.format(score)
                 features.append({'raw_features': raw_features,
                                  'score': score - 1,
                                  'action': action})
@@ -285,11 +302,13 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             # locations in the hand
             #print 'Card in hand: {}, card in hand {}'.format(actions, card_in_hand)
             for action in actions:
+                print 'Action: {}'.format(action)
                 if action == 'swap':
                     for i in range(self.num_cols * 2):
 
                         raw_features = self._extract_features_from_state(state, action, location=i, card_in_hand=card_in_hand)
                         score = sum([f * self.weights[idx] for idx, f in enumerate(raw_features)])
+                        print 'Score2: {}'.format(score)
                         row = int(i % 2)
                         col = int(math.floor(i / 2))
                         features.append({'raw_features':raw_features,
@@ -298,6 +317,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 else:
                     raw_features = self._extract_features_from_state(state, action, location=None, card_in_hand=None)
                     score = sum([f * self.weights[i] for i, f in enumerate(raw_features)])
+                    print 'Score3: {}'.format(score)
                     features.append({'raw_features': raw_features,
                                         'score': score,
                                         'action': action})
@@ -311,5 +331,5 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             like an optimization best left for later
         '''
 
-        return [(random.random() * 2) - 1 for _ in range(length)]
+        return [0] * length
 

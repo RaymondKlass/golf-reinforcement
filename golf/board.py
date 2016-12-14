@@ -94,7 +94,7 @@ class Board(object):
                 # then the player has no turn phase 2
                 self.has_knocked = True
                 if self.trainers[cur_turn]:
-                    self.players[cur_turn].update_weights(self.get_state_for_player(cur_turn), card=None, reward=0, possible_moves=['knocked'])
+                    self.players[cur_turn].update_weights(self.get_state_for_player(cur_turn), card=None, reward=0, possible_moves=['knock'])
                 continue
 
             if decision == 'face_up_card':

@@ -59,7 +59,9 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
     def update_weights(self, state, card=None, reward=0, possible_moves=[]):
         ''' Takes a new state and executes the weight update '''
         # It's possible this player gets called before they have ever gone - in that case ignore the results
-        if not self.q_state:
+        try:
+            self.q_state
+        except AttributeError:
             return
 
         # If we're training - then we should take the state from the turn_phase_1 and calculate the

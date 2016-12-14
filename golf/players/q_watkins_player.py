@@ -8,6 +8,7 @@ import random
 from golf.players.trainable_player_base import TrainablePlayer
 from golf.players.player_utils import PlayerUtils
 from golf.hand import Hand
+import random
 
 class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
     """ Trainable player based on basic Q-Learning through
@@ -23,6 +24,9 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self.num_cols = num_cols
         self.is_training = False # This will be over-written if self.setup_trainer() is run
 
+        self.epsilon = 0 # Exploration
+        self.discount = 0.3 # Discount future rewards - not sure if the optimal player should do this
+
         try:
             with open(model_file, 'rb') as model_file:
                 self.weights = cPickle.load(model_file)
@@ -33,13 +37,16 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
             self.weights = self._initialize_blank_model()
 
-    def setup_trainer(self, checkpoint_dir, learning_rate=0.01, eval_freq=10000):
+    def setup_trainer(self, checkpoint_dir, learning_rate=0.01, eval_freq=10000, epsilon=.2, discount=0.3):
         ''' Setup the training variables
             Args:
                 checkpoint_dir: string -> Directory to store checkpoint files
                 learning_rate: float -> single rate for now, may change to be a schedule
                 eval_freq: integer -> iterations between running an evaluation
         '''
+
+        self.epsilon = .2
+        self.discount = 0.3
 
         self.checkpoint_dir = checkpoint_dir
         self.learning_rate = learning_rate
@@ -72,7 +79,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self._take_turn(state, possible_moves, card)
         self._update_weights( q_state_obj=old_q_state,
                               q_prime_state_obj=self.q_state,
-                              reward=0, # Since this update will never result from an exit state
+                              reward= -1, # Since this update will never result from an exit state
                               learning_rate=self.learning_rate)
 
 
@@ -94,9 +101,18 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # if we're training then we're going to need to save the value of the Q-State for updating weights later
         # Q(s,a) -> calculated value of the Q-State that we're committing to
         if self.is_training:
-            self.q_state = turn_decisions[0]
+            choice = random.random()
+            if choice <= self.epsilon:
+                # select a random decision
+                decision = random.choice(turn_decisions)
+            else:
+                decision = turn_decisions[0]
 
-        return turn_decisions[0]['action']
+            self.q_state = decision
+        else:
+            decision = turn_decisions[0]
+
+        return decision['action']
 
 
     def _cache_state_derivative_values(self, state, card_in_hand=None):
@@ -262,7 +278,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 raw_features = self._extract_features_from_state(state, action, location=None, card_in_hand=None)
                 score = sum([f * self.weights[i] for i, f in enumerate(raw_features)])
                 features.append({'raw_features': raw_features,
-                                 'score': score,
+                                 'score': score - 1,
                                  'action': action})
         else:
             # we will need to fan out the swap action to include swapping with all possible

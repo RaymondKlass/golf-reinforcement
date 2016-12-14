@@ -14,7 +14,7 @@ class Match(object):
         self.matches = [0] * len(self.players)
 
         # Setup the player training logic
-        #self.players[1].setup_trainer('/tmp')
+        self.players[1].setup_trainer('/tmp')
 
         if self.verbose:
             # let's introduce the players

@@ -200,6 +200,9 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         if action == 'knocked':
             raise
 
+        if self.verbose:
+            print 'Analyzing action: {}'.format(action)
+
         if action in ('knock', 'return_to_deck',):
             # this is the special case that we will not be replacing any cards
             for key, replacement in feature_vals.iteritems():

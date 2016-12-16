@@ -272,8 +272,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self_score = self_score + (len([b for b in self_cards if b == None]) * min(unknown_card_val, 10))
 
         if self.verbose:
+            print '\n Cards: {}'.format(self_cards)
             print 'Replacement card : {}'.format(card)
             print 'Replacement card position: {}'.format(position)
+            print 'Unknown card value: {}'.format(unknown_card_val)
             print 'Score with replacement: {}'.format(self_score)
 
         return self_score

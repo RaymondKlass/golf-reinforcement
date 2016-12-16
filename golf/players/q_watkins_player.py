@@ -193,6 +193,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # make sure that when computing the replacement card with std_dev we adhere to
         # the bounds of a standard deck - 0 <= card <= 12
         feature_vals = {key: min(max(self.avg_card + (self.card_std_dev * val), 0), 12) for key, val in feature_cache.iteritems()}
+        new_features = {}
 
         if self.verbose:
             print 'Feature Values: {}'.format(feature_vals)
@@ -207,7 +208,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             # this is the special case that we will not be replacing any cards
             for key, replacement in feature_vals.iteritems():
                 self_score = (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b == None])) * min(replacement, 10)))
-                feature_cache[key] = self.min_opp_score - self_score
+                new_features[key] = self.min_opp_score - self_score
 
         elif action == 'face_up_card':
             # we know the replacement value since the card is exposed: state['deck_up'][-1]
@@ -221,7 +222,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                                                                        loc,
                                                                        sub))
 
-                feature_cache[key] = self.min_opp_score - min(repl_vals)
+                new_features[key] = self.min_opp_score - min(repl_vals)
 
         elif action == 'face_down_card':
             replacement_card = self.avg_card
@@ -238,7 +239,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                                                                        replacement_card,
                                                                        loc,
                                                                        sub))
-                feature_cache[key] = self.min_opp_score - min(repl_vals)
+                new_features[key] = self.min_opp_score - min(repl_vals)
 
         elif action == 'swap':
             # We should swap at a specific location
@@ -247,17 +248,17 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                                                               card_in_hand,
                                                               location,
                                                               sub))
-                feature_cache[key] = self.min_opp_score - repl_val
+                new_features[key] = self.min_opp_score - repl_val
 
 
         if self.verbose:
-            print '\n Feature cache: {}'.format(feature_cache)
+            print '\n New Features for: {} : {}'.format(action, new_features)
 
-        return [feature_cache['0sigma'],
-                feature_cache['1sigma'],
-                feature_cache['2sigma'],
-                feature_cache['-1sigma'],
-                feature_cache['-2sigma']]
+        return [new_features['0sigma'],
+                new_features['1sigma'],
+                new_features['2sigma'],
+                new_features['-1sigma'],
+                new_features['-2sigma']]
 
 
     def _calc_score_with_replacement(self, raw_cards, card, position, unknown_card_val):

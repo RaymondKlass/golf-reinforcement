@@ -250,6 +250,9 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 feature_cache[key] = self.min_opp_score - repl_val
 
 
+        if self.verbose:
+            print '\n Feature cache: {}'.format(feature_cache)
+
         return [feature_cache['0sigma'],
                 feature_cache['1sigma'],
                 feature_cache['2sigma'],
@@ -267,6 +270,12 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self_cards[position] = card
         self_score = self._calc_score_for_cards(self_cards)
         self_score = self_score + (len([b for b in self_cards if b == None]) * min(unknown_card_val, 10))
+
+        if self.verbose:
+            print 'Replacement card : {}'.format(card)
+            print 'Replacement card position: {}'.format(position)
+            print 'Score with replacement: {}'.format(self_score)
+
         return self_score
 
 

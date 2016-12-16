@@ -106,12 +106,23 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             if choice <= self.epsilon:
                 # select a random decision
                 decision = random.choice(turn_decisions)
+                if self.verbose:
+                    print 'Taking a random decision for training'
             else:
                 decision = turn_decisions[0]
+                if self.verbose:
+                    print 'Taking the optimal decision'
 
             self.q_state = decision
         else:
+            if self.verbose:
+                print 'Taking the optimal decision'
+
             decision = turn_decisions[0]
+
+        if self.verbose:
+            print '\n All decision options: {}'.format(turn_decisions)
+            print 'Made decision: {}'.format(decision)
 
         return decision['action']
 
@@ -335,8 +346,9 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                     print 'Weights: {}'.format(self.weights)
                     print 'Score: {} \n'.format(score)
 
+                # We might want ot add the discount in here
                 features.append({'raw_features': raw_features,
-                                 'score': score - 1,
+                                 'score': score,
                                  'action': action})
         else:
             # we will need to fan out the swap action to include swapping with all possible
@@ -354,10 +366,18 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                                          'action': (action, row, col)})
                 else:
                     raw_features = self._extract_features_from_state(state, action, location=None, card_in_hand=None)
-                    score = sum([f * self.weights[i] for i, f in enumerate(raw_features)])
+                    score = sum([raw_features[i] * self.weights[i] for i, f in enumerate(raw_features)])
+
+                    if self.verbose:
+                        print 'Raw features: {}'.format(raw_features)
+                        print 'Weights: {}'.format(self.weights)
+                        print 'Score from features: {}'.format(score)
+
+                    # We might want ot add the discount in here
                     features.append({'raw_features': raw_features,
                                         'score': score,
                                         'action': action})
+        print '\nFeatures leaving _calc: {}'.format(features)
         return features
 
     def _initialize_blank_model(self, length=5):

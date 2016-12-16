@@ -123,7 +123,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         self.avg_card = self._calc_average_card(state, card_in_hand)
         self.card_std_dev = self._calc_std_dev(state)
-        self.min_opp_score = min([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  self.avg_card) for a in state['opp']])
+        self.min_opp_score = min([a['score']+(len([b for b in a['raw_cards'] if b == None]) *  self.avg_card) for a in state['opp']])
 
         if self.verbose:
             print 'Checking State Derivative Values'

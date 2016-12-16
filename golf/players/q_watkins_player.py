@@ -213,16 +213,17 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 # We'll need to try all of the possible replacement spots for the card - then take the min
                 repl_vals = []
                 for loc in range(self.num_cols * 2):
-                    cards = list(state['self']['raw_cards'])
-                    cards[loc] = state['deck_up'][-1]
-                    h = Hand(cards)
-                    repl_vals.append((h.score(cards) + ((len([b for b in cards if b == None]) - 1) * min(sub, 10))))
+                    repl_vals.append(self._calc_score_with_replacement(self,
+                                                                       state['self']['raw_cards'],
+                                                                       state['deck_up'][-1],
+                                                                       loc,
+                                                                       sub))
 
                 feature_cache[key] = self.min_opp_score - min(repl_vals)
 
         elif action == 'face_down_card':
             replacement_card = self.avg_card
-            if replacement_card % 1 == 0:
+            if not replacement_card % 1:
                 # check if the average card is an integer - since we don't want o possibly imply that the replacement
                 # would be a solumn match - choosing to avoid this situation - let's add a tiny bit to it - to avoid this
                 replacement_card += 0.0001
@@ -231,32 +232,21 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 # We'll need to try all of the possible replacement spots for the card - then take the min
                 repl_vals = []
                 for loc in range(self.num_cols * 2):
-                    cards = list(state['self']['raw_cards'])
-                    cards[loc] = replacement_card
-                    h = Hand(cards)
-                    repl_vals.append((h.score(cards) + ( (len([b for b in cards if b == None])) * min(sub, 10) )))
-
-                    if self.verbose:
-                        print '\n Sub Card: {}'.format(replacement_card)
-                        print 'Guess Card: {}'.format(sub)
-                        print 'Cards: {}'.format(cards)
-                        print 'Replacement Value: {}'.format(repl_vals[-1])
-                        print 'Extra added: {}'.format( len([b for b in cards if b == None]) )
-                        print 'Score As calc by hand: {}'.format(h.score(cards))
-                        print 'Total num cards: {}'.format((self.num_cols * 2))
-                        print 'calc addition: {}'.format((len([b for b in cards if b == None])) * min(sub, 10))
-
-
+                    repl_vals.append(self._calc_score_with_replacement(self,
+                                                                       state['self']['raw_cards'],
+                                                                       replacement_card,
+                                                                       loc,
+                                                                       sub))
                 feature_cache[key] = self.min_opp_score - min(repl_vals)
 
         elif action == 'swap':
             # We should swap at a specific location
             for key, sub in feature_vals.iteritems():
-                # We'll need to try all of the possible replacement spots for the card - then take the min
-                cards = list(state['self']['raw_cards'])
-                cards[location] = card_in_hand
-                h = Hand(cards)
-                repl_val = (h.score(cards) + (((self.num_cols * 2) - len([b for b in cards if b == None]) - 1) * min(sub, 10)))
+                repl_val = (self._calc_score_with_replacement(self,
+                                                              state['self']['raw_cards'],
+                                                              card_in_hand,
+                                                              location,
+                                                              sub))
                 feature_cache[key] = self.min_opp_score - repl_val
 
 
@@ -265,6 +255,26 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 feature_cache['2sigma'],
                 feature_cache['-1sigma'],
                 feature_cache['-2sigma']]
+
+
+    def _calc_score_with_replacement(self, raw_cards, card, position, unknown_card_val):
+        ''' Calculate the score by substituting the given card at given position,
+            Use the unknown_card_val for cards that are assumed
+            Position -> should be Int index of where card should be replaced
+        '''
+
+        self_cards = list(raw_cards)
+        self_cards[position] = card
+        self_score = self._calc_score_for_cards(self_cards)
+        self_score = self_score + (len([b for b in self_cards if b == None]) * min(unknown_card_val))
+        return self_score
+
+
+    def _calc_score_for_cards(self, cards):
+        ''' calculate score for cards '''
+
+        h = Hand(cards)
+        return h.score(cards)
 
 
     def _update_weights(self, q_state_obj, q_prime_state_obj, reward, learning_rate):

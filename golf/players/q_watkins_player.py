@@ -213,8 +213,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 # We'll need to try all of the possible replacement spots for the card - then take the min
                 repl_vals = []
                 for loc in range(self.num_cols * 2):
-                    repl_vals.append(self._calc_score_with_replacement(self,
-                                                                       state['self']['raw_cards'],
+                    repl_vals.append(self._calc_score_with_replacement(state['self']['raw_cards'],
                                                                        state['deck_up'][-1],
                                                                        loc,
                                                                        sub))
@@ -232,8 +231,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 # We'll need to try all of the possible replacement spots for the card - then take the min
                 repl_vals = []
                 for loc in range(self.num_cols * 2):
-                    repl_vals.append(self._calc_score_with_replacement(self,
-                                                                       state['self']['raw_cards'],
+                    repl_vals.append(self._calc_score_with_replacement(state['self']['raw_cards'],
                                                                        replacement_card,
                                                                        loc,
                                                                        sub))
@@ -242,8 +240,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         elif action == 'swap':
             # We should swap at a specific location
             for key, sub in feature_vals.iteritems():
-                repl_val = (self._calc_score_with_replacement(self,
-                                                              state['self']['raw_cards'],
+                repl_val = (self._calc_score_with_replacement(state['self']['raw_cards'],
                                                               card_in_hand,
                                                               location,
                                                               sub))
@@ -266,7 +263,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self_cards = list(raw_cards)
         self_cards[position] = card
         self_score = self._calc_score_for_cards(self_cards)
-        self_score = self_score + (len([b for b in self_cards if b == None]) * min(unknown_card_val))
+        self_score = self_score + (len([b for b in self_cards if b == None]) * min(unknown_card_val, 10))
         return self_score
 
 

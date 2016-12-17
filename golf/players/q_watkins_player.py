@@ -3,6 +3,7 @@
     convergence in 1992 https://en.wikipedia.org/wiki/Q-learning
 """
 import cPickle
+import os
 import math
 import time
 from golf.players.trainable_player_base import TrainablePlayer
@@ -64,10 +65,14 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
 
 
-    def save_checkpoint(self):
+    def save_checkpoint(self, epochs):
         ''' Save a checkpoint file in the pre-specified directory, in a name - date format '''
 
-        filename =
+        cur_time = str(time.time())
+        epochs = self.starting_epochs + epochs
+        file_path = os.path.join(self.checkpoint_dir, '{}_{}.pkl')
+        with open(file_path, 'wb') as outfile:
+            cPickle.dump(self.weights, outfile)
 
 
 

@@ -37,7 +37,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             self.weights = self._initialize_blank_model()
 
 
-    def setup_trainer(self, checkpoint_dir, learning_rate=0.1, eval_freq=10000, epsilon=.2, discount=0.3):
+    def setup_trainer(self, checkpoint_dir, learning_rate=0.1, epsilon=.2, discount=0.3):
         ''' Setup the training variables
             Args:
                 checkpoint_dir: string -> Directory to store checkpoint files
@@ -50,7 +50,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         self.checkpoint_dir = checkpoint_dir
         self.learning_rate = learning_rate
-        self.eval_freq = eval_freq
         self.is_training = True
         self.q_state = None
 

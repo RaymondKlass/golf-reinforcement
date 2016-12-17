@@ -4,6 +4,7 @@
 """
 import cPickle
 import math
+import time
 from golf.players.trainable_player_base import TrainablePlayer
 from golf.players.player_utils import PlayerUtils
 from golf.hand import Hand
@@ -15,7 +16,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         and simple linear function approximation
     """
 
-    def __init__(self, model_file='file-no-found', num_cols=2, *args, **kwargs):
+    def __init__(self, model_file='file-not-found', num_cols=2, *args, **kwargs):
         """ Initialize player and load model if available -
             otherwise player will start with a randomly initialize model """
 
@@ -25,6 +26,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         self.epsilon = 0 # Exploration
         self.discount = 0.3 # Discount future rewards - not sure if the optimal player should do this
+        self.start_model_file = model_file
 
         try:
             with open(model_file, 'rb') as model_file:
@@ -52,6 +54,21 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self.learning_rate = learning_rate
         self.is_training = True
         self.q_state = None
+
+        # Introspect the number of epochs from a checkpoint file in proper format
+        try:
+            self.starting_epochs = int(self.start_model_file.split('_')[-1].split('.')[0])
+        except ValueError:
+            # Cannot parse an int from the value
+            self.starting_epochs = 0
+
+
+
+    def save_checkpoint(self):
+        ''' Save a checkpoint file in the pre-specified directory, in a name - date format '''
+
+        filename =
+
 
 
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):

@@ -11,9 +11,6 @@ class Match(object):
         self.verbose = verbose
         self.matches = [0] * len(self.players)
 
-        # Setup the player training logic
-        #self.players[1].setup_trainer('/tmp')
-
         if self.verbose:
             # let's introduce the players
             print 'Player 0 {}'.format(self.players[0])
@@ -48,11 +45,6 @@ class Match(object):
 
         for turn in range(self.total_holes):
             board = Board([self.players[(turn + match_num) % 2], self.players[((turn + match_num) + 1) % 2]], 2, verbose=self.verbose)
-
-            # For now - to try training
-            #trainers = [False, True]
-            #board.setup_trainers([trainers[(turn + match_num) % 2],
-            #                      trainers[((turn + match_num) + 1) % 2]])
 
             game_scores = board.play_game()
             for i, score in enumerate(scores):

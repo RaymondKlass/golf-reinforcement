@@ -292,12 +292,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 new_features['-2sigma']]
 
 
-    def _calc_score_for_all_positions(self, raw_cards, card, unknown_card_val):
-        ''' Calculate score for replacement at all locations '''
-
-
-
-
     def _calc_score_with_replacement(self, raw_cards, card, position, unknown_card_val):
         ''' Calculate the score by substituting the given card at given position,
             Use the unknown_card_val for cards that are assumed

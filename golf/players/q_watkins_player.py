@@ -232,9 +232,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         if self.verbose:
             print 'Feature Values: {}'.format(feature_vals)
 
-        if action == 'knocked':
-            raise
-
         if self.verbose:
             print 'Analyzing action: {}'.format(action)
 
@@ -293,6 +290,12 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 new_features['2sigma'],
                 new_features['-1sigma'],
                 new_features['-2sigma']]
+
+
+    def _calc_score_for_all_positions(self, raw_cards, card, unknown_card_val):
+        ''' Calculate score for replacement at all locations '''
+
+
 
 
     def _calc_score_with_replacement(self, raw_cards, card, position, unknown_card_val):

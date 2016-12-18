@@ -38,6 +38,7 @@ class Match(object):
                 print 'Player 0: {}, Player 1: {}'.format(self.matches[0], self.matches[1])
 
         print 'Player 0: {} matches, Player 1: {} matches'.format(self.matches[0], self.matches[1])
+        return (self.matches[0], self.matches[1])
 
 
     def play_match(self, match_num):

@@ -231,9 +231,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         if self.verbose:
             print 'Feature Values: {}'.format(feature_vals)
-
-        if self.verbose:
             print 'Analyzing action: {}'.format(action)
+
 
         if action in ('knock', 'return_to_deck',):
             # this is the special case that we will not be replacing any cards

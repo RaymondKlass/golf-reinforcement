@@ -285,11 +285,11 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         if self.verbose:
             print '\n New Features for: {} : {}'.format(action, new_features)
 
-        return [new_features['0sigma'],
+        return np.matrix([new_features['0sigma'],
                 new_features['1sigma'],
                 new_features['2sigma'],
                 new_features['-1sigma'],
-                new_features['-2sigma']]
+                new_features['-2sigma']])
 
 
     def _calc_score_with_replacement(self, raw_cards, card, position, unknown_card_val):
@@ -332,13 +332,12 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         difference = (reward + q_prime_state_obj['score']) - q_state_obj['score']
         # Now we need to update the weights iteratively using the saved difference and learning rate
         # w_i <- w_i + (learning_rate * difference * f_i(s,a) where f_i is feature i
-        for i, w in enumerate(self.weights):
-            self.weights[i] = self.weights[i] + (learning_rate * difference * q_state_obj['raw_features'][i]) # adds regularization
+        for i in range(self.weights.shape[1]):
+            self.weights[0, i] = self.weights[0, i] + (learning_rate * difference * q_state_obj['raw_features'][0, i]) # adds regularization
 
-        # we should rescale the weights so we don't encounter overflow
-        # perhaps subtract the mean
-        avg = sum(self.weights) / float(len(self.weights))
-        self.weights = [(w-avg) / (max(self.weights+[.1]) * 0.01) for w in self.weights]
+
+        #print 'New Weights: {}'.format([(w) / (max(self.weights[0,:]+[.1]) * 0.01) for w in self.weights[0,:]])
+        #self.weights = np.matrix([(w) / (max(self.weights+[.1]) * 0.01) for w in self.weights])
 
         if self.verbose:
             print 'Weights after update {}'.format(self.weights)
@@ -358,7 +357,13 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             # then we're looking at turn phase 1 - so no locations necessary
             for action in actions:
                 raw_features = self._extract_features_from_state(state, action, location=None, card_in_hand=None)
-                score = sum([f * self.weights[i] for i, f in enumerate(raw_features)])
+                print raw_features
+                print self.weights
+                print raw_features.shape
+                print self.weights.shape
+                print self.weights.transpose().shape
+                # replace score with proper matrix multiplication via numpy
+                score = (raw_features * self.weights.transpose())[0,0]
 
                 if self.verbose:
                     print '\n Features for action: {} \n'.format(action)
@@ -378,7 +383,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                     for i in range(self.num_cols * 2):
 
                         raw_features = self._extract_features_from_state(state, action, location=i, card_in_hand=card_in_hand)
-                        score = sum([f * self.weights[idx] for idx, f in enumerate(raw_features)])
+                        #score = sum([f * self.weights[idx] for idx, f in enumerate(raw_features)])
+
+                        # replace score calculation
+                        score = (raw_features * self.weights.transpose())[0,0]
                         row = int(i % 2)
                         col = int(math.floor(i / 2))
                         features.append({'raw_features':raw_features,
@@ -386,7 +394,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                                          'action': (action, row, col)})
                 else:
                     raw_features = self._extract_features_from_state(state, action, location=None, card_in_hand=None)
-                    score = sum([raw_features[i] * self.weights[i] for i, f in enumerate(raw_features)])
+
+                    #score = sum([raw_features[i] * self.weights[i] for i, f in enumerate(raw_features)])
+                    # Replace with numpy matrix based calc
+                    score = (raw_features * self.weights.transpose())[0,0]
 
                     if self.verbose:
                         print 'Raw features: {}'.format(raw_features)
@@ -408,5 +419,5 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             like an optimization best left for later
         '''
 
-        return np.zeros(length)
+        return np.matrix(np.zeros(length))
 

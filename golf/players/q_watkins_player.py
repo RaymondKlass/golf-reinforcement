@@ -6,6 +6,7 @@ import cPickle
 import os
 import math
 import time
+import numpy as np
 from golf.players.trainable_player_base import TrainablePlayer
 from golf.players.player_utils import PlayerUtils
 from golf.hand import Hand
@@ -407,5 +408,5 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             like an optimization best left for later
         '''
 
-        return [0] * length
+        return np.zeros(length)
 

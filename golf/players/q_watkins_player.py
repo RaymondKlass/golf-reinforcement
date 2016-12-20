@@ -168,128 +168,26 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             print 'State: {}'.format(state)
 
 
-    def _extract_features_from_state(self, state, action, location=None, card_in_hand=None):
-        ''' Takes an input state and outputs a vector of features for use with model
-            - Should be specific for which turn_phase we are, but otherwise selecting
-              fewer features here will help reduce the complexity of the search space
-            - Need to represent not only the value, but also the Q-value as these features
-              will be used as a way to describe the value of a Q-State
-            - Location is only provided for phase_2 when the action is replacing a card at an
-              actual specific location (index value passed)
-            - Card - value of the card in hand - used during the turn_phase_2
-        '''
-
+    def _extract_features_from_state(self, state, replacement_card=None, location=None):
         """
-        Let's list the features that might make sense to extract
-
-        These features need to take into account the action that is going to be performed
-        as they represent the Q-State and not the Value of the current position -
-        our agent needs to make decisions based upon these values, so if they don't encode
-        what makes a difference in the decision, then I'm not sure they would be effective
-
-        Features for the first and the second phases of the turn should be identical -
-        need to make sure that the features are dependent on the expected outcome of the action -
-        The numbers below represent values that would change if / when the player looks to
-        replace a card with either the unknown (assumed) card, or the face-up one - or
-        chooses to knock - ending their turn.
-
-        # So here's a first go at the features - all should be ratios with opponents score
-        - expected replacement value - treat unknown cards as average
-        - replacement value - unknown cards for self +1 Sigma
-        - replacement value - unknown cards for self +2 Sigma
-        - replacement value - unknown cards for self -1 Sigma
-        - replacement value - unknown cards for self -2 Sigma
-
-         # Note the state object that is returned is arranged specifically:
-        {'self': { 'score': int value of the known cards,
-                  'visible': list of booleans w/ length (num rows X num columns),
-                  'raw_cards': list of ints representing visible cards in hand -
-                               length (num rows X num_cols), None represents unknown cards,
-                  'num_rows': int number of rows - only 2 for now,
-                  'num_cols': int number of columns
-                 },
-         'opp': { Same as above ^ }
-         'deck_up': list of card in the discard pile (which both players have seen)
-        }
+            Calculate the feature vector that we will use.  It is based upon replacing the
+            unknown cards with different "scenarios" - calculated with 1 and 2 std dev intervals
         """
 
-        # this is where the real stuff gets done
-        # We'll need to figure out the current score differential associated with the Q-State
-        # We have access to the min opponent score - which is cached through self.min_opp_score
+        # Calculate the substitution values based on on avg card +/- 1 and 2 sigma values
+        substitutions = np.array([ min(max(self.avg_card + (self.card_std_dev * val), 0), 12) for val in [0, 1, 2, -1, -2]])
+        result = []
 
-        # Let's assemble the feature vector in a dictionary and then return it via a fixed
-        # transformation function so that we provide it consistently
-        feature_cache = {'0sigma': 0,
-                         '1sigma': 1,
-                         '2sigma': 2,
-                         '-1sigma': -1,
-                         '-2sigma': -2}
-
-        # make sure that when computing the replacement card with std_dev we adhere to
-        # the bounds of a standard deck - 0 <= card <= 12
-        feature_vals = {key: min(max(self.avg_card + (self.card_std_dev * val), 0), 12) for key, val in feature_cache.iteritems()}
-        new_features = {}
-
-        if self.verbose:
-            print 'Feature Values: {}'.format(feature_vals)
-            print 'Analyzing action: {}'.format(action)
+        for sub in substitutions:
+            result.append(self._calc_score_with_replacement(state['self']['raw_cards'],
+                                                            replacement_card,
+                                                            location,
+                                                            sub))
 
 
-        if action in ('knock', 'return_to_deck',):
-            # this is the special case that we will not be replacing any cards
-            for key, replacement in feature_vals.iteritems():
-                self_score = (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b == None])) * min(replacement, 10)))
-                new_features[key] = self.min_opp_score - self_score
+        # self.min_opp_score - score
+        return np.matrix(result - self.min_opp_score)
 
-        elif action == 'face_up_card':
-            # we know the replacement value since the card is exposed: state['deck_up'][-1]
-            # we'll still need to replace both the unknown cards with the assumptions + use the deck_up card
-            for key, sub in feature_vals.iteritems():
-                # We'll need to try all of the possible replacement spots for the card - then take the min
-                repl_vals = []
-                for loc in range(self.num_cols * 2):
-                    repl_vals.append(self._calc_score_with_replacement(state['self']['raw_cards'],
-                                                                       state['deck_up'][-1],
-                                                                       loc,
-                                                                       sub))
-
-                new_features[key] = self.min_opp_score - min(repl_vals)
-
-        elif action == 'face_down_card':
-            replacement_card = self.avg_card
-            if not replacement_card % 1:
-                # check if the average card is an integer - since we don't want o possibly imply that the replacement
-                # would be a solumn match - choosing to avoid this situation - let's add a tiny bit to it - to avoid this
-                replacement_card += 0.0001
-
-            for key, sub in feature_vals.iteritems():
-                # We'll need to try all of the possible replacement spots for the card - then take the min
-                repl_vals = []
-                for loc in range(self.num_cols * 2):
-                    repl_vals.append(self._calc_score_with_replacement(state['self']['raw_cards'],
-                                                                       replacement_card,
-                                                                       loc,
-                                                                       sub))
-                new_features[key] = self.min_opp_score - min(repl_vals)
-
-        elif action == 'swap':
-            # We should swap at a specific location
-            for key, sub in feature_vals.iteritems():
-                repl_val = (self._calc_score_with_replacement(state['self']['raw_cards'],
-                                                              card_in_hand,
-                                                              location,
-                                                              sub))
-                new_features[key] = self.min_opp_score - repl_val
-
-
-        if self.verbose:
-            print '\n New Features for: {} : {}'.format(action, new_features)
-
-        return np.matrix([new_features['0sigma'],
-                new_features['1sigma'],
-                new_features['2sigma'],
-                new_features['-1sigma'],
-                new_features['-2sigma']])
 
 
     def _calc_score_with_replacement(self, raw_cards, card, position, unknown_card_val):
@@ -299,7 +197,11 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         '''
 
         self_cards = list(raw_cards)
-        self_cards[position] = card
+
+        # Handle the case where no replacement is sought - so we simply don't replace
+        if position:
+            self_cards[position] = card
+
         self_score = self._calc_score_for_cards(self_cards)
         self_score = self_score + (len([b for b in self_cards if b == None]) * min(unknown_card_val, 10))
 
@@ -357,11 +259,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             # then we're looking at turn phase 1 - so no locations necessary
             for action in actions:
                 raw_features = self._extract_features_from_state(state, action, location=None, card_in_hand=None)
-                print raw_features
-                print self.weights
-                print raw_features.shape
-                print self.weights.shape
-                print self.weights.transpose().shape
                 # replace score with proper matrix multiplication via numpy
                 score = (raw_features * self.weights.transpose())[0,0]
 

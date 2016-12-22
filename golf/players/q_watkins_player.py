@@ -176,13 +176,13 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         # Calculate the substitution values based on on avg card +/- 1 and 2 sigma values
         substitutions = np.array([ min(max(self.avg_card + (self.card_std_dev * val), 0), 12) for val in [0, 1, 2, -1, -2]])
-        result = []
+        result = np.array([])
 
         for sub in substitutions:
-            result.append(self._calc_score_with_replacement(state['self']['raw_cards'],
-                                                            replacement_card,
-                                                            location,
-                                                            sub))
+            result = np.append(result, self._calc_score_with_replacement(state['self']['raw_cards'],
+                                                                         replacement_card,
+                                                                         location,
+                                                                         sub))
 
 
         # self.min_opp_score - score

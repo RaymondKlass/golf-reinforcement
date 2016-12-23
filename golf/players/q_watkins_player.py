@@ -245,6 +245,16 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             print 'Weights after update {}'.format(self.weights)
 
 
+    def _calc_swap_all_positions(self, state, replacement_card):
+        ''' calculate the features for swapping at all positions '''
+
+        # Use this to greatly simplify the _calc_move_score and prevent
+        # re-use of big for loops
+
+        pass
+
+
+
     def _calc_move_score(self, state, actions, card_in_hand=None):
         ''' Takes a vector of features and makes a move based upon history,
             known q-values, and computes the next move.
@@ -253,6 +263,11 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         if self.verbose:
             print 'Calculating the move score for actions: {}'.format(actions)
+
+        # for turn phase 1 we should calculate all the possible swaps and then take the maximum value
+        # as our decision for each action
+
+        # for phase 2 we should calculate all of the possible moves and act upon the one that is maximal
 
         features = []
         if card_in_hand == None:
@@ -307,6 +322,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                                         'action': action})
         print '\nFeatures leaving _calc: {}'.format(features)
         return features
+
 
     def _initialize_blank_model(self, length=5):
         ''' return a blank model - weights initialized to 0

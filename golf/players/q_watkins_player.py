@@ -186,6 +186,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
 
         # self.min_opp_score - score
+        # This score needs to be adjusted - to be the derivative of the score difference
         return np.matrix(result - self.min_opp_score)
 
 
@@ -222,29 +223,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         return h.score(cards)
 
 
-    def _update_weights(self, q_state_obj, q_prime_state_obj, reward, learning_rate):
-        ''' Update the weights associated for a particular Q-State '''
-
-        if self.verbose:
-            print 'Initial weights for update {}'.format(self.weights)
-
-        # difference = [r + gamma * max Q(s`,a`)] - Q(s,a)
-        # Going to use a gamma of 1 for no discount on future Q state values,
-        # as the card game naturally tends towards lower future rewards already
-        difference = (reward + q_prime_state_obj['score']) - q_state_obj['score']
-        # Now we need to update the weights iteratively using the saved difference and learning rate
-        # w_i <- w_i + (learning_rate * difference * f_i(s,a) where f_i is feature i
-        for i in range(self.weights.shape[1]):
-            self.weights[0, i] = self.weights[0, i] + (learning_rate * difference * q_state_obj['raw_features'][0, i]) # adds regularization
-
-
-        #print 'New Weights: {}'.format([(w) / (max(self.weights[0,:]+[.1]) * 0.01) for w in self.weights[0,:]])
-        #self.weights = np.matrix([(w) / (max(self.weights+[.1]) * 0.01) for w in self.weights])
-
-        if self.verbose:
-            print 'Weights after update {}'.format(self.weights)
-
-
     def _calc_swap_all_positions(self, state, replacement_card):
         ''' calculate the features for swapping at all positions '''
 
@@ -252,7 +230,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # re-use of big for loops
 
         pass
-
 
 
     def _calc_move_score(self, state, actions, card_in_hand=None):
@@ -322,6 +299,29 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                                         'action': action})
         print '\nFeatures leaving _calc: {}'.format(features)
         return features
+
+
+    def _update_weights(self, q_state_obj, q_prime_state_obj, reward, learning_rate):
+        ''' Update the weights associated for a particular Q-State '''
+
+        if self.verbose:
+            print 'Initial weights for update {}'.format(self.weights)
+
+        # difference = [r + gamma * max Q(s`,a`)] - Q(s,a)
+        # Going to use a gamma of 1 for no discount on future Q state values,
+        # as the card game naturally tends towards lower future rewards already
+        difference = (reward + q_prime_state_obj['score']) - q_state_obj['score']
+        # Now we need to update the weights iteratively using the saved difference and learning rate
+        # w_i <- w_i + (learning_rate * difference * f_i(s,a) where f_i is feature i
+        for i in range(self.weights.shape[1]):
+            self.weights[0, i] = self.weights[0, i] + (learning_rate * difference * q_state_obj['raw_features'][0, i]) # adds regularization
+
+
+        #print 'New Weights: {}'.format([(w) / (max(self.weights[0,:]+[.1]) * 0.01) for w in self.weights[0,:]])
+        #self.weights = np.matrix([(w) / (max(self.weights+[.1]) * 0.01) for w in self.weights])
+
+        if self.verbose:
+            print 'Weights after update {}'.format(self.weights)
 
 
     def _initialize_blank_model(self, length=5):

@@ -187,7 +187,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         # self.min_opp_score - score
         # This score needs to be adjusted - to be the derivative of the score difference
-        return np.matrix(result - self.min_opp_score)
+        return result
 
 
 
@@ -228,6 +228,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         # Use this to greatly simplify the _calc_move_score and prevent
         # re-use of big for loops
+
 
         pass
 

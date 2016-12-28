@@ -228,9 +228,12 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         # Use this to greatly simplify the _calc_move_score and prevent
         # re-use of big for loops
+        all_features = np.array([])
 
+        for i in range(self.num_cols * 2):
+            all_features.append(self._extract_features_from_stats(state, replacement_card, location))
 
-        pass
+        return all_features
 
 
     def _calc_move_score(self, state, actions, card_in_hand=None):

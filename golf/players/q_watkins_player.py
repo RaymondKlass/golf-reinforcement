@@ -159,6 +159,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self.avg_card = self._calc_average_card(state, card_in_hand)
         self.card_std_dev = self._calc_std_dev(state)
         self.min_opp_score = min([a['score']+(len([b for b in a['raw_cards'] if b == None]) *  self.avg_card) for a in state['opp']])
+        self.self_avg_score = state['self']['score'] + len([b for b in state['self']['raw_cards'] if b == None]) * self.avg_card
 
         if self.verbose:
             print 'Checking State Derivative Values'
@@ -235,6 +236,19 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         return all_features
 
 
+    def _calc_scores(self, raw_features):
+        ''' Expects a potentially multi-dimensional numpy array raw_features
+            which will be used to compute the score for each row of features
+        '''
+
+        # Subtracting the min_opp_score and self_avg_score - as we're trying to decide if the substitution
+        # would be putting us in the right direction (increasing the gap, decreasing it, or staying the same
+        result = raw_features - (self.min_opp_score + self.self_avg_score)
+        result = np.dot(result, np.transpose(self.weights))
+        return result
+
+
+
     def _calc_move_score(self, state, actions, card_in_hand=None):
         ''' Takes a vector of features and makes a move based upon history,
             known q-values, and computes the next move.
@@ -259,6 +273,18 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         for action in actions:
             if action in ('face_up_card', 'face_down_card',):
                 # In this case we should try all of the swaps and take the maximum
+                if action == 'face_up_card':
+                    replacement = state['deck_up'][-1]
+                else:
+                    replacement = self.avg_card
+
+                raw_features = self._calc_swap_all_positions(state, replacement)
+                result = self._calc_scores(raw_features)
+                max_result = max(result.flatten())
+
+                features.append(('raw_features': raw_features[result.flatten().index(max_result)],
+                                 'score': max_result,
+                                 'action': action,)
 
 
             elif action in ('knock', 'return_to_deck',):
@@ -357,5 +383,5 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             like an optimization best left for later
         '''
 
-        return np.matrix(np.zeros(length))
+        return np.array(np.zeros(length))
 

@@ -226,12 +226,11 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
     def _calc_swap_all_positions(self, state, replacement_card):
         ''' calculate the features for swapping at all positions '''
 
-        # Use this to greatly simplify the _calc_move_score and prevent
-        # re-use of big for loops
-        all_features = np.array([])
+        # create a blank 2 dimensional array - which we will fill with new values
+        all_features = np.array([[None]*5]*(self.num_rows * 2))
 
         for i in range(self.num_cols * 2):
-            all_features.append(self._extract_features_from_stats(state, replacement_card, location))
+            all_features[i] = self._extract_features_from_stats(state, replacement_card, location)
 
         return all_features
 

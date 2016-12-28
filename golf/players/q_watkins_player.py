@@ -288,10 +288,22 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
 
             elif action in ('knock', 'return_to_deck',):
-                # Send for the single feature calculation with the appropriate card - either deck_up of card_in_hand
+                # Send for the single feature calculation with no replacement - not sure this is 100% representative from
+                # a probability calc standpoint - should the assummed no replacement take into account the placing
+                # of the card in hand back on the top of the deck?  Does it already?
+                raw_features = _extract_features_from_state(state, replacement_card=None, location=None)
+                result = self._calc_scores(raw_features)
+                features.append(('raw_features': raw_features,
+                                 'score': result.flatten()[0],
+                                 'action': action,))
 
             elif action == 'swap':
                 # Calculate all of the swap values
+                raw_features = self._calc_swap_all_positions(state, card_in_hand)
+                result = self.calc_scores(raw_features)
+                for i, score in result.flatten():
+                    row, col = self._calc_row_col_for_index( index)
+                    features.append(('raw_features': ))
 
 
 
@@ -350,6 +362,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                                         'action': action})
         print '\nFeatures leaving _calc: {}'.format(features)
         return features
+
 
 
     def _update_weights(self, q_state_obj, q_prime_state_obj, reward, learning_rate):

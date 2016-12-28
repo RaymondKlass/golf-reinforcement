@@ -1,5 +1,6 @@
 ''' Mixin with utility functions to be added to a player or trainable player if desired '''
 import numpy as np
+import math
 
 class PlayerUtils(object):
     ''' Utility functions that players can use as a mixin '''
@@ -56,3 +57,11 @@ class PlayerUtils(object):
         cards = self._calc_known_cards(state)
         deck_down = self._calc_unknown_cards(cards)
         return np.std(deck_down)
+
+
+    def _calc_row_col_for_index(self, index):
+        ''' Calculate the row, col for a given card index '''
+
+        row = int(i % 2)
+        col = int(math.floor(i / 2))
+        return (row, col,)

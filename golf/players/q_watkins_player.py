@@ -255,20 +255,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             Takes card param from turn_phase_2 when called by that method
         '''
 
-        if self.verbose:
-            print 'Calculating the move score for actions: {}'.format(actions)
 
-        # for turn phase 1 we should calculate all the possible swaps and then take the maximum value
-        # as our decision for each action
-
-        # for phase 2 we should calculate all of the possible moves and act upon the one that is maximal
-
-        ####
-        ## - for phase 1, here are the possible moves 'face_up_card', 'face_down_card', 'knock'
-        ## - phase 2, 'return_to_deck', 'swap'
-
-        # Here we should be able to run through the actions and generate either a single or multi-
-        # result - then use those calculations after
         features = []
         for action in actions:
             if action in ('face_up_card', 'face_down_card',):
@@ -303,66 +290,11 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 result = self.calc_scores(raw_features)
                 for i, score in result.flatten():
                     row, col = self._calc_row_col_for_index( index)
-                    features.append(('raw_features': ))
+                    features.append(('raw_features': raw_features[i],
+                                     'score': score,
+                                     'action': (action, row, col,)))
 
-
-
-        ######### -- old method
-
-        features = []
-        if card_in_hand == None:
-            # then we're looking at turn phase 1 - so no locations necessary
-            for action in actions:
-                raw_features = self._extract_features_from_state(state, action, location=None, card_in_hand=None)
-                # replace score with proper matrix multiplication via numpy
-                score = (raw_features * self.weights.transpose())[0,0]
-
-                if self.verbose:
-                    print '\n Features for action: {} \n'.format(action)
-                    print 'Features: {} \n'.format(raw_features)
-                    print 'Weights: {}'.format(self.weights)
-                    print 'Score: {} \n'.format(score)
-
-                # We might want ot add the discount in here
-                features.append({'raw_features': raw_features,
-                                 'score': score,
-                                 'action': action})
-        else:
-            # we will need to fan out the swap action to include swapping with all possible
-            # locations in the hand
-            for action in actions:
-                if action == 'swap':
-                    for i in range(self.num_cols * 2):
-
-                        raw_features = self._extract_features_from_state(state, action, location=i, card_in_hand=card_in_hand)
-                        #score = sum([f * self.weights[idx] for idx, f in enumerate(raw_features)])
-
-                        # replace score calculation
-                        score = (raw_features * self.weights.transpose())[0,0]
-                        row = int(i % 2)
-                        col = int(math.floor(i / 2))
-                        features.append({'raw_features':raw_features,
-                                         'score': score,
-                                         'action': (action, row, col)})
-                else:
-                    raw_features = self._extract_features_from_state(state, action, location=None, card_in_hand=None)
-
-                    #score = sum([raw_features[i] * self.weights[i] for i, f in enumerate(raw_features)])
-                    # Replace with numpy matrix based calc
-                    score = (raw_features * self.weights.transpose())[0,0]
-
-                    if self.verbose:
-                        print 'Raw features: {}'.format(raw_features)
-                        print 'Weights: {}'.format(self.weights)
-                        print 'Score from features: {}'.format(score)
-
-                    # We might want ot add the discount in here
-                    features.append({'raw_features': raw_features,
-                                        'score': score,
-                                        'action': action})
-        print '\nFeatures leaving _calc: {}'.format(features)
         return features
-
 
 
     def _update_weights(self, q_state_obj, q_prime_state_obj, reward, learning_rate):

@@ -249,6 +249,28 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         # for phase 2 we should calculate all of the possible moves and act upon the one that is maximal
 
+        ####
+        ## - for phase 1, here are the possible moves 'face_up_card', 'face_down_card', 'knock'
+        ## - phase 2, 'return_to_deck', 'swap'
+
+        # Here we should be able to run through the actions and generate either a single or multi-
+        # result - then use those calculations after
+        features = []
+        for action in actions:
+            if action in ('face_up_card', 'face_down_card',):
+                # In this case we should try all of the swaps and take the maximum
+
+
+            elif action in ('knock', 'return_to_deck',):
+                # Send for the single feature calculation with the appropriate card - either deck_up of card_in_hand
+
+            elif action == 'swap':
+                # Calculate all of the swap values
+
+
+
+        ######### -- old method
+
         features = []
         if card_in_hand == None:
             # then we're looking at turn phase 1 - so no locations necessary

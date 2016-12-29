@@ -99,7 +99,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self._cache_state_derivative_values(state, card)
 
         # For the update weights - this needs to be the optimal move - so no epsilon randomness should be used
-        self._take_turn(state, possible_moves, card)
+        self._take_turn(state, possible_moves, card, epsilon=0)
 
         # Not sure about the reward as computed here - probably also need a discount to account for the diminishing
         # returns by both players heading closer to the same state
@@ -121,7 +121,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         return turn
 
 
-    def _take_turn(self, state, possible_moves, card=None):
+    def _take_turn(self, state, possible_moves, card=None, epsilon=None):
         """ Since the general move logic will be the same for the first and the second phase
             of the players turn, let's further abstract that out into this method
         """
@@ -129,9 +129,13 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         turn_decisions.sort(key=lambda x: x['score'], reverse=True)
         # if we're training then we're going to need to save the value of the Q-State for updating weights later
         # Q(s,a) -> calculated value of the Q-State that we're committing to
+
         if self.is_training:
+            if epsilon == None:
+                epsilon = self.epsilon
+
             choice = random.random()
-            if choice <= self.epsilon:
+            if choice < self.epsilon:
                 # select a random decision
                 decision = random.choice(turn_decisions)
                 if self.verbose:
@@ -307,7 +311,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         # Now we need to update the weights iteratively using the saved difference and learning rate
         # w_i <- w_i + (learning_rate * difference * f_i(s,a) where f_i is feature i
-
         self.weights = self.weights + (learning_rate * difference * q_state_obj['raw_features'])
 
         if self.verbose:

@@ -41,7 +41,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             self.weights = self._initialize_blank_model()
 
 
-    def setup_trainer(self, checkpoint_dir, learning_rate=0.1, epsilon=.2, discount=0.3):
+    def setup_trainer(self, checkpoint_dir, learning_rate=0.1, epsilon=.2, discount=0.1):
         ''' Setup the training variables
             Args:
                 checkpoint_dir: string -> Directory to store checkpoint files
@@ -303,15 +303,12 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # difference = [r + gamma * max Q(s`,a`)] - Q(s,a)
         # Going to use a gamma of 1 for no discount on future Q state values,
         # as the card game naturally tends towards lower future rewards already
-        difference = (reward + q_prime_state_obj['score']) - q_state_obj['score']
+        difference = (reward + (self.doscount * q_prime_state_obj['score'])) - q_state_obj['score']
+
         # Now we need to update the weights iteratively using the saved difference and learning rate
         # w_i <- w_i + (learning_rate * difference * f_i(s,a) where f_i is feature i
-        for i in range(self.weights.shape[1]):
-            self.weights[0, i] = self.weights[0, i] + (learning_rate * difference * q_state_obj['raw_features'][0, i]) # adds regularization
 
-
-        #print 'New Weights: {}'.format([(w) / (max(self.weights[0,:]+[.1]) * 0.01) for w in self.weights[0,:]])
-        #self.weights = np.matrix([(w) / (max(self.weights+[.1]) * 0.01) for w in self.weights])
+        self.weights = self.weights + (learning_rate * difference * q_state_obj['raw_features'])
 
         if self.verbose:
             print 'Weights after update {}'.format(self.weights)

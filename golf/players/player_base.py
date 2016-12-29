@@ -17,8 +17,7 @@ class Player(object):
             to the __init__ method
         """
 
-        return {'--verbose': 'verbose',
-                '-v': 'verbose'}
+        return {'verbose': 'verbose'}
 
 
 

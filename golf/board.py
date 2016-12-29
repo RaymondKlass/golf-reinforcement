@@ -154,7 +154,7 @@ class Board(object):
                 self.deck_up = [cur_up]
 
             # Here - we need the update to use the game state in the end as a signal
-            # the problem is that if the next player's turn results int he end of the game, then we're not quite sure how to update?
+            # the problem is that if the next player's turn results in the end of the game, then we're not quite sure how to update?
             for i, tp in enumerate(self.trainers):
                 if tp:
                     reward = 0
@@ -162,7 +162,7 @@ class Board(object):
                         reward = self.hands[i % 2].score() - float(self.hands[i].score())
 
                     new_state = self.get_state_for_player(i%2)
-                    self.players[i%2].update_weights(new_state, card=None, reward=0, possible_moves=['knock'])
+                    self.players[i%2].update_weights(new_state, card=None, reward=reward, possible_moves=['knock'])
 
 
         if self.verbose:

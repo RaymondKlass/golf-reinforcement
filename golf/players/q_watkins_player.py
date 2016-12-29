@@ -101,6 +101,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # For the update weights - this needs to be the optimal move - so no epsilon randomness should be used
         self._take_turn(state, possible_moves, card)
 
+        # Not sure about the reward as computed here - probably also need a discount to account for the diminishing
+        # returns by both players heading closer to the same state
         self._update_weights( q_state_obj=old_q_state,
                               q_prime_state_obj=self.q_state,
                               reward= -1, # Since this update will never result from an exit state

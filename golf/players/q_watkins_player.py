@@ -97,6 +97,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             return
 
         self._cache_state_derivative_values(state, card)
+
+        # For the update weights - this needs to be the optimal move - so no epsilon randomness should be used
         self._take_turn(state, possible_moves, card)
 
         self._update_weights( q_state_obj=old_q_state,
@@ -185,11 +187,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                                                                          location,
                                                                          sub))
 
-
-        # self.min_opp_score - score
-        # This score needs to be adjusted - to be the derivative of the score difference
         return result
-
 
 
     def _calc_score_with_replacement(self, raw_cards, card, position, unknown_card_val):
@@ -241,12 +239,9 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             which will be used to compute the score for each row of features
         '''
 
-        # Subtracting the min_opp_score and self_avg_score - as we're trying to decide if the substitution
-        # would be putting us in the right direction (increasing the gap, decreasing it, or staying the same
         result = raw_features - (self.min_opp_score + self.self_avg_score)
         result = np.dot(result, np.transpose(self.weights))
         return result
-
 
 
     def _calc_move_score(self, state, actions, card_in_hand=None):

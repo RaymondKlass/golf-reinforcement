@@ -174,6 +174,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             print 'Avg_card: {}'.format(self.avg_card)
             print 'Card Standard Deviation: {}'.format(self.card_std_dev)
             print 'Min Opp Score: {}'.format(self.min_opp_score)
+            print 'Self Avg Score: {}'.format(self.self_avg_score)
             print 'State: {}'.format(state)
 
 
@@ -232,10 +233,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         ''' calculate the features for swapping at all positions '''
 
         # create a blank 2 dimensional array - which we will fill with new values
-        all_features = np.array([[None]*5]*(self.num_rows * 2))
+        all_features = np.array([[None]*5]*(self.num_cols * 2))
 
         for i in range(self.num_cols * 2):
-            all_features[i] = self._extract_features_from_stats(state, replacement_card, location)
+            all_features[i] = self._extract_features_from_state(state, replacement_card, i)
 
         return all_features
 
@@ -270,30 +271,30 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 result = self._calc_scores(raw_features)
                 max_result = max(result.flatten())
 
-                features.append(('raw_features': raw_features[result.flatten().index(max_result)],
+                features.append({'raw_features': raw_features[list(result.flatten()).index(max_result)],
                                  'score': max_result,
-                                 'action': action,)
+                                 'action': action})
 
 
             elif action in ('knock', 'return_to_deck',):
                 # Send for the single feature calculation with no replacement - not sure this is 100% representative from
                 # a probability calc standpoint - should the assummed no replacement take into account the placing
                 # of the card in hand back on the top of the deck?  Does it already?
-                raw_features = _extract_features_from_state(state, replacement_card=None, location=None)
+                raw_features = self._extract_features_from_state(state, replacement_card=None, location=None)
                 result = self._calc_scores(raw_features)
-                features.append(('raw_features': raw_features,
-                                 'score': result.flatten()[0],
-                                 'action': action,))
+                features.append({'raw_features': raw_features,
+                                 'score': result,
+                                 'action': action})
 
             elif action == 'swap':
                 # Calculate all of the swap values
                 raw_features = self._calc_swap_all_positions(state, card_in_hand)
-                result = self.calc_scores(raw_features)
-                for i, score in result.flatten():
-                    row, col = self._calc_row_col_for_index( index)
-                    features.append(('raw_features': raw_features[i],
+                result = self._calc_scores(raw_features)
+                for i, score in enumerate(result.flatten()):
+                    row, col = self._calc_row_col_for_index(i)
+                    features.append({'raw_features': raw_features[i],
                                      'score': score,
-                                     'action': (action, row, col,)))
+                                     'action': (action, row, col)})
 
         return features
 
@@ -307,7 +308,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # difference = [r + gamma * max Q(s`,a`)] - Q(s,a)
         # Going to use a gamma of 1 for no discount on future Q state values,
         # as the card game naturally tends towards lower future rewards already
-        difference = (reward + (self.doscount * q_prime_state_obj['score'])) - q_state_obj['score']
+        difference = (reward + (self.discount * q_prime_state_obj['score'])) - q_state_obj['score']
 
         # Now we need to update the weights iteratively using the saved difference and learning rate
         # w_i <- w_i + (learning_rate * difference * f_i(s,a) where f_i is feature i

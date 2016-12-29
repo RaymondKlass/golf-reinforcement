@@ -62,6 +62,6 @@ class PlayerUtils(object):
     def _calc_row_col_for_index(self, index):
         ''' Calculate the row, col for a given card index '''
 
-        row = int(i % 2)
-        col = int(math.floor(i / 2))
+        row = int(index % 2)
+        col = int(math.floor(index / 2))
         return (row, col,)

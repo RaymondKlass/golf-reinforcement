@@ -105,7 +105,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # returns by both players heading closer to the same state
         self._update_weights( q_state_obj=old_q_state,
                               q_prime_state_obj=self.q_state,
-                              reward= -1, # Since this update will never result from an exit state
+                              reward=reward, # Since this update will never result from an exit state
                               learning_rate=self.learning_rate)
 
 

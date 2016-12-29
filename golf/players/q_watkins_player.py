@@ -27,7 +27,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self.is_training = False # This will be over-written if self.setup_trainer() is run
 
         self.epsilon = 0 # Exploration
-        self.discount = 0.3 # Discount future rewards - not sure if the optimal player should do this
         self.start_model_file = model_file
 
         try:

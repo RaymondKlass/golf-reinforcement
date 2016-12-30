@@ -74,6 +74,9 @@ def main(argv):
         opts, args = getopt.getopt(argv, "hm:v", ["player1=", "player2=", "matches=", "holes=", "verbose"])
     except:
         print 'python golf/train.py -player1 <player1> -player2 <player2> -m <number of matches> -holes <number of holes> -v <verbose>'
+
+    other_args = {}
+
     for opt, arg in opts:
         if opt == '-h':
             print 'python golf/train.py -player1 <player1> -player2 <player2> -m <number of matches> -holes <number of holes> -v <verbose>'
@@ -94,6 +97,9 @@ def main(argv):
                 pass
         elif opt in ("-v", "--verbose"):
             verbose = True
+        else:
+            # Parse the unidentified args into a single dict
+            other_args[opt] = arg
 
     # Players need to be specified by file.ClassName
     player1 = player1.split('.')
@@ -101,6 +107,14 @@ def main(argv):
 
     player1 = getattr(__import__("players.{}".format(player1[0]), fromlist=[player1[1]]), player1[1])
     player2 = getattr(__import__("players.{}".format(player2[0]), fromlist=[player2[1]]), player2[1])
+
+    # Now that the player 1 and player2 have been identified, we should see if any of the unclaimed
+    # args belong to the players - these args will be sent to __init__ method and the setup_trainier
+    # method if that player is being trained
+    player1_args = player1.valid_args()
+    player2_args = player2.valid_args()
+    player1_parsed = {}
+    player2_parsed = {}
 
     player1 = player1(verbose=verbose)
     player2 = player2(verbose=verbose)

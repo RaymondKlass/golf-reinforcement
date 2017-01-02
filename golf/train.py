@@ -8,12 +8,19 @@ from board import Board
 
 class Match(object):
 
-    def __init__(self, player1, player2, holes=9, verbose=False):
+    def __init__(self, player1, player2, holes=9, checkpoint_epochs=None, verbose=False):
         self.players = [player1, player2,]
         self.scores = [0,0]
         self.total_holes = holes # Since we're 0 indexed
         self.verbose = verbose
         self.matches = [0] * len(self.players)
+
+        self.checkpoint_epochs = checkpoint_epochs
+        if not self.checkpoint_epochs and self.verbose:
+            print 'You chose training, but have not specified a number of epochs to save model at - saving will only occur at the ' \
+                  'end of the game.'
+
+        self.cur_epochs = 0
 
         # Setup the player training logic
         self.players[1].setup_trainer('/tmp')
@@ -24,7 +31,7 @@ class Match(object):
             print 'Player 1 {}'.format(self.players[1])
 
 
-    def play_k_matches(self, k):
+    def train_k_epochs(self, k):
         ''' Play a lot of independent matches for a more fair comparison '''
         for i in range(k):
 
@@ -66,7 +73,7 @@ class Match(object):
 
 def main(argv):
     # Setup some defaults
-    num_matches = 1
+    num_epochs = 1
     player1 = None
     player1_args = {'init': {}, 'train': {}}
     player2 = None
@@ -77,16 +84,16 @@ def main(argv):
     checkpoint_epochs = None
 
     try:
-        opts, args = getopt.getopt(argv, "m:v", ["player1=", "player2=", "player1_args", "player2_args", "matches=", "holes=", "verbose", 'trainable='])
+        opts, args = getopt.getopt(argv, "e:v", ["player1=", "player2=", "player1_args", "player2_args", "epochs=", "holes=", "verbose", 'trainable='])
     except:
         print 'python golf/train.py --player1 <player1> --player1_args <player1 arg json> --player2 <player2> --player2_args <player2 arg json> ' \
-              '-m <number of matches> -=holes <number of holes> -v <verbose> --trainable= <trainable_player> --checkpoint_epochs <epochs between saving checkpoints>'
+              '-e <number of training epochs> -=holes <number of holes> -v <verbose> --trainable= <trainable_player> --checkpoint_epochs <epochs between saving checkpoints>'
 
     other_args = {}
 
     for opt, arg in opts:
         if opt == '-h':
-            print 'python golf/train.py --player1 <player1> --player2 <player2> -m <number of matches> --holes <number of holes> -v <verbose> --trainable=player2'
+            print 'python golf/train.py --player1 <player1> --player2 <player2> -e <number of epochs> --holes <number of holes> -v <verbose> --trainable=player2'
             sys.exit(2)
         elif opt in ("--player1"):
             player1 = arg
@@ -96,9 +103,9 @@ def main(argv):
             player2 = arg
         elif opt in ("--player2_args"):
             player2_args = json.loads(arg)
-        elif opt in ("-m", "--match"):
+        elif opt in ("-e", "--epochs"):
             try:
-                num_matches = int(arg)
+                num_epochs = int(arg)
             except ValueError:
                 pass
         elif opt in ("--holes"):
@@ -133,8 +140,8 @@ def main(argv):
     if holes:
         kwargs['holes'] = holes
 
-    match = Match(player1, player2, **kwargs)
-    match.play_k_matches(num_matches)
+    match = Match(player1, player2, checkpoint_epochs=checkpoint_epochs, **kwargs)
+    match.train_k_epochs(num_epochs)
 
 
 if __name__ == '__main__':

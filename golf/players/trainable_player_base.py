@@ -30,7 +30,7 @@ class TrainablePlayer(Player):
         self._is_training = value
 
 
-
+    @staticmethod
     def valid_trainable_args(self):
         """ Setup the list of arguments that are acceptable for training -
         """

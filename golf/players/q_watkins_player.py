@@ -93,9 +93,17 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
     def save_checkpoint(self, epochs):
         ''' Save a checkpoint file in the pre-specified directory, in a name - date format '''
 
-        cur_time = str(time.time())
+        print 'Saving file'
+        print self.checkpoint_dir
+
+        print self.weights
+
+        cur_time = str(time.time()).replace('.', '_')
         epochs = self.starting_epochs + epochs
-        file_path = os.path.join(self.checkpoint_dir, '{}_{}.pkl')
+        file_path = os.path.join(self.checkpoint_dir, '{}_{}.pkl'.format(cur_time, epochs))
+
+        print 'Saving path: {}'.format(file_path)
+
         with open(file_path, 'wb') as outfile:
             cPickle.dump(self.weights, outfile)
 
@@ -154,7 +162,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # if we're training then we're going to need to save the value of the Q-State for updating weights later
         # Q(s,a) -> calculated value of the Q-State that we're committing to
 
-        if self.is_training:
+        if self.is_trainable:
             if epsilon == None:
                 epsilon = self.epsilon
 

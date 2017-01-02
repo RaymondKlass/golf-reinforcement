@@ -27,9 +27,6 @@ class Match(object):
             print 'You chose training, but have not specified a number of epochs to save model at - saving and evaluation ' \
                   'will only occur at the end of the game.'
 
-        # Setup the player training logic
-        self.players[1].setup_trainer('/tmp')
-
         if self.verbose:
             # let's introduce the players
             print 'Player 0 {}'.format(self.players[0])
@@ -40,23 +37,22 @@ class Match(object):
         ''' Play a lot of independent matches for a more fair comparison '''
         for i in range(k):
 
-            if self.verbose:
+            if self.verbose or True:
                 print('\n **** Starting epoch # {} **** \n'.format(i))
             scores = self.play_match(i)
 
-            if self.verbose:
+            if self.verbose or True:
                 print 'Player 1 Score: {} Player 2 Score: {}'.format(scores[0], scores[1])
-                print 'Player 0: {}, Player 1: {}'.format(self.matches[0], self.matches[1])
 
-            if self.checkpoint_epochs and i and not i % self.checkpoint_epochs:
+            if self.checkpoint_epochs and i and not (i+1) % self.checkpoint_epochs:
                 # For now we'll use the checkpoint epochs as a measure of when to save
                 # and when to evaulate the model.
-                if self.verbose:
+                if self.verbose or True:
                     print 'Reached {} epochs - now starting an evaluation'.format(i)
 
                 self.process_checkpoint(i)
 
-        if self.verbose:
+        if self.verbose or True:
             print 'Finished training player - going to run a final evaluation and save a checkpoint'
 
         self.process_checkpoint(k)
@@ -157,12 +153,13 @@ def main(argv):
     player1 = getattr(__import__("players.{}".format(player1[0]), fromlist=[player1[1]]), player1[1])
     player2 = getattr(__import__("players.{}".format(player2[0]), fromlist=[player2[1]]), player2[1])
 
-    player1 = player1(verbose=verbose **player1_args['init'])
+    player1 = player1(verbose=verbose, **player1_args['init'])
     if trainable_player == 'player1':
         player1.setup_trainer(**player1_args['train'])
 
     player2 = player2(verbose=verbose, **player2_args['init'])
     if trainable_player == 'player2':
+        print 'Player 2 args: {}'.format(player2_args)
         player2.setup_trainer(**player2_args['train'])
 
 

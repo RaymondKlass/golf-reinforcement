@@ -74,12 +74,13 @@ def main(argv):
     verbose = False
     holes = None
     trainable_player = None
+    checkpoint_epochs = None
 
     try:
         opts, args = getopt.getopt(argv, "m:v", ["player1=", "player2=", "player1_args", "player2_args", "matches=", "holes=", "verbose", 'trainable='])
     except:
         print 'python golf/train.py --player1 <player1> --player1_args <player1 arg json> --player2 <player2> --player2_args <player2 arg json> ' \
-              '-m <number of matches> -=holes <number of holes> -v <verbose> --trainable=player2'
+              '-m <number of matches> -=holes <number of holes> -v <verbose> --trainable= <trainable_player> --checkpoint_epochs <epochs between saving checkpoints>'
 
     other_args = {}
 
@@ -109,6 +110,8 @@ def main(argv):
             verbose = True
         elif opt in ("--trainable"):
             trainable_player = str(arg)
+        elif opt in ("--checkpoint_epochs"):
+            checkpoint_epochs = int(arg)
 
     # Players need to be specified by file.ClassName
     player1 = player1.split('.')

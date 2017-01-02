@@ -40,26 +40,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             self.weights = self._initialize_blank_model()
 
 
-
-    @staticmethod
-    def valid_args(self):
-        """ Valid arguments for a player this is not training """
-
-        return {'verbose': 'verbose',
-                'model_file': 'model_file',
-                'num_cols': 'num_cols' }
-
-
-    @staticmethod
-    def valid_trainable_args(self):
-        """ Valid arguments used for training """
-
-        return {'checkpoint_dir': 'checkpoint_dir',
-                'learning_rate': 'learning_rate',
-                'epsilon': 'epsilon',
-                'discount': 'discount' }
-
-
     def setup_trainer(self, checkpoint_dir, learning_rate=0.1, epsilon=.2, discount=0.01, *args, **kwargs):
         ''' Setup the training variables
             Args:

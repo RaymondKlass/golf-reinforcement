@@ -30,14 +30,6 @@ class TrainablePlayer(Player):
         self._is_training = value
 
 
-    @staticmethod
-    def valid_trainable_args(self):
-        """ Setup the list of arguments that are acceptable for training -
-        """
-
-        return dict()
-
-
     def setup_trainer(self):
         """ Trainable players are required to implement this one additional method
             to the methods that are already required in Player base class.

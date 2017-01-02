@@ -2,7 +2,7 @@
 
 import sys
 import getopt
-import re
+import json
 from board import Board
 
 
@@ -68,26 +68,33 @@ def main(argv):
     # Setup some defaults
     num_matches = 1
     player1 = None
+    player1_args = {'init': {}, 'train': {}}
     player2 = None
+    player2_args = {'init': {}, 'train': {}}
     verbose = False
     holes = None
     trainable_player = None
 
     try:
-        opts, args = getopt.getopt(argv, "m:v", ["player1=", "player2=", "matches=", "holes=", "verbose", 'trainable='])
+        opts, args = getopt.getopt(argv, "m:v", ["player1=", "player2=", "player1_args", "player2_args", "matches=", "holes=", "verbose", 'trainable='])
     except:
-        print 'python golf/train.py --player1 <player1> --player2 <player2> -m <number of matches> -=holes <number of holes> -v <verbose> --trainable=player2'
+        print 'python golf/train.py --player1 <player1> --player1_args <player1 arg json> --player2 <player2> --player2_args <player2 arg json> ' \
+              '-m <number of matches> -=holes <number of holes> -v <verbose> --trainable=player2'
 
     other_args = {}
 
     for opt, arg in opts:
         if opt == '-h':
-            print 'python golf/train.py -player1 <player1> -player2 <player2> -m <number of matches> -holes <number of holes> -v <verbose> --trainable=player2'
+            print 'python golf/train.py --player1 <player1> --player2 <player2> -m <number of matches> --holes <number of holes> -v <verbose> --trainable=player2'
             sys.exit(2)
         elif opt in ("--player1"):
             player1 = arg
+        elif opt in ("--player1_args"):
+            player1_args = json.loads(arg)
         elif opt in ("--player2"):
             player2 = arg
+        elif opt in ("--player2_args"):
+            player2_args = json.loads(arg)
         elif opt in ("-m", "--match"):
             try:
                 num_matches = int(arg)
@@ -102,9 +109,6 @@ def main(argv):
             verbose = True
         elif opt in ("--trainable"):
             trainable_player = str(arg)
-        elif re.search('(?<=--player[0-9]_)[a-zA-Z_]*', opt):
-            # Parse the unidentified args into a single dict if they meet the custom param regex
-            other_args[opt] = arg
 
     # Players need to be specified by file.ClassName
     player1 = player1.split('.')
@@ -113,29 +117,10 @@ def main(argv):
     player1 = getattr(__import__("players.{}".format(player1[0]), fromlist=[player1[1]]), player1[1])
     player2 = getattr(__import__("players.{}".format(player2[0]), fromlist=[player2[1]]), player2[1])
 
-
-        def parse_args_for_player(player_id, player, trainable_player):
-        """ Parse __init__ and trainable args for players based upon regex """
-
-        regex_exp = r'{?<=--player{}_)[a-zA-Z_0-9]*'.format(player_id)
-        init_args = {re.search(regex_exp, key).group(0): val for key, val in other_args.iteritems() \
-                     if re.search(regex_exp, key) and re.search(regex_exp, key).group(0) in player.valid_args()}
-
-        if trainable_player == 'player{}'.format(player_id):
-            train_args = {re.search(regex_exp, key).group(0): val for key, val in other_args.iteritems() \
-                          if re.search(regex_exp, key) and re.search(regex_exp, key).group(0) in player.valid_trainable_args()}
-        else:
-            train_args = {}
-
-        return {'init': init_args, 'train': train_args}
-
-
-    player1_args = parse_args_for_player(1, player1, trainable_player)
     player1 = player1(verbose=verbose **player1_args['init'])
     if trainable_player == 'player1':
         player1.setup_trainer(**player1_args['train'])
 
-    player2_args = parse_args_for_player(2, player2, trainable_player)
     player2 = player2(verbose=verbose, **player2_args['init'])
     if trainable_player == 'player2':
         player2.setup_trainer(**player2_args['train'])

@@ -10,17 +10,6 @@ class Player(object):
         return 'Player'
 
 
-    @staticmethod
-    def valid_args():
-        """ Return a dict of valid arguments that will be passed to the particular module,
-            the key is the arg expected from execution, the value is the key to be passed
-            to the __init__ method
-        """
-
-        return {'verbose': 'verbose'}
-
-
-
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):
         """ Phase 1 of the turn - needs to choose to
             1.  Take card face up

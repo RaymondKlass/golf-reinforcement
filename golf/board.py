@@ -24,12 +24,6 @@ class Board(object):
         self.hands = []
         self.verbose = verbose
         self.has_knocked = False
-        self.trainers = [False] * len(players)
-
-
-    def setup_trainers(self, trainers):
-        ''' Setup players as trainers '''
-        self.trainers = trainers
 
 
     @property
@@ -93,8 +87,9 @@ class Board(object):
             if decision == 'knock':
                 # then the player has no turn phase 2
                 self.has_knocked = True
-                if self.trainers[cur_turn]:
+                if hasattr(self.players[cur_turn], 'is_trainable') and self.players[cur_turn].is_trainable:
                     self.players[cur_turn].update_weights(self.get_state_for_player(cur_turn), card=None, reward=0, possible_moves=['knock'])
+
                 continue
 
             if decision == 'face_up_card':
@@ -118,7 +113,9 @@ class Board(object):
             # For trainable players - we need to update the new state - which
             # is dependent on the old state
             new_state = self.get_state_for_player(cur_turn)
-            if self.trainers[cur_turn]:
+
+            # This is where we need to update the weights if the player with the current turn is "trainable"
+            if hasattr(self.players[cur_turn], 'is_trainable') and self.players[cur_turn].is_trainable:
                 self.players[cur_turn].update_weights(new_state, card, reward=0, possible_moves=possible_moves)
 
             decision_two = self.players[cur_turn].turn_phase_2(card,
@@ -153,16 +150,21 @@ class Board(object):
                 shuffle(self.deck_down)
                 self.deck_up = [cur_up]
 
-            # Here - we need the update to use the game state in the end as a signal
-            # the problem is that if the next player's turn results in the end of the game, then we're not quite sure how to update?
-            for i, tp in enumerate(self.trainers):
-                if tp:
-                    reward = 0
-                    if self.has_knocked:
-                        reward = self.hands[i % 2].score() - float(self.hands[i].score())
+            # Here we're just going to update the current players score - a final update will happen at the end of the
+            # game as a sort of 'exit' move
+            if hasattr(self.players[cur_turn], 'is_trainable') and self.players[cur_turn].is_trainable:
+                self.players[cur_turn].update_weights(new_state, card=None, reward=0, possible_moves=['knock'])
 
-                    new_state = self.get_state_for_player(i%2)
-                    self.players[i%2].update_weights(new_state, card=None, reward=reward, possible_moves=['knock'])
+
+        # Since the game is over, we will need to make a final weight update to any trainable players with their proper reward
+        for i, player in enumerate(self.players):
+            if hasattr(player, 'is_trainable') and player.is_trainable:
+                if self.verbose:
+                    print 'Final Update of weights for player {}'.format(i)
+
+                reward = self.hands[i % 2].score() - float(self.hands[i].score())
+                new_state = self.get_state_for_player(i%2)
+                player.update_weights(new_state, card=None, reward=reward, possible_moves=['knock'])
 
 
         if self.verbose:

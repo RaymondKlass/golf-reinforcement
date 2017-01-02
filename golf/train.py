@@ -1,6 +1,8 @@
 ''' Train a player by playing against them - also supporting validation '''
 
-import sys, getopt
+import sys
+import getopt
+import re
 from board import Board
 
 
@@ -97,8 +99,8 @@ def main(argv):
                 pass
         elif opt in ("-v", "--verbose"):
             verbose = True
-        else:
-            # Parse the unidentified args into a single dict
+        elif re.search('(?<=--player[0-9]_)[a-zA-Z_]*', opt):
+            # Parse the unidentified args into a single dict if they meet the custom param regex
             other_args[opt] = arg
 
     # Players need to be specified by file.ClassName
@@ -115,6 +117,8 @@ def main(argv):
     player2_args = player2.valid_args()
     player1_parsed = {}
     player2_parsed = {}
+
+
 
     player1 = player1(verbose=verbose)
     player2 = player2(verbose=verbose)

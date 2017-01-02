@@ -24,7 +24,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         super(QWatkinsPlayer, self).__init__(*args, **kwargs)
         self.num_cols = num_cols
-        self.is_training = False # This will be over-written if self.setup_trainer() is run
+        self._is_trainable = False # This will be over-written if self.setup_trainer() is run
 
         self.epsilon = 0 # Exploration
         self.start_model_file = model_file
@@ -40,6 +40,27 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             self.weights = self._initialize_blank_model()
 
 
+    @is_trainable.setter
+    def is_trainable(self, value):
+        """ Set the training value - so that a single player can be 'switched' between
+            training and playing optimally.  This will be important for running the
+            player in evaluation mode
+        """
+
+        if not value and self.is_trainable:
+            # We were in trainable mode - now we should archive the values and set optimal ones for the time being
+            # For now the only param which explcictly needs to be reset is epsilon
+            self.hyperparam_archive = {'epsilon': self.epsilon }
+            # Reset the various params to optimal vals
+            self.epsilon = 0
+        elif value and not self.is_trainable:
+            # Training was off - now if should be turned back on
+            if self.hyperparam_archive and 'epsilon' in self.hyperparam_archive:
+                self.epsilon = self.hyperparam_archive['epsilon']
+
+        self._is_trainable = value
+
+
     def setup_trainer(self, checkpoint_dir, learning_rate=0.1, epsilon=.2, discount=0.01, *args, **kwargs):
         ''' Setup the training variables
             Args:
@@ -50,10 +71,9 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         self.epsilon = epsilon
         self.discount = discount
-
         self.checkpoint_dir = checkpoint_dir
         self.learning_rate = learning_rate
-        self.is_training = True
+        self._is_trainable = True
         self.q_state = None
 
         # Introspect the number of epochs from a checkpoint file in proper format

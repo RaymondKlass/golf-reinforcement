@@ -114,12 +114,12 @@ def main(argv):
     checkpoint_epochs = None
 
     try:
-        opts, args = getopt.getopt(argv, "e:v", ["player1=", "player2=", "player1_args", "player2_args", "epochs=", "holes=", "verbose", 'trainable='])
+        opts, args = getopt.getopt(argv, "e:v", ["player1=", "player2=", "player1_args=", "player2_args=", "epochs=", "holes=", "verbose", 'trainable=', "checkpoint_epochs="])
     except:
         print 'python golf/train.py --player1 <player1> --player1_args <player1 arg json> --player2 <player2> --player2_args <player2 arg json> ' \
               '-e <number of training epochs> -=holes <number of holes> -v <verbose> --trainable= <trainable_player> --checkpoint_epochs <epochs between saving checkpoints>'
 
-    other_args = {}
+    opts, args = getopt.getopt(argv, "e:v", ["player1=", "player2=", "player1_args=", "player2_args=", "epochs=", "holes=", "verbose", 'trainable=', "checkpoint_epochs="])
 
     for opt, arg in opts:
         if opt == '-h':

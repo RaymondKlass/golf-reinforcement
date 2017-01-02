@@ -40,6 +40,11 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             self.weights = self._initialize_blank_model()
 
 
+    @property
+    def is_trainable(self):
+        return self._is_trainable
+
+
     @is_trainable.setter
     def is_trainable(self, value):
         """ Set the training value - so that a single player can be 'switched' between

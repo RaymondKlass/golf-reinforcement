@@ -15,6 +15,8 @@ class TrainablePlayer(Player):
 
     @property
     def is_trainable(self):
+        """ If setting the setter function - this also needs to be set in child class """
+
         return self._is_trainable
 
 

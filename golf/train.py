@@ -4,23 +4,28 @@ import sys
 import getopt
 import json
 from board import Board
+from benchmark import benchmark_player
 
 
 class Match(object):
 
-    def __init__(self, player1, player2, holes=9, checkpoint_epochs=None, verbose=False):
+    def __init__(self, player1, player2, trainable_player=None, holes=9, checkpoint_epochs=None, verbose=False):
         self.players = [player1, player2,]
         self.scores = [0,0]
         self.total_holes = holes # Since we're 0 indexed
         self.verbose = verbose
-        self.matches = [0] * len(self.players)
+        self.trainable_player = trainable_player
+
+        if self.trainable_player != None:
+            self.trainable_player = int(self.trainable_player.split('player')[-1]) - 1
+
+        # array of tuples to hold the results from evaluation
+        self.eval_results = []
 
         self.checkpoint_epochs = checkpoint_epochs
         if not self.checkpoint_epochs and self.verbose:
-            print 'You chose training, but have not specified a number of epochs to save model at - saving will only occur at the ' \
-                  'end of the game.'
-
-        self.cur_epochs = 0
+            print 'You chose training, but have not specified a number of epochs to save model at - saving and evaluation ' \
+                  'will only occur at the end of the game.'
 
         # Setup the player training logic
         self.players[1].setup_trainer('/tmp')
@@ -36,19 +41,49 @@ class Match(object):
         for i in range(k):
 
             if self.verbose:
-                print('\n **** Starting Match # {} **** \n'.format(i))
+                print('\n **** Starting epoch # {} **** \n'.format(i))
             scores = self.play_match(i)
-
-            if scores[0] > scores[1]:
-                self.matches[1] += 1
-            elif scores[1] > scores[0]:
-                self.matches[0] += 1
 
             if self.verbose:
                 print 'Player 1 Score: {} Player 2 Score: {}'.format(scores[0], scores[1])
                 print 'Player 0: {}, Player 1: {}'.format(self.matches[0], self.matches[1])
 
-        print 'Player 0: {} matches, Player 1: {} matches'.format(self.matches[0], self.matches[1])
+            if self.checkpoint_epochs and i and not i % self.checkpoint_epochs:
+                # For now we'll use the checkpoint epochs as a measure of when to save
+                # and when to evaulate the model.
+                if self.verbose:
+                    print 'Reached {} epochs - now starting an evaluation'.format(i)
+
+                self.process_checkpoint(i)
+
+        if self.verbose:
+            print 'Finished training player - going to run a final evaluation and save a checkpoint'
+
+        self.process_checkpoint(k)
+
+
+    def process_checkpoint(self, epoch):
+        """ It's time for a checkpoint - so we will run evaluation and then save a checkpoint file """
+
+        # Let's run an evaulation - first we'll need to set both players to not be in training mode
+        if self.trainable_player != None and self.trainable_player >= 0 and self.trainable_player < len(self.players):
+            self.players[self.trainable_player].is_trainable = False
+
+        result = benchmark_player(*self.players)
+        self.eval_results.append(result)
+
+        if self.verbose:
+            print 'Evaluation results: '
+            for i, player in self.players:
+                print 'Player{}: {} : {}'.format(i, player, result[i])
+
+        # Now we should save the trainable player - and make it trainable again
+        if self.trainable_player != None and self.trainable_player >= 0 and self.trainable_player < len(self.players):
+            self.players[self.trainable_player].is_trainable = True
+            self.players[self.trainable_player].save_checkpoint(epoch)
+
+        if self.verbose:
+            print 'Finished saving checkpoint for epoch: {}'.format(epoch)
 
 
     def play_match(self, match_num):
@@ -58,11 +93,6 @@ class Match(object):
 
         for turn in range(self.total_holes):
             board = Board([self.players[(turn + match_num) % 2], self.players[((turn + match_num) + 1) % 2]], 2, verbose=self.verbose)
-
-            # For now - to try training
-            trainers = [False, True]
-            board.setup_trainers([trainers[(turn + match_num) % 2],
-                                  trainers[((turn + match_num) + 1) % 2]])
 
             game_scores = board.play_game()
             for i, score in enumerate(scores):
@@ -140,7 +170,8 @@ def main(argv):
     if holes:
         kwargs['holes'] = holes
 
-    match = Match(player1, player2, checkpoint_epochs=checkpoint_epochs, **kwargs)
+    match = Match(player1, player2, trainable_player=trainable_player, checkpoint_epochs=checkpoint_epochs, **kwargs)
+
     match.train_k_epochs(num_epochs)
 
 

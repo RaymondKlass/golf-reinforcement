@@ -38,6 +38,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 print 'Model {} could not be found - starting from scratch'.format(model_file)
 
             self.weights = self._initialize_blank_model()
+        print self.weights
 
 
     @property
@@ -66,8 +67,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self._is_trainable = value
 
 
-    def setup_trainer(self, checkpoint_dir, learning_rate=0.1, epsilon=.2, discount=0.01, *args, **kwargs):
-        ''' Setup the training variables
+    def setup_trainer(self, checkpoint_dir, learning_rate=0.000001, epsilon=0, discount=1.5, *args, **kwargs):
+        ''' Setup the training variable
             Args:
                 checkpoint_dir: string -> Directory to store checkpoint files
                 learning_rate: float -> single rate for now, may change to be a schedule

@@ -67,7 +67,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self._is_trainable = value
 
 
-    def setup_trainer(self, checkpoint_dir, learning_rate=0.000001, epsilon=0, discount=1.5, *args, **kwargs):
+    def setup_trainer(self, checkpoint_dir, learning_rate=0.0001, epsilon=0.25, discount=1.1, *args, **kwargs):
         ''' Setup the training variable
             Args:
                 checkpoint_dir: string -> Directory to store checkpoint files
@@ -100,7 +100,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         with open(file_path, 'wb') as outfile:
             cPickle.dump(self.weights, outfile)
-
+        print self.weights
 
 
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):
@@ -150,6 +150,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         self._cache_state_derivative_values(state, card)
         turn = self._take_turn(state, possible_moves, card)
+
         return turn
 
 

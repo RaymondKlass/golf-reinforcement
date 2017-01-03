@@ -13,6 +13,6 @@ def benchmark_player(player1, player2):
     # Let's make a benchmark - a standard
     # 1000 Matches
 
-    results = m.play_k_matches(1000)
+    results = m.play_k_matches(100)
     return results # Results should be a list with results lining up with the
                    # players that were submitted i.e. player1 = results[0]

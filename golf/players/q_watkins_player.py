@@ -111,6 +111,9 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         self._cache_state_derivative_values(state)
         turn = self._take_turn(state, possible_moves)
+
+        raw_input("Turn Phase 1 Complete - Press a key to continue.")
+
         return turn
 
 
@@ -124,12 +127,15 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             print 'Return without success'
             return
 
-        #print 'old_q_state {}'.format(old_q_state)
+        print 'old_q_state {}'.format(old_q_state)
 
         self._cache_state_derivative_values(state, card)
 
         # For the update weights - this needs to be the optimal move - so no epsilon randomness should be used
         self._take_turn(state, possible_moves, card, epsilon=0)
+
+        print 'New q_state {}'.format(self.q_state)
+        print 'Weights before update: {}'.format(self.weights)
 
         # Not sure about the reward as computed here - probably also need a discount to account for the diminishing
         # returns by both players heading closer to the same state
@@ -139,6 +145,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                               q_prime_state_obj=self.q_state,
                               reward=reward, # Since this update will never result from an exit state
                               learning_rate=self.learning_rate)
+
+        print 'Weights after update: {}'.format(self.weights)
+
+        raw_input("Update Weights Complete - Press a key to continue.")
 
 
 
@@ -150,6 +160,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         self._cache_state_derivative_values(state, card)
         turn = self._take_turn(state, possible_moves, card)
+
+        raw_input("Turn Phase 2 Complete - Press a key to continue.")
 
         return turn
 
@@ -241,7 +253,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self_cards = list(raw_cards)
 
         # Handle the case where no replacement is sought - so we simply don't replace
-        if position:
+        if position != None:
             self_cards[position] = card
 
         self_score = self._calc_score_for_cards(self_cards)

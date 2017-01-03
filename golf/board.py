@@ -162,13 +162,12 @@ class Board(object):
                 if self.verbose:
                     print 'Final Update of weights for player {}'.format(i)
 
-                reward = self.hands[i % 2].score() - float(self.hands[i].score())
+                reward = self.hands[i % 2].score() - float(self.hands[(i+1) % 2].score())
                 new_state = self.get_state_for_player(i%2)
                 player.update_weights(new_state, card=None, reward=reward, possible_moves=['knock'])
 
 
         if self.verbose:
-            print 'Final State: {}'.format([hand.score() for hand in self.hands])
             for i, hand in enumerate(self.hands):
                 print '{}: {} Hand {}'.format(self.players[i], i, hand.cards)
 

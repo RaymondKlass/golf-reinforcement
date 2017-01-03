@@ -93,16 +93,9 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
     def save_checkpoint(self, epochs):
         ''' Save a checkpoint file in the pre-specified directory, in a name - date format '''
 
-        print 'Saving file'
-        print self.checkpoint_dir
-
-        print self.weights
-
         cur_time = str(time.time()).replace('.', '_')
         epochs = self.starting_epochs + epochs
         file_path = os.path.join(self.checkpoint_dir, '{}_{}.pkl'.format(cur_time, epochs))
-
-        print 'Saving path: {}'.format(file_path)
 
         with open(file_path, 'wb') as outfile:
             cPickle.dump(self.weights, outfile)
@@ -123,10 +116,14 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
     def update_weights(self, state, card=None, reward=0, possible_moves=[]):
         ''' Takes a new state and executes the weight update '''
         # It's possible this player gets called before they have ever gone - in that case ignore the results
+        #print 'Weight update'
         try:
             old_q_state = dict(self.q_state)
         except TypeError:
+            print 'Return without success'
             return
+
+        #print 'old_q_state {}'.format(old_q_state)
 
         self._cache_state_derivative_values(state, card)
 
@@ -135,6 +132,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         # Not sure about the reward as computed here - probably also need a discount to account for the diminishing
         # returns by both players heading closer to the same state
+        #print 'New Q State: {}'.format(self.q_state)
+
         self._update_weights( q_state_obj=old_q_state,
                               q_prime_state_obj=self.q_state,
                               reward=reward, # Since this update will never result from an exit state
@@ -161,6 +160,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         turn_decisions.sort(key=lambda x: x['score'], reverse=True)
         # if we're training then we're going to need to save the value of the Q-State for updating weights later
         # Q(s,a) -> calculated value of the Q-State that we're committing to
+
+        #print 'Turn Decisions: {}'.format(turn_decisions)
 
         if self.is_trainable:
             if epsilon == None:
@@ -328,6 +329,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                                      'score': score,
                                      'action': (action, row, col)})
 
+        #print features
+
+        #raw_input('press something')
+
         return features
 
 
@@ -345,6 +350,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # Now we need to update the weights iteratively using the saved difference and learning rate
         # w_i <- w_i + (learning_rate * difference * f_i(s,a) where f_i is feature i
         self.weights = self.weights + (learning_rate * difference * q_state_obj['raw_features'])
+
+        #print 'New weights: {}'.format(self.weights)
 
         if self.verbose:
             print 'Weights after update {}'.format(self.weights)

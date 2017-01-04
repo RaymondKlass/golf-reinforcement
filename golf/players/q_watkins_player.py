@@ -38,7 +38,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 print 'Model {} could not be found - starting from scratch'.format(model_file)
 
             self.weights = self._initialize_blank_model()
-        print self.weights
 
 
     @property
@@ -67,7 +66,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self._is_trainable = value
 
 
-    def setup_trainer(self, checkpoint_dir, learning_rate=0.01, epsilon=0.2, discount=.75, *args, **kwargs):
+    def setup_trainer(self, checkpoint_dir, learning_rate=0.001, epsilon=0.2, discount=0.8, *args, **kwargs):
         ''' Setup the training variable
             Args:
                 checkpoint_dir: string -> Directory to store checkpoint files
@@ -111,14 +110,17 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         self._cache_state_derivative_values(state)
         turn = self._take_turn(state, possible_moves)
-
+        #print 'State (turn phase 1): {}'.format(state)
+        #print 'Decision: {}'.format(turn)
         return turn
 
 
     def update_weights(self, state, card=None, reward=0, possible_moves=[]):
         ''' Takes a new state and executes the weight update '''
         # It's possible this player gets called before they have ever gone - in that case ignore the results
-        #print 'Weight update'
+
+        #print 'State (weight update): {}'.format(state)
+
         try:
             old_q_state = dict(self.q_state)
         except TypeError:
@@ -145,7 +147,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         self._cache_state_derivative_values(state, card)
         turn = self._take_turn(state, possible_moves, card)
-
+        #print 'State (turn phase 2): {}'.format(state)
+        #print 'Decision: {}'.format(turn)
         return turn
 
 
@@ -276,7 +279,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             which will be used to compute the score for each row of features
         '''
 
-        result =  (self.min_opp_score - self.self_avg_score) - (self.min_opp_score - raw_features)
+        #result =  (self.min_opp_score - self.self_avg_score) - (self.min_opp_score - raw_features)
+        result = self.min_opp_score - raw_features
         result = np.dot(result, np.transpose(self.weights))
 
         return result
@@ -337,6 +341,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             print 'Initial weights for update {}'.format(self.weights)
             print 'Reward: {}'.format(reward)
             print 'Discount: {}'.format(self.discount)
+            print '\n q_prime_obj: {}'.format(q_prime_state_obj)
+            print 'q_state_obj: {} \n \n'.format(q_state_obj)
             print 'q_prime_state_obj: {}'.format(q_prime_state_obj['score'])
             print 'q_state_obj_score: {}'.format(q_state_obj['score'])
 
@@ -359,6 +365,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             like an optimization best left for later
         '''
 
-        return np.array([0.0001]*length)
+        return np.zeros(length)
         #return np.array(np.zeros(length))
 

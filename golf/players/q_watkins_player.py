@@ -66,7 +66,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self._is_trainable = value
 
 
-    def setup_trainer(self, checkpoint_dir, learning_rate=0.001, epsilon=0.2, discount=0.8, *args, **kwargs):
+    def setup_trainer(self, checkpoint_dir, learning_rate=0.001, epsilon=0.2, discount=0.95, *args, **kwargs):
         ''' Setup the training variable
             Args:
                 checkpoint_dir: string -> Directory to store checkpoint files
@@ -127,6 +127,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             print 'Return without success'
             return
 
+        print 'Making a weight Update'
+
         self._cache_state_derivative_values(state, card)
 
         # For the update weights - this needs to be the optimal move - so no epsilon randomness should be used
@@ -166,7 +168,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                 epsilon = self.epsilon
 
             choice = random.random()
-            if choice < self.epsilon:
+            if choice < epsilon:
                 # select a random decision
                 decision = random.choice(turn_decisions)
                 if self.verbose:
@@ -345,6 +347,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             print 'q_state_obj: {} \n \n'.format(q_state_obj)
             print 'q_prime_state_obj: {}'.format(q_prime_state_obj['score'])
             print 'q_state_obj_score: {}'.format(q_state_obj['score'])
+            print 'Old Weights: {}'.format(self.weights)
 
         # difference = [r + gamma * max Q(s`,a`)] - Q(s,a)
         # Going to use a gamma of 1 for no discount on future Q state values,
@@ -354,6 +357,14 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # Now we need to update the weights iteratively using the saved difference and learning rate
         # w_i <- w_i + (learning_rate * difference * f_i(s,a) where f_i is feature i
         self.weights = self.weights + (learning_rate * difference * q_state_obj['raw_features'])
+
+        # if the difference is very large, we're seeing some crazy weight updates - so let's stop things
+        # to investigate in this case
+        if difference > 40 or difference < -40:
+            print 'Difference: {}'.format(difference)
+            print 'New Weights: {}'.format(self.weights)
+            raw_input('There was a large difference detected - stopping for investigation...')
+
 
 
 

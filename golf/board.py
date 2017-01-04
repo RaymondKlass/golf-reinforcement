@@ -153,7 +153,7 @@ class Board(object):
             # Here we're just going to update the current players score - a final update will happen at the end of the
             # game as a sort of 'exit' move
             if hasattr(self.players[cur_turn], 'is_trainable') and self.players[cur_turn].is_trainable:
-                self.players[cur_turn].update_weights(new_state, card=None, reward=0, possible_moves=['knock'])
+                self.players[cur_turn].update_weights(self.get_state_for_player(cur_turn), card=None, reward=0, possible_moves=['knock'])
 
 
         # Since the game is over, we will need to make a final weight update to any trainable players with their proper reward

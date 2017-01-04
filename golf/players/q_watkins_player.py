@@ -67,7 +67,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self._is_trainable = value
 
 
-    def setup_trainer(self, checkpoint_dir, learning_rate=0.0001, epsilon=0.25, discount=1.1, *args, **kwargs):
+    def setup_trainer(self, checkpoint_dir, learning_rate=0.01, epsilon=0.2, discount=.75, *args, **kwargs):
         ''' Setup the training variable
             Args:
                 checkpoint_dir: string -> Directory to store checkpoint files
@@ -112,8 +112,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self._cache_state_derivative_values(state)
         turn = self._take_turn(state, possible_moves)
 
-        raw_input("Turn Phase 1 Complete - Press a key to continue.")
-
         return turn
 
 
@@ -127,28 +125,15 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             print 'Return without success'
             return
 
-        print 'old_q_state {}'.format(old_q_state)
-
         self._cache_state_derivative_values(state, card)
 
         # For the update weights - this needs to be the optimal move - so no epsilon randomness should be used
         self._take_turn(state, possible_moves, card, epsilon=0)
 
-        print 'New q_state {}'.format(self.q_state)
-        print 'Weights before update: {}'.format(self.weights)
-
-        # Not sure about the reward as computed here - probably also need a discount to account for the diminishing
-        # returns by both players heading closer to the same state
-        #print 'New Q State: {}'.format(self.q_state)
-
         self._update_weights( q_state_obj=old_q_state,
                               q_prime_state_obj=self.q_state,
                               reward=reward, # Since this update will never result from an exit state
                               learning_rate=self.learning_rate)
-
-        print 'Weights after update: {}'.format(self.weights)
-
-        raw_input("Update Weights Complete - Press a key to continue.")
 
 
 
@@ -156,12 +141,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         ''' Takes the state of the board and responds with the turn phase 2 move recommended '''
 
         if self.verbose:
-            print '\n Turn Phase 2: \n'
+            print '\n Turn Phase 2: Card: {}\n'.format(card)
 
         self._cache_state_derivative_values(state, card)
         turn = self._take_turn(state, possible_moves, card)
-
-        raw_input("Turn Phase 2 Complete - Press a key to continue.")
 
         return turn
 
@@ -174,8 +157,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         turn_decisions.sort(key=lambda x: x['score'], reverse=True)
         # if we're training then we're going to need to save the value of the Q-State for updating weights later
         # Q(s,a) -> calculated value of the Q-State that we're committing to
-
-        #print 'Turn Decisions: {}'.format(turn_decisions)
 
         if self.is_trainable:
             if epsilon == None:
@@ -200,8 +181,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             decision = turn_decisions[0]
 
         if self.verbose:
-            print '\n All decision options: {}'.format(turn_decisions)
-            print 'Made decision: {}'.format(decision)
+            print '\n All decision options: {} \n'.format(turn_decisions)
+            print '\nMade decision: {}\n'.format(decision)
 
         return decision['action']
 
@@ -259,12 +240,14 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self_score = self._calc_score_for_cards(self_cards)
         self_score = self_score + (len([b for b in self_cards if b == None]) * min(unknown_card_val, 10))
 
+
         if self.verbose:
             print '\n Cards: {}'.format(self_cards)
             print 'Replacement card : {}'.format(card)
             print 'Replacement card position: {}'.format(position)
             print 'Unknown card value: {}'.format(unknown_card_val)
             print 'Score with replacement: {}'.format(self_score)
+
 
         return self_score
 
@@ -293,8 +276,9 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             which will be used to compute the score for each row of features
         '''
 
-        result = raw_features - (self.min_opp_score + self.self_avg_score)
+        result =  (self.min_opp_score - self.self_avg_score) - (self.min_opp_score - raw_features)
         result = np.dot(result, np.transpose(self.weights))
+
         return result
 
 
@@ -343,10 +327,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                                      'score': score,
                                      'action': (action, row, col)})
 
-        #print features
-
-        #raw_input('press something')
-
         return features
 
 
@@ -355,6 +335,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         if self.verbose:
             print 'Initial weights for update {}'.format(self.weights)
+            print 'Reward: {}'.format(reward)
+            print 'Discount: {}'.format(self.discount)
+            print 'q_prime_state_obj: {}'.format(q_prime_state_obj['score'])
+            print 'q_state_obj_score: {}'.format(q_state_obj['score'])
 
         # difference = [r + gamma * max Q(s`,a`)] - Q(s,a)
         # Going to use a gamma of 1 for no discount on future Q state values,
@@ -365,10 +349,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         # w_i <- w_i + (learning_rate * difference * f_i(s,a) where f_i is feature i
         self.weights = self.weights + (learning_rate * difference * q_state_obj['raw_features'])
 
-        #print 'New weights: {}'.format(self.weights)
-
-        if self.verbose:
-            print 'Weights after update {}'.format(self.weights)
 
 
     def _initialize_blank_model(self, length=5):
@@ -379,5 +359,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             like an optimization best left for later
         '''
 
-        return np.array(np.zeros(length))
+        return np.array([0.0001]*length)
+        #return np.array(np.zeros(length))
 

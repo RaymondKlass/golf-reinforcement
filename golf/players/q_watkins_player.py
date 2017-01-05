@@ -32,6 +32,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         try:
             with open(model_file, 'rb') as model_file:
                 self.weights = cPickle.load(model_file)
+
+                if self.verbose:
+                    print 'Successfully loaded model'
+
         except IOError:
             # model does not exist
             if self.verbose:

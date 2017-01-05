@@ -1,4 +1,6 @@
-import sys, getopt
+import sys
+import getopt
+import json
 from board import Board
 
 
@@ -57,22 +59,28 @@ def main(argv):
     # Setup some defaults
     num_matches = 1
     player1 = None
+    player1_args = {'init': {}}
     player2 = None
+    player2_args = {'init': {}}
     verbose = False
     holes = None
 
     try:
-        opts, args = getopt.getopt(argv, "hm:v", ["player1=", "player2=", "matches=", "holes=", "verbose"])
+        opts, args = getopt.getopt(argv, "hm:v", ["player1=", "player2=", "player1_args=", "player2_args=", "matches=", "holes=", "verbose"])
     except:
-        print 'python match.py -player1 <player1> -player2 <player2> -m <number of matches> -holes <number of holes> -v <verbose>'
+        print 'python match.py --player1=<player1> --player1_args=<player1_args> --player2=<player2> --player2_args=<player2_args> -m <number of matches> -holes <number of holes> -v <verbose>'
     for opt, arg in opts:
         if opt == '-h':
-            print 'python match.py -player1 <player1> -player2 <player2> -m <number of matches> -holes <number of holes> -v <verbose>'
+            print 'python match.py --player1=<player1> --player1_args=<player1_args> --player2=<player2> --player2_args=<player2_args> -m <number of matches> -holes <number of holes> -v <verbose>'
             sys.exit(2)
         elif opt in ("--player1"):
             player1 = arg
+        elif opt in ("--player1_args"):
+            player1_args = json.loads(arg)
         elif opt in ("--player2"):
             player2 = arg
+        elif opt in ("--player2_args"):
+            player2_args = json.loads(arg)
         elif opt in ("-m", "--match"):
             try:
                 num_matches = int(arg)
@@ -93,8 +101,8 @@ def main(argv):
     player1 = getattr(__import__("players.{}".format(player1[0]), fromlist=[player1[1]]), player1[1])
     player2 = getattr(__import__("players.{}".format(player2[0]), fromlist=[player2[1]]), player2[1])
 
-    player1 = player1(verbose=verbose)
-    player2 = player2(verbose=verbose)
+    player1 = player1(verbose=verbose, **player1_args['init'])
+    player2 = player2(verbose=verbose, **player2_args['init'])
 
     kwargs = {'verbose': verbose}
     if holes:

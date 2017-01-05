@@ -7,7 +7,7 @@ from board import Board
 from benchmark import benchmark_player
 
 
-class Match(object):
+class Trainer(object):
 
     def __init__(self, player1, player2, trainable_player=None, holes=9, checkpoint_epochs=None, verbose=False):
         self.players = [player1, player2,]
@@ -167,9 +167,9 @@ def main(argv):
     if holes:
         kwargs['holes'] = holes
 
-    match = Match(player1, player2, trainable_player=trainable_player, checkpoint_epochs=checkpoint_epochs, **kwargs)
+    trainer = Trainer(player1, player2, trainable_player=trainable_player, checkpoint_epochs=checkpoint_epochs, **kwargs)
 
-    match.train_k_epochs(num_epochs)
+    trainer.train_k_epochs(num_epochs)
 
 
 if __name__ == '__main__':

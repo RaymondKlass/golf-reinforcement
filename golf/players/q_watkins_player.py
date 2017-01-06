@@ -103,14 +103,17 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         with open(file_path, 'wb') as outfile:
             cPickle.dump(self.weights, outfile)
-        print self.weights
+
+        if self.verbose:
+            print 'Saved checkpoint: {}'.format(file_path)
 
 
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):
         ''' Takes the state of the board and responds with the turn_phase_1 move recommended '''
 
         if self.verbose:
-            print '\n Turn Phase 1: \n'
+            print 'Turn Phase 1: '
+            print 'State: {}'.format(state)
 
         self._cache_state_derivative_values(state)
         turn = self._take_turn(state, possible_moves)
@@ -120,8 +123,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
     def update_weights(self, state, card=None, reward=0, possible_moves=[]):
         ''' Takes a new state and executes the weight update '''
         # It's possible this player gets called before they have ever gone - in that case ignore the results
-
-        #print 'State (weight update): {}'.format(state)
 
         try:
             old_q_state = dict(self.q_state)
@@ -145,7 +146,8 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         ''' Takes the state of the board and responds with the turn phase 2 move recommended '''
 
         if self.verbose:
-            print '\n Turn Phase 2: Card: {}\n'.format(card)
+            print 'Turn Phase 2: '
+            print 'State: {} \n Card: {}'.format(state, card)
 
         self._cache_state_derivative_values(state, card)
         turn = self._take_turn(state, possible_moves, card)

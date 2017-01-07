@@ -49,3 +49,11 @@ class TrainablePlayer(Player):
         """
 
         raise NotImplementedError
+
+
+    def update_learning_rate(self, epochs, eval_results):
+        """ Trainable players can optionally implement this method to update the learning rate.
+            Best used to implement a learning rate schedule
+        """
+
+        pass

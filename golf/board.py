@@ -39,9 +39,6 @@ class Board(object):
         self.hands.append(Hand([dealt[i] for i in range(len(dealt)) if i % 2 == 0]))
         self.hands.append(Hand([dealt[i] for i in range(len(dealt)) if i % 2 != 0]))
 
-        if self.verbose:
-            print 'Deck Position: {}'.format(self.deck_down)
-
 
     def play_game(self):
         ''' Initially the top face down card becomes the face up card, then thing proceed '''

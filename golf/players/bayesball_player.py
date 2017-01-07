@@ -50,7 +50,6 @@ class BayesballPlayer(Player, PlayerUtils):
 
 
     def __repr__(self):
-
         return 'Bayesball_Player'
 
 
@@ -89,7 +88,7 @@ class BayesballPlayer(Player, PlayerUtils):
             return 'knock'
         else:
             face_up_card = min(state['deck_up'][-1], 10)
-            if avg_card - self.card_margin > face_up_card and len([a for a in state['self']['raw_cards'] if a and a > avg_card]):
+            if avg_card - self.card_margin > face_up_card and len([a for a in state['self']['raw_cards'] if a != None and a > face_up_card - self.card_margin]):
                 # then we should take the face up card
                 return 'face_up_card'
             return 'face_down_card'

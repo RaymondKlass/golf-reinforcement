@@ -62,11 +62,6 @@ class BayesballPlayer(Player, PlayerUtils):
         self.score = (state['self']['score'] + (((self.num_cols * 2) - len([b for b in state['self']['visible'] if b])) * avg))
         self.min_opp_score = min([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  avg) for a in state['opp']])
 
-        if self.verbose:
-            print "Opp Scores: {}".format([a['score']+(((self.num_cols * 2) - len([b for b in a['raw_cards'] if b != None])) *  avg) for a in state['opp']])
-            print 'Min Opponent Score: {}'.format(self.min_opp_score)
-            print 'Self Score: {}'.format(self.score)
-
         return self.min_opp_score - self.score
 
 
@@ -86,10 +81,6 @@ class BayesballPlayer(Player, PlayerUtils):
         # remove knock from possible_moves if has_knocked == True in state
         if state['has_knocked'] and 'knock' in possible_moves:
             list(possible_moves).remove('knock')
-
-        if self.verbose:
-            print 'Average card calc: {}'.format(avg_card)
-            print 'Score differential calc: {}'.format(score_diff)
 
         if (score_diff >= self.min_distance and 'knock' in possible_moves) or \
            (self.score <= self.min_distance and 'knock' in possible_moves) or \
@@ -115,9 +106,6 @@ class BayesballPlayer(Player, PlayerUtils):
         """
 
         avg_card = self._calc_average_card(state, card_in_hand=card)
-
-        if self.verbose:
-            print 'Average card calc: {}'.format(avg_card)
 
         # Let's start by pairing off cards
         columns = [[state['self']['raw_cards'][a], state['self']['raw_cards'][a+1],] \

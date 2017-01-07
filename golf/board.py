@@ -133,6 +133,11 @@ class Board(object):
 
             self.deck_up.append(card_ret)
 
+            if self.verbose:
+                print '\nEnd State'
+                state = self.get_state_for_player(cur_turn)
+                print 'Self: {}'.format(state['self'])
+
 
             # Here we need to handle the possibility that the deck goes around an Nth time
             if len(self.deck_down) <= 0:

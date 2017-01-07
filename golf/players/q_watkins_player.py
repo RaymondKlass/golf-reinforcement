@@ -171,16 +171,16 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             if choice < epsilon:
                 # select a random decision
                 decision = random.choice(turn_decisions)
-                if self.verbose:
+                if self.verbose and self.is_trainable:
                     print 'Taking a random decision for training'
             else:
                 decision = turn_decisions[0]
-                if self.verbose:
+                if self.verbose and self.is_trainable:
                     print 'Taking the optimal decision'
 
             self.q_state = decision
         else:
-            if self.verbose:
+            if self.verbose and self.is_trainable:
                 print 'Taking the optimal decision'
 
             decision = turn_decisions[0]

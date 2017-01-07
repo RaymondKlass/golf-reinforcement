@@ -53,7 +53,11 @@ class TrainablePlayer(Player):
 
     def update_learning_rate(self, epochs, eval_results):
         """ Trainable players can optionally implement this method to update the learning rate.
-            Best used to implement a learning rate schedule
+            Best used to implement a learning rate schedule.
+            Args:
+                epochs: number of epochs since training began
+                results: list of tuples representing the result of evaluation - self player will
+                         always be the first in the pair of results.
         """
 
         pass

@@ -66,6 +66,9 @@ class Trainer(object):
             self.players[self.trainable_player].is_trainable = False
 
         result = benchmark_player(*self.players)
+        if self.trainable_player == 1:
+            result.reverse()
+
         self.eval_results.append(result)
 
         if self.verbose:

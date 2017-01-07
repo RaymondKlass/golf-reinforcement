@@ -159,7 +159,7 @@ class Board(object):
 
         if self.verbose:
             for i, hand in enumerate(self.hands):
-                print '{}: {} Hand {}'.format(self.players[i], i, hand.cards)
+                print '{}: {} Hand {} Score {}'.format(self.players[i], i, hand.cards, hand.score())
 
         return [hand.score() for hand in self.hands]
 

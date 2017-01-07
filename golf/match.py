@@ -33,6 +33,7 @@ class Match(object):
                 self.matches[0] += 1
 
             if self.verbose:
+                print '\nMatch {} Results:'.format(i)
                 print 'Player 1 Score: {} Player 2 Score: {}'.format(scores[0], scores[1])
                 print 'Player 0: {}, Player 1: {}'.format(self.matches[0], self.matches[1])
 

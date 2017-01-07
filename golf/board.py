@@ -65,7 +65,7 @@ class Board(object):
             cur_turn = turn % 2
 
             if self.verbose:
-                print '\n{} {} turn'.format(self.players[cur_turn], cur_turn)
+                print '\n{} {} turn phase 1'.format(self.players[cur_turn], cur_turn)
 
             options = ('face_up_card', 'face_down_card', 'knock',)
 
@@ -79,7 +79,7 @@ class Board(object):
             decision = self.players[cur_turn].turn_phase_1(self.get_state_for_player(cur_turn), options)
 
             if self.verbose:
-                print 'Decision: {} \n'.format(decision)
+                print 'Decision phase 1: {} \n'.format(decision)
 
             # Increment the turn counter - which also signifies current turn
             turn += 1
@@ -103,6 +103,7 @@ class Board(object):
                 possible_moves = ('swap', 'return_to_deck',)
 
             if self.verbose:
+                print '\n{} {} turn phase 1'.format(self.players[cur_turn], cur_turn)
                 state = self.get_state_for_player(cur_turn)
                 print 'State:'
                 print 'Self: {}'.format(state['self'])
@@ -134,13 +135,6 @@ class Board(object):
                 card_ret = card
 
             self.deck_up.append(card_ret)
-
-            if self.verbose:
-                state = self.get_state_for_player(cur_turn)
-                print 'End State:'
-                print 'Self: {}'.format(state['self'])
-                print 'Opp: {}'.format(state['opp'])
-                print 'Deck Up: {}'.format(state['deck_up'])
 
 
             # Here we need to handle the possibility that the deck goes around an Nth time

@@ -124,11 +124,12 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         ''' Takes a new state and executes the weight update '''
         # It's possible this player gets called before they have ever gone - in that case ignore the results
 
-        try:
-            old_q_state = dict(self.q_state)
-        except TypeError:
-            print 'Return without success'
-            return
+        was_verbose = self.verbose
+        if self.verbose:
+            print 'Updating weights...'
+            self.verbose = False
+
+        old_q_state = dict(self.q_state)
 
         self._cache_state_derivative_values(state, card)
 
@@ -140,6 +141,9 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                               reward=reward, # Since this update will never result from an exit state
                               learning_rate=self.learning_rate)
 
+        if was_verbose:
+            self.verbose = True
+
 
 
     def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
@@ -147,7 +151,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         if self.verbose:
             print 'Turn Phase 2: '
-            print 'State: {} \n Card: {}'.format(state, card)
 
         self._cache_state_derivative_values(state, card)
         turn = self._take_turn(state, possible_moves, card)
@@ -189,6 +192,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             print 'Actions Considered: '
             for action in turn_decisions:
                 print 'Action: {} Score: {}'.format(action['action'], action['score'])
+            print 'Decision taken: {}'.format(decision['action'])
 
         return decision['action']
 

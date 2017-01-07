@@ -74,7 +74,7 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self._is_trainable = value
 
 
-    def setup_trainer(self, checkpoint_dir, learning_rate=0.0001, epsilon=0.2, discount=0.99, *args, **kwargs):
+    def setup_trainer(self, checkpoint_dir, learning_rate=0.00001, epsilon=0.2, discount=0.7, *args, **kwargs):
         ''' Setup the training variable
             Args:
                 checkpoint_dir: string -> Directory to store checkpoint files
@@ -86,6 +86,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
         self.discount = discount
         self.checkpoint_dir = checkpoint_dir
         self.learning_rate = learning_rate
+
+        # We'll also save a base learning rate so we can compute the learning rate schedule based upon this
+        self.base_learning_rate = learning_rate
+
         self._is_trainable = True
         self.q_state = None
 
@@ -110,6 +114,19 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         if self.verbose:
             print 'Saved checkpoint: {}'.format(file_path)
+
+
+    def update_learning_rate(self, epochs, eval_results):
+        """ Implement a learning rate schedule to encourage convergence """
+
+        new_learning_rate = self.base_learning_rate / (1 + (epochs / 25))
+
+        if self.verbose or True:
+            print 'Updating learning rate.'
+            print 'Weights: {}'.format(self.weights)
+            print 'Old: {} New: {}'.format(self.learning_rate, new_learning_rate)
+
+        self.learning_rate = new_learning_rate
 
 
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):

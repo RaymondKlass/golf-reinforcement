@@ -44,6 +44,9 @@ class Trainer(object):
             if self.verbose or True:
                 print 'Player 1 Score: {} Player 2 Score: {}'.format(scores[0], scores[1])
 
+            if self.trainable_player != None and self.trainable_player >= 0 and self.trainable_player < len(self.players):
+                self.players[self.trainable_player].update_learning_rate(i, self.eval_results)
+
             if self.checkpoint_epochs and i and not (i+1) % self.checkpoint_epochs:
                 # For now we'll use the checkpoint epochs as a measure of when to save
                 # and when to evaulate the model.
@@ -73,7 +76,7 @@ class Trainer(object):
 
         if self.verbose:
             print 'Evaluation results: '
-            for i, player in self.players:
+            for i, player in enumerate(self.players):
                 print 'Player{}: {} : {}'.format(i, player, result[i])
 
         # Now we should save the trainable player - and make it trainable again

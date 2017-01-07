@@ -68,10 +68,9 @@ class Board(object):
 
             if self.verbose:
                 state = self.get_state_for_player(cur_turn)
-                print 'State:'
                 print 'Self: {}'.format(state['self'])
                 print 'Opp: {}'.format(state['opp'])
-                print 'Deck Up: {}'.format(state['deck_up'])
+                print 'Face Up Card: {}'.format(state['deck_up'][-1])
 
             decision = self.players[cur_turn].turn_phase_1(self.get_state_for_player(cur_turn), options)
 
@@ -100,12 +99,8 @@ class Board(object):
                 possible_moves = ('swap', 'return_to_deck',)
 
             if self.verbose:
-                print '\n{} {} turn phase 1'.format(self.players[cur_turn], cur_turn)
+                print '\n{} {} turn phase 2'.format(self.players[cur_turn], cur_turn)
                 state = self.get_state_for_player(cur_turn)
-                print 'State:'
-                print 'Self: {}'.format(state['self'])
-                print 'Opp: {}'.format(state['opp'])
-                print 'Deck Up: {}'.format(state['deck_up'])
                 print 'Card-in-hand: {}'.format(card)
 
             # For trainable players - we need to update the new state - which
@@ -134,9 +129,8 @@ class Board(object):
             self.deck_up.append(card_ret)
 
             if self.verbose:
-                print '\nEnd State'
                 state = self.get_state_for_player(cur_turn)
-                print 'Self: {}'.format(state['self'])
+                print 'End State - Self: {}'.format(state['self'])
 
 
             # Here we need to handle the possibility that the deck goes around an Nth time

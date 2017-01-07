@@ -44,6 +44,10 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             self.weights = self._initialize_blank_model()
 
 
+    def __repr__(self):
+        return 'Q Watkins Player'
+
+
     @property
     def is_trainable(self):
         return self._is_trainable
@@ -111,10 +115,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
     def turn_phase_1(self, state, possible_moves=['face_up_card', 'face_down_card', 'knock']):
         ''' Takes the state of the board and responds with the turn_phase_1 move recommended '''
 
-        if self.verbose:
-            print 'Turn Phase 1: '
-            print 'State: {}'.format(state)
-
         self._cache_state_derivative_values(state)
         turn = self._take_turn(state, possible_moves)
         return turn
@@ -148,9 +148,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
     def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
         ''' Takes the state of the board and responds with the turn phase 2 move recommended '''
-
-        if self.verbose:
-            print 'Turn Phase 2: '
 
         self._cache_state_derivative_values(state, card)
         turn = self._take_turn(state, possible_moves, card)
@@ -192,7 +189,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             print 'Actions Considered: '
             for action in turn_decisions:
                 print 'Action: {} Score: {}'.format(action['action'], action['score'])
-            print 'Decision taken: {}'.format(decision['action'])
 
         return decision['action']
 

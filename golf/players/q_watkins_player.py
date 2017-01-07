@@ -185,6 +185,11 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
             decision = turn_decisions[0]
 
+        if self.verbose:
+            print 'Actions Considered: '
+            for action in turn_decisions:
+                print 'Action: {} Score: {}'.format(action['action'], action['score'])
+
         return decision['action']
 
 

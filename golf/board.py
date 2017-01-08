@@ -34,8 +34,15 @@ class Board(object):
     def _deal_hands(self):
         # Deal the hands to the players - respecting the player - dealing rotation
 
+        if self.verbose:
+            print '\n ************ Starting hole ************ \n'
+
         dealt = self.deck_down[:self.num_cols*4]
         self.deck_down = self.deck_down[self.num_cols * 4:]
+        if self.verbose:
+            print 'Player 0 hand: {}'.format([dealt[i] for i in range(len(dealt)) if i % 2 == 0])
+            print 'Player 1 hand: {}'.format([dealt[i] for i in range(len(dealt)) if i % 2 != 0])
+
         self.hands.append(Hand([dealt[i] for i in range(len(dealt)) if i % 2 == 0]))
         self.hands.append(Hand([dealt[i] for i in range(len(dealt)) if i % 2 != 0]))
 
@@ -50,10 +57,8 @@ class Board(object):
         self.has_knocked = False
         turn = 0
 
-        if self.verbose:
-            print '\n Starting hole \n'
-
-        while not end_game:
+        # Need to set a maximum number of iterations - after which we'll call the game a forfeit.
+        while not end_game and turn < 1000:
             # Check to see if the other player already knocked
             if self.has_knocked:
                 # this makes sure that this is the last turn
@@ -71,6 +76,7 @@ class Board(object):
                 print 'Self: {}'.format(state['self'])
                 print 'Opp: {}'.format(state['opp'])
                 print 'Face Up Card: {}'.format(state['deck_up'][-1])
+                print 'Deck down: {}'.format(self.deck_down)
 
             decision = self.players[cur_turn].turn_phase_1(self.get_state_for_player(cur_turn), options)
 
@@ -131,6 +137,7 @@ class Board(object):
             if self.verbose:
                 state = self.get_state_for_player(cur_turn)
                 print 'End State - Self: {}'.format(state['self'])
+                print 'Deck: {}'.format(state['deck_up'])
 
 
             # Here we need to handle the possibility that the deck goes around an Nth time
@@ -146,6 +153,10 @@ class Board(object):
                 self.players[cur_turn].update_weights(self.get_state_for_player(cur_turn), card=None, reward=0, possible_moves=['knock'])
 
 
+        if turn >= 1000:
+            # in this case we're quitting because the players are in some loop state
+            return [0,0]
+
         # Since the game is over, we will need to make a final weight update to any trainable players with their proper reward
         for i, player in enumerate(self.players):
             if hasattr(player, 'is_trainable') and player.is_trainable:
@@ -160,6 +171,7 @@ class Board(object):
         if self.verbose:
             for i, hand in enumerate(self.hands):
                 print '{}: {} Hand {} Score {}'.format(self.players[i], i, hand.cards, hand.score())
+
 
         return [hand.score() for hand in self.hands]
 

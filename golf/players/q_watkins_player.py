@@ -281,7 +281,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             which will be used to compute the score for each row of features
         '''
 
-        #result =  (self.min_opp_score - self.self_avg_score) - (self.min_opp_score - raw_features)
         result = self.min_opp_score - raw_features
         result = np.dot(result, np.transpose(self.weights))
 

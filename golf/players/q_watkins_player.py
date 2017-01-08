@@ -340,15 +340,11 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         # It's possible the weights have changed since the score calculation (in the case of the final weight update
         # so it's possible we need to re-calculate the score of the old_q_state
-
         q_state_obj['score'] = self._calc_scores(q_state_obj['raw_features'])
 
         # difference = [r + gamma * max Q(s`,a`)] - Q(s,a)
-        # Going to use a gamma of 1 for no discount on future Q state values,
-        # as the card game naturally tends towards lower future rewards already
         difference = (reward + (self.discount * q_prime_state_obj['score'])) - q_state_obj['score']
 
-        # Now we need to update the weights iteratively using the saved difference and learning rate
         # w_i <- w_i + (learning_rate * difference * f_i(s,a) where f_i is feature i
         self.weights = self.weights + (learning_rate * difference * q_state_obj['raw_features'])
 

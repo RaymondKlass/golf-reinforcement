@@ -58,3 +58,45 @@ class TestPlayerUtils(PlayerTestBase):
         self.assertEqual(self.player_utils._calc_row_col_for_index(1), (1,0,))
         self.assertEqual(self.player_utils._calc_row_col_for_index(2), (0,1,))
         self.assertEqual(self.player_utils._calc_row_col_for_index(3), (1,1,))
+
+
+    def test_calc_known_cards(self):
+        """ Test calculation of the known cards from the state object """
+
+        self._setup_player_utils()
+
+        self_cards = [1,2,None,3]
+        opp1_cards = [5,6,7,None]
+        opp2_cards = [None,12,5,7]
+
+        basic_state = {'self': {'raw_cards': self_cards},
+                       'opp': [{'raw_cards': opp1_cards},
+                               {'raw_cards': opp2_cards}],
+                       'deck_up': [8,9]}
+
+        # the output of this is an ordered array of # of cards that exist at each key
+        all_cards = {0: 0,
+                     1: 1,
+                     2: 1,
+                     3: 1,
+                     4: 0,
+                     5: 2,
+                     6: 1,
+                     7: 2,
+                     8: 1,
+                     9: 1,
+                     10: 0,
+                     11: 0,
+                     12: 1}
+
+        with self.subTest(msg='Test calc_known_cards without a card in hand'):
+            cards = self.player_utils._calc_known_cards(basic_state)
+            self.assertEqual(all_cards.values(), cards)
+
+        with self.subTest(msg='Test calc known cards with a card in hand'):
+            cards = self.player_utils._calc_known_cards(basic_state, 10)
+            ac = dict(all_cards)
+            ac[10] += 1
+            self.assertEqual(ac.values(), cards)
+
+

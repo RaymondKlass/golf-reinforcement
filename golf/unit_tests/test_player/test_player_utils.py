@@ -104,6 +104,19 @@ class TestPlayerUtils(PlayerTestBase):
     def test_calc_unknown_cards(self):
         """ Test calculating the unknown cards """
 
+        known_cards = {a:0 for a in range(13)}
+        unknown_cards = [[a] * 4 for a in range(13) if a not in [5,8,10]]
 
+        known_cards[5] = 3
+        unknown_cards += [5]
+
+        known_cards[8] = 2
+        unknown_cards += [8,8]
+
+        known_cards[10] = 4
+
+        self._setup_player_utils()
+
+        self.assertEqual(self.player_utils._calc_unknown_cards(known_cards.values()).sort(), unknown_cards.sort())
 
 

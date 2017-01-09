@@ -36,3 +36,25 @@ class TestPlayerUtils(PlayerTestBase):
         # only deducting one players-worth of cards, since the player would not know about the
         # other player's state just yet
         self.assertEqual(calc_avg, (300 - sum([a for i, a in enumerate(range(4)) if i % 2 == 0]) - sum([min(a, 10) for a in self.deck_up])) / 49.0)
+
+
+    def test_calc_row_col(self):
+        """ Test calculation to determine the row / column for a particular index
+            By Definition:
+                Cards are encoded as a single array
+                with i % 2 == 0 cards in the bottom row
+                and i @ 2 != 0 cards in the top row
+
+            Therefore for a 2 column game:
+            index 0 = 0,0
+            index 1 = 1,0
+            index 2 = 0,1
+            index 3 = 1,1
+        """
+
+        self._setup_player_utils()
+
+        self.assertEqual(self.player_utils._calc_row_col_for_index(0), (0,0,))
+        self.assertEqual(self.player_utils._calc_row_col_for_index(1), (1,0,))
+        self.assertEqual(self.player_utils._calc_row_col_for_index(2), (0,1,))
+        self.assertEqual(self.player_utils._calc_row_col_for_index(3), (1,1,))

@@ -120,3 +120,22 @@ class TestPlayerUtils(PlayerTestBase):
         self.assertEqual(self.player_utils._calc_unknown_cards(known_cards.values()).sort(), unknown_cards.sort())
 
 
+    def test_calc_standard_dev(self):
+        """ Test utility method to calculate the standard deviation of an array of unknown cards """
+
+        self._setup_player_utils()
+
+        def return_known_cards(*args, **kwargs):
+            return []
+
+        def return_unknown_cards(*args, **kwargs):
+            return range(10)
+
+        # over-write the standard methods
+        self.player_utils._calc_known_cards = return_known_cards
+        self.player_utils._calc_unknown_cards = return_unknown_cards
+
+        # By definition the Standard deviation of range(10) = 2.872281323
+        self.assertEqual(round(self.player_utils._calc_std_dev(None), 5),
+                         round(2.872281323, 5))
+

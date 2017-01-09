@@ -3,6 +3,7 @@
 '''
 import unittest2
 from golf.trainer import Trainer
+from golf.players.trainable_player_base import TrainablePlayer
 from mock import call, patch, Mock
 
 
@@ -24,7 +25,14 @@ class TestTrainer(unittest2.TestCase):
     ''' test the train module which controls multi-hole and multi-game matches '''
 
 
-    def setUp(self):
-        ''' Setup some basic players '''
+    def setup_players(self, trainable_index=0, num_players=2):
+        """ Setup players - with the option to make them trainable """
 
-        self.players = {'player{}'.format(a): 'player_{}'.format(a) for a in range(1,3)}
+        self.players = []
+
+        for i in range(num_players):
+            player = TrainablePlayer()
+            if i == trainable_index:
+                player.is_trainable = True
+
+            self.players.append(player)

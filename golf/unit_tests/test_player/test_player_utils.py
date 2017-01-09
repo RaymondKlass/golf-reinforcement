@@ -35,7 +35,8 @@ class TestPlayerUtils(PlayerTestBase):
 
         # only deducting one players-worth of cards, since the player would not know about the
         # other player's state just yet
-        self.assertEqual(calc_avg, (300 - sum([a for i, a in enumerate(range(4)) if i % 2 == 0]) - sum([min(a, 10) for a in self.deck_up])) / 49.0)
+        self.assertEqual(calc_avg, (300 - sum([a for i, a in enumerate(range(4)) if i % 2 == 0]) \
+                                    - sum([min(a, 10) for a in self.deck_up])) / 49.0)
 
 
     def test_calc_row_col(self):
@@ -98,5 +99,11 @@ class TestPlayerUtils(PlayerTestBase):
             ac = dict(all_cards)
             ac[10] += 1
             self.assertEqual(ac.values(), cards)
+
+
+    def test_calc_unknown_cards(self):
+        """ Test calculating the unknown cards """
+
+
 
 

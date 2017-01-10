@@ -25,7 +25,7 @@ class TestTrainer(unittest2.TestCase):
     ''' test the train module which controls multi-hole and multi-game matches '''
 
 
-    def _setup_players(self, trainable_index=0, num_players=2):
+    def _setup_players_and_trainer(self, trainable_index=0, num_players=2, trainer_args={}):
         """ Setup players - with the option to make them trainable """
 
         self.players = []
@@ -37,23 +37,50 @@ class TestTrainer(unittest2.TestCase):
 
             self.players.append(player)
 
+        self.trainer = Trainer(self.players[0],
+                               self.players[1],
+                               trainable_player='player{}'.format(trainable_index + 1),
+                               **trainer_args)
+
 
     def test_creation_params(self):
         """ Test the initialization of params for the trainer class """
 
         trainable_player_index = 1
-        self._setup_players(trainable_index=trainable_player_index)
-        trainer = Trainer(self.players[0],
-                          self.players[1],
-                          trainable_player='player2',
-                          checkpoint_epochs=100)
+        self._setup_players_and_trainer(trainable_index=trainable_player_index,
+                                        trainer_args={'checkpoint_epochs': 100})
 
         for i in range(2):
-            self.assertEqual(trainer.players[i], self.players[i])
+            self.assertEqual(self.trainer.players[i], self.players[i])
 
-        self.assertEqual(trainer.total_holes, 9)
-        self.assertEqual(trainer.trainable_player, trainable_player_index)
-        self.assertEqual(trainer.checkpoint_epochs, 100)
+        self.assertEqual(self.trainer.total_holes, 9)
+        self.assertEqual(self.trainer.trainable_player, trainable_player_index)
+        self.assertEqual(self.trainer.checkpoint_epochs, 100)
+        self.assertEqual(len(self.trainer.eval_results), 0)
+
+
+    @patch('golf.trainer.Board')
+    def test_play_first_match(self, board_mock):
+        ''' Test playing a single match where player 1 goes first'''
+
+        match_num = 0
+        num_holes = 9
+        player_scores = [3,10]
+
+        self._setup_players_and_trainer(trainable_index=1,
+                                        trainer_args={'checkpoint_epochs': 100})
+
+        board_mock.return_value = MockBoard(match_num=match_num, player_scores=player_scores)
+        scores = self.trainer.play_match(match_num)
+        for i in range(2):
+            self.assertEqual(scores[i], player_scores[i] * num_holes)
+
+        # We want to make sure that we're alternating calls to board
+        calls = [call([self.players[0], self.players[1]],2,verbose=False),
+                 call([self.players[1], self.players[0]],2,verbose=False)] * 5
+        calls = calls[:len(calls)-1]
+
+        board_mock.assert_has_calls(calls)
 
 
 

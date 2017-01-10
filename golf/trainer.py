@@ -68,7 +68,7 @@ class Trainer(object):
         if self.trainable_player != None and self.trainable_player >= 0 and self.trainable_player < len(self.players):
             self.players[self.trainable_player].is_trainable = False
 
-        result = benchmark_player(*self.players)
+        result = list(benchmark_player(*self.players))
         if self.trainable_player == 1:
             result.reverse()
 

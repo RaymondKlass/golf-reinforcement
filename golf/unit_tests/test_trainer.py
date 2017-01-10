@@ -132,13 +132,38 @@ class TestTrainer(unittest2.TestCase):
         self.trainer.players[0].update_learning_rate.assert_has_calls(lr_calls)
 
 
+    @patch('golf.trainer.benchmark_player')
+    def test_process_checkpoint(self, benchmark_mock):
+        """ Test processing checkpoints during training """
+
+        benchmark_mock.return_value = (12,30,)
+        self._setup_players_and_trainer(trainable_index=1,
+                                        trainer_args={'checkpoint_epochs': 10})
+
+        # We'll need a special class to intercept the @property and introspect calls
+        class IsTrainablePlayer(object):
+
+            def __init__(self):
+                self._is_trainable = True
+                self.calls = []
+
+            @property
+            def is_trainable(self):
+                return self._is_trainable
+
+            @is_trainable.setter
+            def is_trainable(self, value):
+                self._is_trainable = value
+                self.calls.append(value)
 
 
 
+        self.trainer.players[1] = IsTrainablePlayer()
+        self.trainer.players[1].save_checkpoint = Mock()
 
+        self.trainer.process_checkpoint(10)
 
-
-
-
-
-
+        self.assertEqual(benchmark_mock.call_count, 1)
+        self.assertEqual([False, True], self.trainer.players[1].calls)
+        self.trainer.players[1].save_checkpoint.assert_called_with(10)
+        self.assertEqual(self.trainer.eval_results, [[30, 12,]])

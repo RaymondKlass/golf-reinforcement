@@ -61,26 +61,41 @@ class TestTrainer(unittest2.TestCase):
 
     @patch('golf.trainer.Board')
     def test_play_first_match(self, board_mock):
-        ''' Test playing a single match where player 1 goes first'''
+        ''' Test playing a single match '''
 
-        match_num = 0
         num_holes = 9
         player_scores = [3,10]
 
         self._setup_players_and_trainer(trainable_index=1,
                                         trainer_args={'checkpoint_epochs': 100})
 
-        board_mock.return_value = MockBoard(match_num=match_num, player_scores=player_scores)
-        scores = self.trainer.play_match(match_num)
-        for i in range(2):
-            self.assertEqual(scores[i], player_scores[i] * num_holes)
+        with self.subTest(msg='Test a single match where player 1 goes first'):
+            match_num = 0
+            board_mock.return_value = MockBoard(match_num=match_num, player_scores=player_scores)
+            scores = self.trainer.play_match(match_num)
+            for i in range(2):
+                self.assertEqual(scores[i], player_scores[i] * num_holes)
 
-        # We want to make sure that we're alternating calls to board
-        calls = [call([self.players[0], self.players[1]],2,verbose=False),
-                 call([self.players[1], self.players[0]],2,verbose=False)] * 5
-        calls = calls[:len(calls)-1]
+            # We want to make sure that we're alternating calls to board
+            calls = [call([self.players[0], self.players[1]],2,verbose=False),
+                     call([self.players[1], self.players[0]],2,verbose=False)] * 5
+            calls = calls[:len(calls)-1]
 
-        board_mock.assert_has_calls(calls)
+            board_mock.assert_has_calls(calls)
+
+        with self.subTest(msg='Test a single match where player 2 goes first'):
+            match_num = 1
+            board_mock.return_value = MockBoard(match_num=match_num, player_scores=player_scores)
+            scores = self.trainer.play_match(match_num)
+            for i in range(2):
+                self.assertEqual(scores[i], player_scores[i] * num_holes)
+
+            # We want to make sure that we're alternating calls to board
+            calls = [call([self.players[1], self.players[0]],2,verbose=False),
+                     call([self.players[0], self.players[1]],2,verbose=False)] * 5
+            calls = calls[:len(calls)-1]
+
+            board_mock.assert_has_calls(calls)
 
 
 

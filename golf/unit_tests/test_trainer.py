@@ -98,6 +98,47 @@ class TestTrainer(unittest2.TestCase):
             board_mock.assert_has_calls(calls)
 
 
+    def test_train_k_epochs(self):
+        """ Test training k epochs - making sure process_checkpoint is called properly """
+
+        self._setup_players_and_trainer(trainable_index=0,
+                                        trainer_args={'checkpoint_epochs': 10})
+
+        def return_match_winner(match_num):
+            if match_num % 3 == 0:
+                # second player wins
+                return [50, 10]
+            else:
+                return [10, 50]
+
+        self.trainer.play_match = return_match_winner
+        self.trainer.process_checkpoint = Mock()
+        self.trainer.players[0].update_learning_rate = Mock()
+        self.trainer.eval_results = [100,20]
+
+        self.trainer.train_k_epochs(100)
+
+        # process checkpoint should be called 10 times during training -
+        # and one final time when all k epochs are done
+        self.assertEqual(11, self.trainer.process_checkpoint.call_count)
+
+        # Let's make sure the calls were also proper
+        calls = [call((i*10) - 1) for i in range(1, 11)]
+        calls.append(call(100))
+        self.trainer.process_checkpoint.assert_has_calls(calls)
+
+        self.assertEqual(100, self.trainer.players[0].update_learning_rate.call_count)
+        lr_calls = [call(i, [100, 20]) for i in range(100)]
+        self.trainer.players[0].update_learning_rate.assert_has_calls(lr_calls)
+
+
+
+
+
+
+
+
+
 
 
 

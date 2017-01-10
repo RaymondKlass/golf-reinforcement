@@ -156,8 +156,6 @@ class TestTrainer(unittest2.TestCase):
                 self._is_trainable = value
                 self.calls.append(value)
 
-
-
         self.trainer.players[1] = IsTrainablePlayer()
         self.trainer.players[1].save_checkpoint = Mock()
 

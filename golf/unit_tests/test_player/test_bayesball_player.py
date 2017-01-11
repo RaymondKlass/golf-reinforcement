@@ -23,6 +23,7 @@ class TestBayesballPlayer(PlayerTestBase):
                                                 num_cols=num_cols)
 
 
+
     def test_player_name(self):
         ''' Basic test for setup '''
 

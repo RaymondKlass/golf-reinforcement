@@ -1,6 +1,7 @@
 ''' Player based solely on probabilities '''
 from golf.players.player_base import Player
 from golf.players.player_utils import PlayerUtils
+from golf.hand import Hand
 import math
 
 class BayesballPlayer(Player, PlayerUtils):
@@ -94,55 +95,51 @@ class BayesballPlayer(Player, PlayerUtils):
             return 'face_down_card'
 
 
-    def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
-        """ Getting to this point means that we've chosen a card.
-            If 'swap' is the only option, we must swap -
-            Otherwise we have the option of replacing the card back on the deck
+    def _calc_score_with_replacement(self, raw_cards, card, position, unknown_card_val):
+        ''' Calculate the score by substituting the given card at given position,
+            Use the unknown_card_val for cards that are assumed
+            Position -> should be Int index of where card should be replaced
+        '''
 
-            Our policy here should be to replace the highest-difference card with the
-            card in-hand, assuming that unknown cards are equal to the average card -
-            and of course taking into account column null scoring
-        """
+        self_cards = list(raw_cards)
+
+        # Handle the case where no replacement is sought - so we simply don't replace
+        if position != None:
+            self_cards[position] = card
+
+        self_score = self._calc_score_for_cards(self_cards)
+        self_score = self_score + (len([b for b in self_cards if b == None]) * min(unknown_card_val, 10))
+        return self_score
+
+
+    def _calc_score_for_cards(self, cards):
+        ''' calculate score for cards '''
+
+        h = Hand(cards)
+        return h.score(cards)
+
+
+    def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
+        """ Alternative turn_phase_2 method """
 
         avg_card = self._calc_average_card(state, card_in_hand=card)
+        pos_scores = []
 
-        # Let's start by pairing off cards
-        columns = [[state['self']['raw_cards'][a], state['self']['raw_cards'][a+1],] \
-                   for a in range(len(state['self']['raw_cards'])) if a % 2 == 0]
+        # Let's try replacing the card_in_hand at every position -
+        # then we'll also calculate the possibility of returning to deck
+        for i in range(self.num_cols * 2):
+            score = self._calc_score_with_replacement(state['self']['raw_cards'],
+                                                      card,
+                                                      i,
+                                                      avg_card)
+            row, col = self._calc_row_col_for_index(i)
+            pos_scores.append((('swap', row, col,), score,))
 
-        # We need to figure out where the best place to put the `card` would be
-        # So Let's rate our options
-        # Best - complete and un-completed column
-        # Better - replace a card of known-higher-value
-        # Good - replace an unknown card of assumed higher-value
-        # Bad - replace a known card equal or lesser value (this onw shouldn't happen)
-
-        best_replacement = None
-        replacement_value = 0
-
-        for i, pair in enumerate(columns):
-            # i is the col - so index is i * 2 + (index of pair - either 0 or 1)
-            if pair[0] == pair[1]:
-                # This is the case that the 2 cards form a completed column - i.e. 0 score
-                continue
-
-            # we should replace pair[0] and / or pair[1] with avg_card if they are == None
-            if pair[0] == None:
-                pair[0] = avg_card + self.unknown_card_margin
-
-            if pair[1] == None:
-                pair[1] = avg_card + self.unknown_card_margin
-
-            if pair[0] > pair[1] and (best_replacement == None or pair[0] > replacement_value):
-                best_replacement = i*2
-                replacement_value = pair[0]
-
-            if pair[1] >= pair[0] and (best_replacement == None or pair[1] > replacement_value):
-                best_replacement = (i*2) + 1
-                replacement_value = pair[1]
-
-        if best_replacement != None and (replacement_value > card or 'return_to_deck' not in possible_moves):
-            return ('swap', int(best_replacement % 2), int(math.floor(best_replacement / 2)))
-
-        if 'return_to_deck' in possible_moves:
-            return ('return_to_deck',)
+        # We also need to consider returning the card back to the deck
+        score = self._calc_score_with_replacement(state['self']['raw_cards'],
+                                                  None,
+                                                  None,
+                                                  avg_card)
+        pos_scores.append((('return_to_deck',), score))
+        pos_scores.sort(key=lambda x: x[1])
+        return pos_scores[0][0]

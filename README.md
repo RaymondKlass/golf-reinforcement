@@ -20,3 +20,7 @@ Each player's turn has 2 phases.  During the first, they may draw the face-down 
 
 ## Matches
 python match.py --player1=random_player.RandomPlayer --player2=random_player.RandomPlayer -m 10
+
+## Training
+python match.py --player1=q_watkins_player.QWatkinsPlayer --player2=bayesball_player.BayesballPlayer -e 100 --checkpoint_epochs=10 \
+                --player1_args='{"train":{ "checkpoint_dir": "Some/Directory"}, "init": {}} --trainable=player1

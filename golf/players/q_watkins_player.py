@@ -9,7 +9,6 @@ import time
 import numpy as np
 from golf.players.trainable_player_base import TrainablePlayer
 from golf.players.player_utils import PlayerUtils
-from golf.hand import Hand
 import random
 
 class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
@@ -238,30 +237,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
                                                                          sub))
 
         return result
-
-
-    def _calc_score_with_replacement(self, raw_cards, card, position, unknown_card_val):
-        ''' Calculate the score by substituting the given card at given position,
-            Use the unknown_card_val for cards that are assumed
-            Position -> should be Int index of where card should be replaced
-        '''
-
-        self_cards = list(raw_cards)
-
-        # Handle the case where no replacement is sought - so we simply don't replace
-        if position != None:
-            self_cards[position] = card
-
-        self_score = self._calc_score_for_cards(self_cards)
-        self_score = self_score + (len([b for b in self_cards if b == None]) * min(unknown_card_val, 10))
-        return self_score
-
-
-    def _calc_score_for_cards(self, cards):
-        ''' calculate score for cards '''
-
-        h = Hand(cards)
-        return h.score(cards)
 
 
     def _calc_swap_all_positions(self, state, replacement_card):

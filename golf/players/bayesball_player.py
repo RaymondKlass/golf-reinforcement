@@ -1,7 +1,6 @@
 ''' Player based solely on probabilities '''
 from golf.players.player_base import Player
 from golf.players.player_utils import PlayerUtils
-from golf.hand import Hand
 import math
 
 class BayesballPlayer(Player, PlayerUtils):
@@ -88,35 +87,41 @@ class BayesballPlayer(Player, PlayerUtils):
 
             return 'knock'
         else:
+
+            # Should also probably replace this logic with replacing either the deck_up at all positions
+            # or an assummed `avg_card` at the locations.
+
+            action_scores = []
+
+            # First let's calculate the face_up_card value
             face_up_card = min(state['deck_up'][-1], 10)
-            if avg_card - self.card_margin > face_up_card and len([a for a in state['self']['raw_cards'] if a != None and a > face_up_card - self.card_margin]):
-                # then we should take the face up card
-                return 'face_up_card'
-            return 'face_down_card'
 
+            face_up_scores = []
+            for i in range(self.num_cols * 2):
+                score = self._calc_score_with_replacement(state['self']['raw_cards'],
+                                                          face_up_card,
+                                                          i,
+                                                          avg_card)
+                face_up_scores.append(score)
+            action_scores.append(('face_up_card', min(face_up_scores),))
 
-    def _calc_score_with_replacement(self, raw_cards, card, position, unknown_card_val):
-        ''' Calculate the score by substituting the given card at given position,
-            Use the unknown_card_val for cards that are assumed
-            Position -> should be Int index of where card should be replaced
-        '''
+            # Now we should calculate the face down score - this is easy - it's jusrt replacing with the avg card
+            # Let's first make sure that the average card doesn't make a column
+            if avg_card % 1 == 0:
+                avg_card = avg_card + 0.0001
 
-        self_cards = list(raw_cards)
+            face_down_scores = []
 
-        # Handle the case where no replacement is sought - so we simply don't replace
-        if position != None:
-            self_cards[position] = card
+            for i in range(self.num_cols * 2):
+                score = self._calc_score_with_replacement(state['self']['raw_cards'],
+                                                          avg_card,
+                                                          i,
+                                                          avg_card)
+                face_down_scores.append(score)
 
-        self_score = self._calc_score_for_cards(self_cards)
-        self_score = self_score + (len([b for b in self_cards if b == None]) * min(unknown_card_val, 10))
-        return self_score
-
-
-    def _calc_score_for_cards(self, cards):
-        ''' calculate score for cards '''
-
-        h = Hand(cards)
-        return h.score(cards)
+            action_scores.append(('face_down_card', min(face_down_scores),))
+            action_scores.sort(key=lambda x: x[1])
+            return action_scores[0][0]
 
 
     def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):

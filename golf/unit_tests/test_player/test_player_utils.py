@@ -5,7 +5,7 @@ from golf.unit_tests.test_player.player_test_base import PlayerTestBase
 class TestPlayerUtils(PlayerTestBase):
     ''' Test the utility functions found in the player_utils '''
 
-    def _setup_player_utils(self):
+    def setUp(self):
         ''' Setup player utils with dependencies '''
 
         self.player_utils = PlayerUtils()
@@ -29,7 +29,6 @@ class TestPlayerUtils(PlayerTestBase):
 
         deck_left = self._deck_minus_cards(cards=sum(hands, []), deck=deck)
         self._load_hands(cards=hands, deck=deck_left)
-        self._setup_player_utils()
 
         calc_avg = self.player_utils._calc_average_card(self._get_state_for_hand(0))
 
@@ -53,8 +52,6 @@ class TestPlayerUtils(PlayerTestBase):
             index 3 = 1,1
         """
 
-        self._setup_player_utils()
-
         self.assertEqual(self.player_utils._calc_row_col_for_index(0), (0,0,))
         self.assertEqual(self.player_utils._calc_row_col_for_index(1), (1,0,))
         self.assertEqual(self.player_utils._calc_row_col_for_index(2), (0,1,))
@@ -63,8 +60,6 @@ class TestPlayerUtils(PlayerTestBase):
 
     def test_calc_known_cards(self):
         """ Test calculation of the known cards from the state object """
-
-        self._setup_player_utils()
 
         self_cards = [1,2,None,3]
         opp1_cards = [5,6,7,None]
@@ -115,15 +110,11 @@ class TestPlayerUtils(PlayerTestBase):
 
         known_cards[10] = 4
 
-        self._setup_player_utils()
-
         self.assertEqual(self.player_utils._calc_unknown_cards(known_cards.values()).sort(), unknown_cards.sort())
 
 
     def test_calc_standard_dev(self):
         """ Test utility method to calculate the standard deviation of an array of unknown cards """
-
-        self._setup_player_utils()
 
         def return_known_cards(*args, **kwargs):
             return []
@@ -138,4 +129,25 @@ class TestPlayerUtils(PlayerTestBase):
         # By definition the Standard deviation of range(10) = 2.872281323
         self.assertEqual(round(self.player_utils._calc_std_dev(None), 5),
                          round(2.872281323, 5))
+
+
+    def test_calc_score_for_cards(self):
+        """ Test score calculation for an arbitrary Hand of cards
+            Should follow the column rules etc for golf
+        """
+
+        with self.subTest(msg='Score a hand with no columns'):
+            cards = [1,2,3,4]
+            self.assertEqual(10, self.player_utils._calc_score_for_cards(cards))
+
+        with self.subTest(msg='Score a hand with a single column'):
+            cards = [10, 2, 4, 4]
+            self.assertEqual(12, self.player_utils._calc_score_for_cards(cards))
+
+        with self.subTest(msg='Score a hand with cards over 10'):
+            cards = [12, 11, 4, 5]
+            self.assertEqual(29, self.player_utils._calc_score_for_cards(cards))
+
+
+
 

@@ -149,5 +149,34 @@ class TestPlayerUtils(PlayerTestBase):
             self.assertEqual(29, self.player_utils._calc_score_for_cards(cards))
 
 
+    def test_calc_score_with_replacement(self):
+        """ Test calculating the score with replacement and an assumption for unknown_cards """
+
+        # def _calc_score_with_replacement(self, raw_cards, card, position, unknown_card_val):
+        with self.subTest(msg="test with replacing a card and unknown cards"):
+            cards = [None, 2, None, 5]
+            val = self.player_utils._calc_score_with_replacement(cards, 1, 0, 3)
+            self.assertEqual(val, 11)
+
+        with self.subTest(msg="test with no replacement"):
+            cards = [None, 6, None, 3]
+            val = self.player_utils._calc_score_with_replacement(cards, None, None, 3)
+            self.assertEqual(val, 15)
+
+        with self.subTest(msg='Test when a card is higher than 10'):
+            cards = [None, 5, None, 6]
+            val = self.player_utils._calc_score_with_replacement(cards, 12, 0, 2)
+            self.assertEqual(val, 23)
+
+        with self.subTest(msg="Test when substitution makes a column"):
+            cards = [1, None, 12, None]
+            val = self.player_utils._calc_score_with_replacement(cards, 1, 1, 3)
+            self.assertEqual(val, 13)
+
+
+
+
+
+
 
 

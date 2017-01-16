@@ -83,16 +83,39 @@ class TestBayesballPlayer(PlayerTestBase):
                                                 visible=[True,True,False,False],
                                                 raw_cards=[10,12,None,None])
 
-        state = self._generate_game_state(self_player_state=self_state,
-                                          opp_players_state=[opp_state],
-                                          deck_up=[10],
-                                          has_knocked=False)
-
         with self.subTest(msg='Test when min_distance is met and other player has not knocked'):
             # This player should choose to knock as the min_distance is met
 
+            state = self._generate_game_state(self_player_state=self_state,
+                                              opp_players_state=[opp_state],
+                                              deck_up=[10],
+                                              has_knocked=False)
+
             action = self.bayesball_player.turn_phase_1(state)
             self.assertEqual(action, 'knock')
+
+        with self.subTest(msg='Test when min_distance is met and other player has knocked'):
+            # This player would not choose to knock - the up card is bad,
+            # so they should choose the down card
+
+            state = self._generate_game_state(self_player_state=self_state,
+                                              opp_players_state=[opp_state],
+                                              deck_up=[10],
+                                              has_knocked=True)
+
+            action = self.bayesball_player.turn_phase_1(state)
+            self.assertEqual(action, 'face_down_card')
+
+        with self.subTest(msg='Test when min_distance is met, opp has knocked and face_up_card is good'):
+            # This player should choose the up card, since the other player has already knocked
+
+            state = self._generate_game_state(self_player_state=self_state,
+                                              opp_players_state=[opp_state],
+                                              deck_up=[1],
+                                              has_knocked=True)
+
+            action = self.bayesball_player.turn_phase_1(state)
+            self.assertEqual(action, 'face_up_card')
 
 
 

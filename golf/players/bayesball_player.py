@@ -79,7 +79,8 @@ class BayesballPlayer(Player, PlayerUtils):
 
         # remove knock from possible_moves if has_knocked == True in state
         if state['has_knocked'] and 'knock' in possible_moves:
-            list(possible_moves).remove('knock')
+            possible_moves = list(possible_moves)
+            possible_moves.remove('knock')
 
         if (score_diff >= self.min_distance and 'knock' in possible_moves) or \
            (self.score <= self.min_distance and 'knock' in possible_moves) or \

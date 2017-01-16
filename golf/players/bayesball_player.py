@@ -95,8 +95,7 @@ class BayesballPlayer(Player, PlayerUtils):
             action_scores = []
 
             # First let's calculate the face_up_card value
-            face_up_card = min(state['deck_up'][-1], 10)
-
+            face_up_card = state['deck_up'][-1]
             face_up_scores = []
             for i in range(self.num_cols * 2):
                 score = self._calc_score_with_replacement(state['self']['raw_cards'],

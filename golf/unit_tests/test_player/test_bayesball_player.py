@@ -118,6 +118,43 @@ class TestBayesballPlayer(PlayerTestBase):
             self.assertEqual(action, 'face_up_card')
 
 
+        # Refining to not meet knock condition
+        self_state = self._generate_player_state(score=16,
+                                                 visible=[True,False,True,False],
+                                                 raw_cards=[10,None,6,None])
+
+        opp_state = self._generate_player_state(score=11,
+                                                visible=[True,True,False,False],
+                                                raw_cards=[5,6,None,None])
+
+        with self.subTest('Test with low face_up_card'):
+            state = self._generate_game_state(self_player_state=self_state,
+                                              opp_players_state=[opp_state],
+                                              deck_up=[1],
+                                              has_knocked=False)
+
+            action = self.bayesball_player.turn_phase_1(state)
+            self.assertEqual(action, 'face_up_card')
+
+
+        with self.subTest('Test with high face_up_card that makes a null column'):
+            state = self._generate_game_state(self_player_state=self_state,
+                                              opp_players_state=[opp_state],
+                                              deck_up=[10],
+                                              has_knocked=False)
+
+            action = self.bayesball_player.turn_phase_1(state)
+            self.assertEqual(action, 'face_up_card')
+
+
+        with self.subTest('Test with high face_up_card that does not make a null column'):
+            state = self._generate_game_state(self_player_state=self_state,
+                                              opp_players_state=[opp_state],
+                                              deck_up=[12],
+                                              has_knocked=False)
+
+            action = self.bayesball_player.turn_phase_1(state)
+            self.assertEqual(action, 'face_down_card')
 
 
 

@@ -9,6 +9,11 @@ class TestBayesballPlayer(PlayerTestBase):
     ''' Test the policies for the bayesball player '''
 
 
+    def setUp(self):
+        """ Setup a standard player """
+        self._setup_bayesball_player()
+
+
     def _setup_bayesball_player(self, min_distance=8, card_margin=1, unknown_card_margin=1, num_cols=2):
         ''' Setup a basic bayesball player whose options can be over-written '''
 
@@ -26,14 +31,12 @@ class TestBayesballPlayer(PlayerTestBase):
     def test_player_name(self):
         ''' Basic test for setup '''
 
-        self._setup_bayesball_player()
         self.assertEqual(str(self.bayesball_player).lower(), 'Bayesball_Player'.lower())
 
 
     def test_calc_score_diff(self):
         ''' Test calculating the score differential between payers '''
 
-        self._setup_bayesball_player()
         deck = range(13) * 4
 
         with self.subTest(msg='Test where all cards have been revealed (average calc plays no part)'):
@@ -71,9 +74,6 @@ class TestBayesballPlayer(PlayerTestBase):
         # State helper functions:
         # def _generate_player_state(self, score, visible, raw_cards, num_rows=2, num_cols=2):
         # def _generate_game_state(self, self_player_state, opp_players_state, deck_up, has_knocked)
-
-        # Setup basic bayesball player
-        self._setup_bayesball_player()
 
         self_state = self._generate_player_state(score=3,
                                                  visible=[True,False,True,False],
@@ -155,6 +155,51 @@ class TestBayesballPlayer(PlayerTestBase):
 
             action = self.bayesball_player.turn_phase_1(state)
             self.assertEqual(action, 'face_down_card')
+
+
+    def test_turn_phase_2(self):
+        """ test the logic in turn phase 2 """
+
+        self_state = self._generate_player_state(score=3,
+                                                 visible=[True,False,True,False],
+                                                 raw_cards=[1,None,2,None])
+
+        opp_state = self._generate_player_state(score=20,
+                                                visible=[True,True,False,False],
+                                                raw_cards=[10,12,None,None])
+
+        state = self._generate_game_state(self_player_state=self_state,
+                                          opp_players_state=[opp_state],
+                                          deck_up=[10],
+                                          has_knocked=False)
+
+        with self.subTest(msg='Test a bad card with return_to_deck'):
+            # This player should return a bad card if possible
+            self.assertEqual(('return_to_deck',),
+                             self.bayesball_player.turn_phase_2(card=12,
+                                                                state=state))
+
+
+        with self.subTest(msg='Test a good card is used optimally'):
+            # This player should return a bad card if possible
+            self.assertEqual(('swap',1,1,),
+                             self.bayesball_player.turn_phase_2(card=2,
+                                                                state=state))
+
+        with self.subTest(msg='Test a better card is used optimally'):
+            # This player should return a bad card if possible
+            self.assertEqual(('swap',1,0,),
+                             self.bayesball_player.turn_phase_2(card=1,
+                                                                state=state))
+
+        with self.subTest(msg='Test a decent card is used optimally'):
+            # This player should return a bad card if possible
+            self.assertIn(self.bayesball_player.turn_phase_2(card=5,
+                                                             state=state),
+                         [('swap',1,1,), ('swap',1,0,)])
+
+
+
 
 
 

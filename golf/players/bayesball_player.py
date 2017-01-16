@@ -11,11 +11,11 @@ class BayesballPlayer(Player, PlayerUtils):
             quantities.
         2.  Knock if your score is N points lower than you opponent - or your score is
             1 or less
-        3.  If the card up is a match for a column - then use it
-        4.  If the card up is lower than the average available card, then exchange it for the highest
-            non-columned card.
-        5.  If up card is high then take the down card - exchange it for the highest non-column card,
-            or if one doesn't exist then place it face up
+        3.  Take the score given by the best replacement of the face_up and face_down cards
+            use the card that gives the best return.
+        4.  Analyze the scores given by substituting the card in all available positions -
+            move forward with the one that lowers the score most, or (if possible), return
+            it to the deck if no position lowers the score
 
     # Note the state object that is returned is arranged specifically:
         {'self': { 'score': int value of the known cards,

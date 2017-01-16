@@ -140,11 +140,13 @@ class BayesballPlayer(Player, PlayerUtils):
             row, col = self._calc_row_col_for_index(i)
             pos_scores.append((('swap', row, col,), score,))
 
-        # We also need to consider returning the card back to the deck
-        score = self._calc_score_with_replacement(state['self']['raw_cards'],
-                                                  None,
-                                                  None,
-                                                  avg_card)
-        pos_scores.append((('return_to_deck',), score))
+        if 'return_to_deck' in possible_moves:
+            # We also need to consider returning the card back to the deck
+            score = self._calc_score_with_replacement(state['self']['raw_cards'],
+                                                      None,
+                                                      None,
+                                                      avg_card)
+            pos_scores.append((('return_to_deck',), score))
+
         pos_scores.sort(key=lambda x: x[1])
         return pos_scores[0][0]

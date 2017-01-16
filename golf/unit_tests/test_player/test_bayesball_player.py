@@ -23,7 +23,6 @@ class TestBayesballPlayer(PlayerTestBase):
                                                 num_cols=num_cols)
 
 
-
     def test_player_name(self):
         ''' Basic test for setup '''
 
@@ -64,4 +63,43 @@ class TestBayesballPlayer(PlayerTestBase):
             state = self._generate_game_state(player1_state, [player2_state], deck_up, False)
             diff = self.bayesball_player._calc_score_diff(state, avg=5)
             self.assertEqual(diff, (6+10) - (4+10))
+
+
+    def test_turn_phase_1(self):
+        """ Test turn phase 1 under different scenarios to test probability based logic """
+
+        # State helper functions:
+        # def _generate_player_state(self, score, visible, raw_cards, num_rows=2, num_cols=2):
+        # def _generate_game_state(self, self_player_state, opp_players_state, deck_up, has_knocked)
+
+        # Setup basic bayesball player
+        self._setup_bayesball_player()
+
+        self_state = self._generate_player_state(score=3,
+                                                 visible=[True,False,True,False],
+                                                 raw_cards=[1,None,2,None])
+
+        opp_state = self._generate_player_state(score=20,
+                                                visible=[True,True,False,False],
+                                                raw_cards=[10,12,None,None])
+
+        state = self._generate_game_state(self_player_state=self_state,
+                                          opp_players_state=[opp_state],
+                                          deck_up=[10],
+                                          has_knocked=False)
+
+        with self.subTest(msg='Test when min_distance is met and other player has not knocked'):
+            # This player should choose to knock as the min_distance is met
+
+            action = self.bayesball_player.turn_phase_1(state)
+            self.assertEqual(action, 'knock')
+
+
+
+
+
+
+
+
+
 

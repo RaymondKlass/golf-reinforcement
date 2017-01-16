@@ -100,7 +100,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
             self.starting_epochs = 0
 
 
-
     def save_checkpoint(self, epochs):
         ''' Save a checkpoint file in the pre-specified directory, in a name - date format '''
 
@@ -159,7 +158,6 @@ class QWatkinsPlayer(TrainablePlayer, PlayerUtils):
 
         if was_verbose:
             self.verbose = True
-
 
 
     def turn_phase_2(self, card, state, possible_moves=['return_to_deck', 'swap']):
